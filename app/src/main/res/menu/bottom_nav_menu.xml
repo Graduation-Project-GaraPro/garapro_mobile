@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/homeFragment" android:title="Trang chủ" android:icon="@drawable/ic_home"/>
+    <item android:id="@+id/vehiclesFragment" android:title="Phương tiện" android:icon="@drawable/ic_car"/>
+    <item android:id="@+id/appointmentsFragment" android:title="Lịch hẹn" android:icon="@drawable/ic_calendar"/>
+    <item android:id="@+id/notificationsFragment" android:title="Thông báo" android:icon="@drawable/ic_notifications"/>
+    <item android:id="@+id/profileFragment" android:title="Hồ sơ" android:icon="@drawable/ic_user"/>
+</menu>
+
