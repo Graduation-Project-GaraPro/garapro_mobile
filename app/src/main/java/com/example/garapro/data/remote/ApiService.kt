@@ -3,6 +3,7 @@ package com.example.garapro.data.remote
 import android.content.Context
 import com.example.garapro.data.local.PersistentCookieJar
 import com.example.garapro.data.local.TokenManager
+import com.example.garapro.data.model.ImageResponse
 import com.example.garapro.data.model.LoginRequest
 import com.example.garapro.data.model.LoginResponse
 import com.example.garapro.data.model.RefreshTokenResponse
@@ -14,6 +15,7 @@ import com.example.garapro.data.model.otpRequest
 import com.example.garapro.data.model.otpResponse
 import com.example.garapro.data.model.otpVerifyRequest
 import com.example.garapro.utils.Constants
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
@@ -22,7 +24,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Part
 import java.util.concurrent.TimeUnit
 
 interface ApiService {
@@ -44,6 +49,15 @@ interface ApiService {
 
     @POST("auth/complete-registration")
     suspend fun signup(@Body request: SignupRequest): Response<SignupResponse>
+
+    @PUT("users/me")
+    suspend fun updateProfile(@Body request: User): Response<User>
+
+    @Multipart
+    @POST("ImageUpload/upload")
+    suspend fun uploadImage(
+        @Part file: MultipartBody.Part
+    ): Response<ImageResponse>
 
 
     object ApiClient {
