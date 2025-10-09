@@ -1,128 +1,167 @@
 package com.example.garapro.ui.profile
 
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import com.example.garapro.R
 import com.example.garapro.data.local.TokenManager
 import com.example.garapro.data.model.User
 import com.example.garapro.data.remote.ApiService
 import com.example.garapro.data.repository.UserRepository
+import com.example.garapro.databinding.ActivityEditProfileBinding
+import com.example.garapro.utils.Resource
 import kotlinx.coroutines.launch
 import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 import java.util.*
 
 class EditProfileActivity : AppCompatActivity() {
 
-    private lateinit var apiService: ApiService
+    private lateinit var binding: ActivityEditProfileBinding
     private lateinit var tokenManager: TokenManager
-    private lateinit var userRepository: UserRepository
+    private lateinit var apiService: ApiService
+    private lateinit var repository: UserRepository
+    private lateinit var viewModel: ProfileViewModel
 
-    private lateinit var edtFirstName: EditText
-    private lateinit var edtLastName: EditText
-    private lateinit var edtPhone: EditText
-    private lateinit var edtDob: EditText
-    private lateinit var btnSave: Button
-
-    private var selectedDateTime: DateTime? = null
-    private val dateFormatter = DateTimeFormat.forPattern("dd/MM/yyyy")
+    private var selectedDate: DateTime? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_edit_profile)
+        binding = ActivityEditProfileBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        // 🔹 Ánh xạ view
-        edtFirstName = findViewById(R.id.edtFirstName)
-        edtLastName = findViewById(R.id.edtLastName)
-        edtPhone = findViewById(R.id.edtPhone)
-        edtDob = findViewById(R.id.edtDob)
-        btnSave = findViewById(R.id.btnSave)
+        // 🧭 Toolbar setup
+        setSupportActionBar(binding.topAppBar)
 
+        // ✅ Khởi tạo ViewModel
         tokenManager = TokenManager(this)
         apiService = ApiService.ApiClient.getApiService(this, tokenManager)
-        userRepository = UserRepository(apiService, tokenManager)
+        repository = UserRepository(apiService)
+        viewModel = ProfileViewModel(repository)
 
-        // 🔹 Tải dữ liệu người dùng hiện tại
-        lifecycleScope.launch {
-            try {
-                val response = apiService.getMe()
-                if (response.isSuccessful) {
-                    val user = response.body()
-                    if (user != null) {
-                        edtFirstName.setText(user.firstName ?: "")
-                        edtLastName.setText(user.lastName ?: "")
-                        edtPhone.setText(user.phoneNumber ?: "")
-                        user.dateOfBirth?.let {
-                            selectedDateTime = it
-                            edtDob.setText(it.toString("dd/MM/yyyy"))
-                        }
-                    }
-                } else {
-                    Toast.makeText(this@EditProfileActivity, "Không tải được dữ liệu", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Toast.makeText(this@EditProfileActivity, "Lỗi tải dữ liệu: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+        setupObservers()
+
+        binding.topAppBar.setNavigationOnClickListener {
+            finish();
         }
+
+        // 🔹 Load thông tin người dùng
+        viewModel.loadUserInfo()
 
         // 🔹 Chọn ngày sinh
-        edtDob.setOnClickListener {
-            val now = Calendar.getInstance()
-            val year = selectedDateTime?.year ?: now.get(Calendar.YEAR)
-            val month = selectedDateTime?.monthOfYear?.minus(1) ?: now.get(Calendar.MONTH)
-            val day = selectedDateTime?.dayOfMonth ?: now.get(Calendar.DAY_OF_MONTH)
+        binding.edtDob.setOnClickListener { showDatePicker() }
 
-            val datePicker = DatePickerDialog(
-                this,
-                { _, y, m, d ->
-                    selectedDateTime = DateTime(y, m + 1, d, 0, 0)
-                    edtDob.setText(selectedDateTime!!.toString("dd/MM/yyyy"))
-                },
-                year, month, day
-            )
-            datePicker.datePicker.maxDate = System.currentTimeMillis() // 🔒 Không cho chọn ngày tương lai
-            datePicker.show()
+        // 🔹 Chọn ảnh
+        binding.btnChangeAvatar.setOnClickListener {
+            Toast.makeText(this, "Chọn ảnh đại diện (chưa xử lý)", Toast.LENGTH_SHORT).show()
         }
+    }
 
-        // 🔹 Sự kiện lưu
-        btnSave.setOnClickListener {
-            val firstName = edtFirstName.text.toString().trim()
-            val lastName = edtLastName.text.toString().trim()
-            val phone = edtPhone.text.toString().trim()
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_edit_profile, menu)
+        return true
+    }
 
-            if (firstName.isEmpty() || lastName.isEmpty()) {
-                Toast.makeText(this, "Vui lòng nhập đầy đủ họ tên", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_save -> {
+                saveProfile()
+                true
             }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 
-            val updatedUser = User(
-                firstName = firstName,
-                lastName = lastName,
-                phoneNumber = phone,
-                dateOfBirth = selectedDateTime,
-                gender = null,
-                email = null,
-                avatar = null
-            )
-
-            lifecycleScope.launch {
-                try {
-                    val response = apiService.updateProfile(updatedUser)
-                    if (response.isSuccessful) {
-                        Toast.makeText(this@EditProfileActivity, "✅ Cập nhật thành công", Toast.LENGTH_SHORT).show()
-                        finish()
-                    } else {
-                        Toast.makeText(this@EditProfileActivity, "❌ Lỗi: ${response.code()}", Toast.LENGTH_SHORT).show()
+    /** Quan sát LiveData từ ViewModel */
+    private fun setupObservers() {
+        viewModel.userState.observe(this) { result ->
+            when (result) {
+                is Resource.Loading -> {
+                    // TODO: Hiện loading UI
+                }
+                is Resource.Success -> {
+                    val user = result.data!!
+                    binding.edtFirstName.setText(user.firstName ?: "")
+                    binding.edtLastName.setText(user.lastName ?: "")
+                    binding.edtEmail.setText(user.email ?: "")
+                    binding.edtPhone.setText(user.phoneNumber ?: "")
+                    user.dateOfBirth?.let {
+                        selectedDate = it
+                        binding.edtDob.setText(it.toString("dd/MM/yyyy"))
                     }
-                } catch (e: Exception) {
-                    Toast.makeText(this@EditProfileActivity, "Lỗi cập nhật: ${e.message}", Toast.LENGTH_SHORT).show()
+
+                    if (!user.avatar.isNullOrEmpty()) {
+                        Glide.with(this)
+                            .load(user.avatar)
+                            .placeholder(R.drawable.ic_user)
+                            .into(binding.imgAvatar)
+                    }
+                }
+                is Resource.Error -> {
+                    Toast.makeText(this, result.message, Toast.LENGTH_SHORT).show()
                 }
             }
         }
+
+        viewModel.updateState.observe(this) { result ->
+            when (result) {
+                is Resource.Loading -> {
+                    Toast.makeText(this, "Đang lưu...", Toast.LENGTH_SHORT).show()
+                }
+                is Resource.Success -> {
+                    Toast.makeText(this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show()
+                    setResult(Activity.RESULT_OK)
+                    finish()
+                }
+                is Resource.Error -> {
+                    Toast.makeText(this, result.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun showDatePicker() {
+        val now = Calendar.getInstance()
+        val year = selectedDate?.year ?: now.get(Calendar.YEAR)
+        val month = selectedDate?.monthOfYear?.minus(1) ?: now.get(Calendar.MONTH)
+        val day = selectedDate?.dayOfMonth ?: now.get(Calendar.DAY_OF_MONTH)
+
+        val datePicker = DatePickerDialog(
+            this,
+            { _, y, m, d ->
+                selectedDate = DateTime(y, m + 1, d, 0, 0)
+                binding.edtDob.setText(selectedDate!!.toString("dd/MM/yyyy"))
+            },
+            year, month, day
+        )
+        datePicker.datePicker.maxDate = System.currentTimeMillis()
+        datePicker.show()
+    }
+
+    private fun saveProfile() {
+        val firstName = binding.edtFirstName.text.toString().trim()
+        val lastName = binding.edtLastName.text.toString().trim()
+        val phone = binding.edtPhone.text.toString().trim()
+        val dob = binding.edtDob.text.toString().trim()
+
+        if (firstName.isEmpty() || lastName.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập đầy đủ họ tên", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val updatedUser = User(
+            firstName = firstName,
+            lastName = lastName,
+            phoneNumber = phone,
+            dateOfBirth = selectedDate
+        )
+
+        viewModel.updateUser(updatedUser)
     }
 }

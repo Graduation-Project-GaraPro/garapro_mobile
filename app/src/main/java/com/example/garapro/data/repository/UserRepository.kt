@@ -13,8 +13,7 @@ import retrofit2.HttpException
 import java.io.IOException
 
 class UserRepository(
-    private val apiService: ApiService,
-    private val tokenManager: TokenManager
+    private val apiService: ApiService
 ) {
 
     fun getMe(): Flow<Resource<User>> = flow {
