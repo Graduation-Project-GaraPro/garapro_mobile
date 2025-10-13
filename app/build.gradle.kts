@@ -87,4 +87,8 @@ dependencies {
     implementation("com.google.protobuf:protobuf-javalite:3.21.12")
     implementation("joda-time:joda-time:2.12.7")
     implementation("de.hdodenhof:circleimageview:3.1.0")
+
+        implementation ("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
+
+
 }
