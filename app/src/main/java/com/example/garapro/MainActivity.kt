@@ -26,22 +26,37 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val token = tokenManager.getAccessTokenSync()
             if (token.isNullOrEmpty()) {
-                // Không có token → quay về Login
                 startActivity(Intent(this@MainActivity, LoginActivity::class.java))
                 finish()
             } else {
-                // Có token → khởi động Navigation
-                setupNavigation()
+                val role = tokenManager.getUserRole() // lấy role bạn lưu khi login
+                setupNavigationByRole(role)
             }
         }
     }
 
-    private fun setupNavigation() {
+    private fun setupNavigationByRole(role: String?) {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
+        val navInflater = navController.navInflater
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
+
+        when (role) {
+            "Technician" -> {
+                navController.graph = navInflater.inflate(R.navigation.nav_technician)
+                bottomNav.menu.clear()
+                bottomNav.inflateMenu(R.menu.bottom_nav_technician)
+            }
+            else -> {
+                navController.graph = navInflater.inflate(R.navigation.nav_customer)
+                bottomNav.menu.clear()
+                bottomNav.inflateMenu(R.menu.bottom_nav_customer)
+            }
+        }
+
         bottomNav.setupWithNavController(navController)
     }
+
 }

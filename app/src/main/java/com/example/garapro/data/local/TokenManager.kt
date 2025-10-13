@@ -2,6 +2,7 @@ package com.example.garapro.data.local
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -18,6 +19,8 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
 class TokenManager(private val context: Context) {
 
     private val ACCESS_TOKEN_KEY = stringPreferencesKey(Constants.ACCESS_TOKEN_KEY)
+    private val USER_ROLE_KEY = stringPreferencesKey("user_role")
+
 
     suspend fun saveAccessToken(accessToken: String) {
         context.dataStore.edit { preferences ->
@@ -40,4 +43,17 @@ class TokenManager(private val context: Context) {
             preferences.remove(ACCESS_TOKEN_KEY)
         }
     }
+
+    suspend fun saveUserRole(role: String) {
+        context.dataStore.edit { it[USER_ROLE_KEY] = role }
+    }
+
+    suspend fun getUserRole(): String? {
+        return context.dataStore.data.first()[USER_ROLE_KEY]
+    }
+
+    suspend fun clearUserRole() {
+        context.dataStore.edit { it.remove(USER_ROLE_KEY) }
+    }
+
 }

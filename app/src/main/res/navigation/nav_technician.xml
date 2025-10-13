@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_technician"
+    app:startDestination="@id/homeFragment">
+
+    <!-- Home -->
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.garapro.ui.home.HomeFragment"
+        android:label="Trang chính"
+        tools:layout="@layout/fragment_home" />
+
+    <!-- Work schedule -->
+    <fragment
+        android:id="@+id/workScheduleFragment"
+        android:name="com.example.garapro.ui.technician.WorkScheduleFragment"
+        android:label="Lịch làm việc"
+        tools:layout="@layout/fragment_work_schedule" />
+
+    <!-- Reports -->
+    <fragment
+        android:id="@+id/reportsFragment"
+        android:name="com.example.garapro.ui.technician.ReportsFragment"
+        android:label="Báo cáo"
+        tools:layout="@layout/fragment_reports" />
+
+    <!-- Notifications -->
+    <fragment
+        android:id="@+id/notificationsFragment"
+        android:name="com.example.garapro.ui.notifications.NotificationsFragment"
+        android:label="Thông báo"
+        tools:layout="@layout/fragment_notifications" />
+
+    <!-- Profile -->
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.garapro.ui.profile.ProfileFragment"
+        android:label="Hồ sơ"
+        tools:layout="@layout/fragment_profile" />
+</navigation>

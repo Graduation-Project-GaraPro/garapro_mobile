@@ -33,6 +33,9 @@ class AuthRepository(
                 if (loginResponse.token != null) {
                     // Lưu token
                     tokenManager.saveAccessToken(loginResponse.token)
+                    loginResponse.roles.let {
+                        tokenManager.saveUserRole(it.first())
+                    }
                     emit(Resource.Success(loginResponse))
                 } else {
                     emit(Resource.Error(loginResponse.toString()))

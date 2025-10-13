@@ -1,6 +1,8 @@
 package com.example.garapro.data.remote
 
 import android.content.Context
+import android.content.Intent
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.garapro.data.local.PersistentCookieJar
 import com.example.garapro.data.local.TokenManager
 import com.example.garapro.data.model.ImageResponse
@@ -15,6 +17,7 @@ import com.example.garapro.data.model.otpRequest
 import com.example.garapro.data.model.otpResponse
 import com.example.garapro.data.model.otpVerifyRequest
 import com.example.garapro.utils.Constants
+import kotlinx.coroutines.runBlocking
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -91,23 +94,42 @@ interface ApiService {
                 return instance!!
             }
 
-            val loggingInterceptor = HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            }
+
 
             val clientBuilder = OkHttpClient.Builder()
-                .cookieJar(cookieJar!!) // Thêm CookieJar để tự động lưu/gửi cookies
-                .addInterceptor(loggingInterceptor)
+                .cookieJar(cookieJar!!)
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
 
-            // Thêm AuthInterceptor nếu có tokenManager
+// ⚠️ Đặt AuthInterceptor TRƯỚC
             if (tokenManager != null) {
                 val tempApiService = createTempApiService(context)
                 clientBuilder.addInterceptor(
-                    AuthInterceptor(tokenManager, tempApiService)
+                    AuthInterceptor(
+                        tokenManager,
+                        tempApiService,
+                        object : TokenExpiredListener {
+                            override fun onTokenExpired() {
+                                // Chạy trong coroutine để xóa token
+                                runBlocking {
+                                    tokenManager.clearTokens()
+                                }
+
+                                // Gửi broadcast cho UI biết là token hết hạn
+                                LocalBroadcastManager.getInstance(context)
+                                    .sendBroadcast(Intent("TOKEN_EXPIRED"))
+                            }
+                        }
+                    )
                 )
             }
+
+// ⚠️ LoggingInterceptor nên ĐẶT CUỐI CÙNG
+            val loggingInterceptor = HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            }
+            clientBuilder.addInterceptor(loggingInterceptor)
+
 
             val client = clientBuilder.build()
 
