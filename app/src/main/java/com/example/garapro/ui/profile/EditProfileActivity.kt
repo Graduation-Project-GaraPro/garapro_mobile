@@ -2,11 +2,14 @@ package com.example.garapro.ui.profile
 
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.activity.viewModels
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -18,7 +21,13 @@ import com.example.garapro.data.repository.UserRepository
 import com.example.garapro.databinding.ActivityEditProfileBinding
 import com.example.garapro.utils.Resource
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import org.joda.time.DateTime
+import java.io.File
+import java.io.FileOutputStream
 import java.util.*
 
 class EditProfileActivity : AppCompatActivity() {
@@ -31,6 +40,12 @@ class EditProfileActivity : AppCompatActivity() {
 
     private var selectedDate: DateTime? = null
 
+    // 🆕 Ảnh tạm thời người dùng chọn
+    private var tempImageUri: Uri? = null
+
+    // 🆕 Launcher chọn ảnh
+    private lateinit var imagePickerLauncher: ActivityResultLauncher<String>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityEditProfileBinding.inflate(layoutInflater)
@@ -39,7 +54,6 @@ class EditProfileActivity : AppCompatActivity() {
         // 🧭 Toolbar setup
         setSupportActionBar(binding.topAppBar)
 
-        // ✅ Khởi tạo ViewModel
         tokenManager = TokenManager(this)
         apiService = ApiService.ApiClient.getApiService(this, tokenManager)
         repository = UserRepository(apiService)
@@ -47,9 +61,7 @@ class EditProfileActivity : AppCompatActivity() {
 
         setupObservers()
 
-        binding.topAppBar.setNavigationOnClickListener {
-            finish();
-        }
+        binding.topAppBar.setNavigationOnClickListener { finish() }
 
         // 🔹 Load thông tin người dùng
         viewModel.loadUserInfo()
@@ -57,9 +69,22 @@ class EditProfileActivity : AppCompatActivity() {
         // 🔹 Chọn ngày sinh
         binding.edtDob.setOnClickListener { showDatePicker() }
 
+        // 🆕 Đăng ký chọn ảnh
+        imagePickerLauncher = registerForActivityResult(
+            ActivityResultContracts.GetContent()
+        ) { uri: Uri? ->
+            uri?.let {
+                tempImageUri = it // lưu ảnh tạm
+                Glide.with(this)
+                    .load(it)
+                    .placeholder(R.drawable.ic_user)
+                    .into(binding.imgAvatar)
+            }
+        }
+
         // 🔹 Chọn ảnh
         binding.btnChangeAvatar.setOnClickListener {
-            Toast.makeText(this, "Chọn ảnh đại diện (chưa xử lý)", Toast.LENGTH_SHORT).show()
+            imagePickerLauncher.launch("image/*")
         }
     }
 
@@ -74,6 +99,7 @@ class EditProfileActivity : AppCompatActivity() {
                 saveProfile()
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -82,9 +108,7 @@ class EditProfileActivity : AppCompatActivity() {
     private fun setupObservers() {
         viewModel.userState.observe(this) { result ->
             when (result) {
-                is Resource.Loading -> {
-                    // TODO: Hiện loading UI
-                }
+                is Resource.Loading -> {}
                 is Resource.Success -> {
                     val user = result.data!!
                     binding.edtFirstName.setText(user.firstName ?: "")
@@ -103,6 +127,7 @@ class EditProfileActivity : AppCompatActivity() {
                             .into(binding.imgAvatar)
                     }
                 }
+
                 is Resource.Error -> {
                     Toast.makeText(this, result.message, Toast.LENGTH_SHORT).show()
                 }
@@ -114,13 +139,34 @@ class EditProfileActivity : AppCompatActivity() {
                 is Resource.Loading -> {
                     Toast.makeText(this, "Đang lưu...", Toast.LENGTH_SHORT).show()
                 }
+
                 is Resource.Success -> {
                     Toast.makeText(this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show()
                     setResult(Activity.RESULT_OK)
                     finish()
                 }
+
                 is Resource.Error -> {
                     Toast.makeText(this, result.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        // 🆕 Quan sát upload ảnh
+        viewModel.uploadState.observe(this) { result ->
+            when (result) {
+                is Resource.Loading -> {
+                    Toast.makeText(this, "Đang tải ảnh lên...", Toast.LENGTH_SHORT).show()
+                }
+
+                is Resource.Success -> {
+                    val imageUrl = result.data?.imageUrl
+                    saveProfileToServer(imageUrl)
+                }
+
+                is Resource.Error -> {
+                    Toast.makeText(this, "Upload thất bại: ${result.message}", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         }
@@ -148,20 +194,44 @@ class EditProfileActivity : AppCompatActivity() {
         val firstName = binding.edtFirstName.text.toString().trim()
         val lastName = binding.edtLastName.text.toString().trim()
         val phone = binding.edtPhone.text.toString().trim()
-        val dob = binding.edtDob.text.toString().trim()
 
         if (firstName.isEmpty() || lastName.isEmpty()) {
             Toast.makeText(this, "Vui lòng nhập đầy đủ họ tên", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val updatedUser = User(
-            firstName = firstName,
-            lastName = lastName,
-            phoneNumber = phone,
-            dateOfBirth = selectedDate
-        )
+        // 🆕 Nếu có ảnh tạm, upload ảnh trước
+        tempImageUri?.let {
+            val file = uriToFile(it)
+            val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+            val filePart = MultipartBody.Part.createFormData("file", file.name, requestFile)
+            viewModel.uploadImage(filePart)
+        } ?: run {
+            // Nếu không có ảnh, chỉ update user
+            saveProfileToServer(null)
+        }
+    }
 
+    // 🆕 Upload xong mới gọi hàm này
+    private fun saveProfileToServer(imageUrl: String?) {
+        val updatedUser = User(
+            firstName = binding.edtFirstName.text.toString().trim(),
+            lastName = binding.edtLastName.text.toString().trim(),
+            phoneNumber = binding.edtPhone.text.toString().trim(),
+            dateOfBirth = selectedDate,
+            avatar = imageUrl
+        )
         viewModel.updateUser(updatedUser)
+    }
+
+    // 🆕 Convert Uri -> File tạm
+    private fun uriToFile(uri: Uri): File {
+        val inputStream = contentResolver.openInputStream(uri)!!
+        val file = File(cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
+        val outputStream = FileOutputStream(file)
+        inputStream.copyTo(outputStream)
+        outputStream.close()
+        inputStream.close()
+        return file
     }
 }

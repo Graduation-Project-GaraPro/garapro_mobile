@@ -1,6 +1,7 @@
 package com.example.garapro.ui.profile
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -17,6 +18,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bumptech.glide.Glide
 import com.example.garapro.data.local.TokenManager
 import com.example.garapro.data.remote.ApiService
+import com.example.garapro.data.repository.AuthRepository
 import com.example.garapro.data.repository.UserRepository
 import com.example.garapro.databinding.FragmentProfileBinding
 import com.example.garapro.ui.login.LoginActivity
@@ -44,6 +46,7 @@ class ProfileFragment : Fragment() {
         val tokenManager = TokenManager(requireContext())
         val apiService = ApiService.create(requireContext(), tokenManager)
         val repository = UserRepository(apiService)
+
         viewModel = ProfileViewModel(repository)
         editProfileLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -76,6 +79,17 @@ class ProfileFragment : Fragment() {
 
         LocalBroadcastManager.getInstance(requireContext())
             .registerReceiver(receiver, IntentFilter("TOKEN_EXPIRED"))
+
+        binding.btnLogout.setOnClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Đăng xuất")
+                .setMessage("Bạn có chắc muốn đăng xuất không?")
+                .setPositiveButton("Có") { _, _ ->
+                    viewModel.logout(requireContext())
+                }
+                .setNegativeButton("Hủy", null)
+                .show()
+        }
 
 
         setupObservers()

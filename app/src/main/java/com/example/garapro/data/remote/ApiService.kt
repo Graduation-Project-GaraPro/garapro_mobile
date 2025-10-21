@@ -17,10 +17,13 @@ import com.example.garapro.data.model.otpRequest
 import com.example.garapro.data.model.otpResponse
 import com.example.garapro.data.model.otpVerifyRequest
 import com.example.garapro.utils.Constants
+import com.example.garapro.utils.DateTimeTypeAdapter
+import com.google.gson.GsonBuilder
 import kotlinx.coroutines.runBlocking
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.joda.time.DateTime
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -130,13 +133,16 @@ interface ApiService {
             }
             clientBuilder.addInterceptor(loggingInterceptor)
 
+            val gson = GsonBuilder()
+                .registerTypeAdapter(DateTime::class.java, DateTimeTypeAdapter())
+                .create()
 
             val client = clientBuilder.build()
 
             val apiService = Retrofit.Builder()
                 .baseUrl(Constants.BASE_URL)
                 .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .build()
                 .create(ApiService::class.java)
 

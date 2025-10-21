@@ -1,4 +1,5 @@
 plugins {
+    id("com.google.gms.google-services")
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
 }
@@ -50,6 +51,7 @@ dependencies {
     implementation(libs.androidx.navigation.fragment)
     implementation(libs.androidx.material3.android)
     implementation(libs.protolite.well.known.types)
+    implementation(libs.firebase.messaging.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -88,7 +90,11 @@ dependencies {
     implementation("joda-time:joda-time:2.12.7")
     implementation("de.hdodenhof:circleimageview:3.1.0")
 
-        implementation ("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
+    implementation ("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
+
+    implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
+    implementation("com.google.firebase:firebase-messaging")
+    implementation("com.google.firebase:firebase-analytics")
 
 
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "943673602575",
+    "project_id": "garapro-firebase",
+    "storage_bucket": "garapro-firebase.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:943673602575:android:328430b228230e6457297a",
+        "android_client_info": {
+          "package_name": "com.example.garapro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxsBILMw2eSzVrv6eh0DfU46YAsvyl184"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
