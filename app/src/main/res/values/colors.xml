@@ -23,8 +23,26 @@
     <color name="warning">#FF9800</color>
     <color name="info">#2196F3</color>
 
+
     <!-- Common colors -->
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
+    <color name="primary_color">#2196F3</color>
+    <color name="gray">#757575</color>
+    <color name="selected_color">#E3F2FD</color>
+
+    <!-- New colors for part item -->
+    <color name="green">#4CAF50</color>
+    <color name="red">#F44336</color>
+    <color name="orange">#FF9800</color>
+    <color name="blue">#2196F3</color>
+
+
+
+    <color name="divider">#E0E0E0</color>
+
+
+
+
 </resources>

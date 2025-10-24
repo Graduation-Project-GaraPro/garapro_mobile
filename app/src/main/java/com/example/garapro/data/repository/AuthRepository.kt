@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import java.io.IOException
+import kotlin.math.log
 
 class AuthRepository(
     private val apiService: ApiService,
@@ -47,7 +48,8 @@ class AuthRepository(
         } catch (e: HttpException) {
             emit(Resource.Error("Lỗi server: ${e.localizedMessage}"))
         } catch (e: IOException) {
-            emit(Resource.Error("Lỗi kết nối: Kiểm tra internet của bạn"))
+            emit(Resource.Error("Lỗi kết nối: Kiểm tra internet của bạn ${e.localizedMessage}"))
+
         } catch (e: Exception) {
             emit(Resource.Error("Lỗi không xác định: ${e.localizedMessage}"))
         }

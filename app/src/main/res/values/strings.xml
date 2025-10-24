@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">GaraPro</string>
+
+    <string-array name="empty_array">
+        <item></item>
+    </string-array>
 </resources>
