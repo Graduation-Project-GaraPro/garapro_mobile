@@ -48,5 +48,8 @@
     <!-- Chip selector -->
     <color name="chip_selector">#E0E0E0</color>
 
+    <color name="selected_part_bg">#E8F5E8</color>
+    <color name="unselected_part_bg">#FFFFFF</color>
+
     <color name="checkbox_disabled">#BDBDBD</color>
 </resources>

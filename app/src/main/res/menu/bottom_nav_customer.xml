@@ -13,7 +13,7 @@
     <item
         android:id="@+id/repairTrackingFragment"
         android:icon="@drawable/ic_repair"
-        android:title="Quá trình sửa chữa" />
+        android:title="sửa chữa" />
 
     <item
         android:id="@+id/profileFragment"

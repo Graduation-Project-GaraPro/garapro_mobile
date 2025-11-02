@@ -3,14 +3,19 @@ package com.example.garapro.ui.quotations
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.example.garapro.R
 import com.example.garapro.data.model.quotations.QuotationServicePart
 import com.example.garapro.databinding.ItemQuotationPartBinding
+import com.example.garapro.utils.MoneyUtils
 import java.text.NumberFormat
 import java.util.Locale
 
 class QuotationPartAdapter(
     private val parts: List<QuotationServicePart>,
+
+    private val isEditable: Boolean,
     private val onPartToggle: (String) -> Unit
 ) : RecyclerView.Adapter<QuotationPartAdapter.ViewHolder>() {
 
@@ -31,23 +36,28 @@ class QuotationPartAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(part: QuotationServicePart) {
-            binding.tvPartName.text = part.partName
-            binding.tvPartDescription.text = part.partDescription
-            binding.tvPartPrice.text = formatCurrency(part.totalPrice)
-            binding.cbPart.isChecked = part.isSelected
-            binding.tvRecommendation.visibility =
-                if (part.isRecommended) View.VISIBLE else View.GONE
-            binding.tvRecommendationNote.text = part.recommendationNote
+            try {
+                binding.tvPartName.text = part.partName
+//                binding.tvPartPrice.text = MoneyUtils.formatVietnameseCurrency(part.totalPrice)
+                binding.tvQuantity.text = "Số lượng: ${part.quantity}"
+                binding.cbPart.isChecked = part.isSelected
+                binding.cbPart.isEnabled = isEditable
 
-            binding.cbPart.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked != part.isSelected) {
-                    onPartToggle(part.quotationServicePartId)
+                // 🔥 HIỂN THỊ TRẠNG THÁI ĐÃ CHỌN
+                if (part.isSelected) {
+                    binding.root.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.selected_part_bg))
+                } else {
+                    binding.root.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.unselected_part_bg))
                 }
-            }
-        }
 
-        private fun formatCurrency(amount: Double): String {
-            return NumberFormat.getCurrencyInstance(Locale("vi", "VN")).format(amount)
+                binding.cbPart.setOnCheckedChangeListener { _, isChecked ->
+                    if (isChecked != part.isSelected && isEditable) {
+                        onPartToggle(part.quotationServicePartId)
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 }

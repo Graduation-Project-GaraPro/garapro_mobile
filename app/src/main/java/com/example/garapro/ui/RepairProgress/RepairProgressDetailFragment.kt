@@ -113,8 +113,8 @@ class RepairProgressDetailFragment : Fragment() {
             // Order Details
             receiveDate.text = formatDate(detail.receiveDate)
             estimatedCompletionDate.text = formatDate(detail.estimatedCompletionDate)
-            roType.text = detail.roType
-            paidStatus.text = detail.paidStatus
+            roType.text = getROTypeNameVietnamese(detail.roType)
+            paidStatus.text = getPaidStatusVietnamese(detail.paidStatus)
             note.text = detail.note ?: "No note"
 
             // Financial Info
@@ -126,7 +126,7 @@ class RepairProgressDetailFragment : Fragment() {
             progressStatus.text = detail.progressStatus
             progressPercentage.text = "${detail.progressPercentage}%"
             progressJobBar.progress = detail.progressPercentage
-            statusName.text = detail.orderStatus.statusName
+            statusName.text = getStatusNameVietnamese(detail.orderStatus.statusName)
 
             // Set status color based on status
             setStatusColor(detail.orderStatus.statusName)
@@ -158,6 +158,16 @@ class RepairProgressDetailFragment : Fragment() {
 //        }
     }
 
+    private fun getJobStatusNameVietnamese(statusName: String): String {
+        return when (statusName) {
+            "Pending" -> "Đang chờ"
+            "New" -> "Mới"
+            "InProgress" -> "Đang sửa"
+            "Completed" -> "Hoàn tất"
+            "OnHold" -> "Tạm dừng"
+            else -> "Không xác định"
+        }
+    }
     private fun setStatusColor(statusName: String) {
         val color = when (statusName) {
             "Completed" -> ContextCompat.getColor(requireContext(), R.color.green)
@@ -168,6 +178,33 @@ class RepairProgressDetailFragment : Fragment() {
         }
         binding.statusName.setBackgroundColor(color)
     }
+
+    private fun getStatusNameVietnamese(statusName: String): String{
+        return when (statusName) {
+            "Completed" -> "Hoàn tất"
+            "In Progress" -> "Đang sửa"
+            "Pending" -> "Đang xử lý"
+            else -> "Không xác định"
+        }
+    }
+    private fun getPaidStatusVietnamese(statusName: String): String{
+        return when (statusName) {
+            "Paid" -> "Đã thanh toán"
+            "Partial" -> "Trả 1 phần"
+            "Pending" -> "chưa thanh toán"
+            else -> "Không xác định"
+        }
+    }
+
+    private fun getROTypeNameVietnamese(statusName: String): String{
+        return when (statusName) {
+            "WalkIn" -> "vãng lai"
+            "Scheduled" -> "Đặt lịch"
+            "Breakdown" -> "Sự cố"
+            else -> "Không xác định"
+        }
+    }
+
 
     private fun formatDate(dateString: String?): String {
         if (dateString == null) return "N/A"

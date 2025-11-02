@@ -62,13 +62,13 @@ class RepairOrderAdapter(
             binding.apply {
                 vehicleInfo.text = "${item.vehicleLicensePlate} • ${item.vehicleModel}"
                 receiveDate.text = formatDate(item.receiveDate)
-                statusText.text = item.statusName
+                statusText.text = getStatusNameVietnamese(item.statusName)
                 progressStatus.text = item.progressStatus
                 progressPercentage.text = (item.progressPercentage?.toString() ?: "0") + "%"
                 progressBar.progress = item.progressPercentage
                 costText.text = formatCurrency(item.cost)
-                paidStatusText.text = item.paidStatus
-                roTypeText.text = item.roType
+                paidStatusText.text = getPaidStatusVietnamese(item.paidStatus)
+                roTypeText.text = getROTypeNameVietnamese(item.roType)
                 Log.d("progressPercentage",item.progressPercentage.toString())
                 // Set status color
                 val statusColor = getStatusColor(item.statusName)
@@ -115,6 +115,31 @@ class RepairOrderAdapter(
                 "In Progress" -> ContextCompat.getColor(binding.root.context, R.color.blue)
                 "Pending" -> ContextCompat.getColor(binding.root.context, R.color.orange)
                 else -> ContextCompat.getColor(binding.root.context, R.color.gray)
+            }
+        }
+        private fun getStatusNameVietnamese(statusName: String): String{
+            return when (statusName) {
+                "Completed" -> "Hoàn tất"
+                "In Progress" -> "Đang sửa"
+                "Pending" -> "Đang xử lý"
+                else -> "Không xác định"
+            }
+        }
+        private fun getPaidStatusVietnamese(statusName: String): String{
+            return when (statusName) {
+                "Paid" -> "Đã thanh toán"
+                "Partial" -> "Trả 1 phần"
+                "Pending" -> "chưa thanh toán"
+                else -> "Không xác định"
+            }
+        }
+
+        private fun getROTypeNameVietnamese(statusName: String): String{
+            return when (statusName) {
+                "WalkIn" -> "vãng lai"
+                "Scheduled" -> "Đặt lịch"
+                "Breakdown" -> "Sự cố"
+                else -> "Không xác định"
             }
         }
     }

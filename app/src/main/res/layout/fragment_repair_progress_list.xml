@@ -52,13 +52,14 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:visibility="gone"
-                android:background="@color/surface"
+                android:background="#FFFFFF"
                 android:elevation="4dp">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Filter Options"
+                    android:textColor="#000000"
                     android:textStyle="bold"
                     android:textSize="16sp"
                     android:padding="16dp" />
@@ -68,7 +69,10 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     app:cardCornerRadius="8dp"
-                    app:cardElevation="2dp">
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    app:strokeColor="#E0E0E0"
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -79,16 +83,20 @@
                         <!-- Status Filter -->
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/statusFilterLayout"
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Status"
+                            android:hint=" Trạng thái hoàn thành"
+                            app:boxBackgroundColor="#FFFFFF"
+                            app:boxStrokeColor="#000000"
+                            app:hintTextColor="#666666"
                             app:endIconMode="dropdown_menu">
 
                             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                                 android:id="@+id/statusFilter"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textColor="#000000"
+                                android:paddingStart="8dp"
                                 android:inputType="none"
                                 android:focusable="false" />
 
@@ -97,17 +105,21 @@
                         <!-- RO Type Filter -->
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/roTypeFilterLayout"
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:hint="RO Type"
+                            android:hint=" Loại Order"
+                            app:boxBackgroundColor="#FFFFFF"
+                            app:boxStrokeColor="#000000"
+                            app:hintTextColor="#666666"
                             app:endIconMode="dropdown_menu">
 
                             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                                 android:id="@+id/roTypeFilter"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textColor="#000000"
+                                android:paddingStart="8dp"
                                 android:inputType="none"
                                 android:focusable="false" />
 
@@ -116,17 +128,21 @@
                         <!-- Paid Status Filter -->
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/paidStatusFilterLayout"
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:hint="Paid Status"
+                            android:hint=" Trạng thái thanh toán"
+                            app:boxBackgroundColor="#FFFFFF"
+                            app:boxStrokeColor="#000000"
+                            app:hintTextColor="#666666"
                             app:endIconMode="dropdown_menu">
 
                             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                                 android:id="@+id/paidStatusFilter"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:textColor="#000000"
+                                android:paddingStart="8dp"
                                 android:inputType="none"
                                 android:focusable="false" />
 
@@ -135,12 +151,17 @@
                         <!-- Date Range Filter -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/dateFilter"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:text="Select Date Range"
-                            app:icon="@drawable/ic_calendar" />
+                            android:backgroundTint="#FFFFFF"
+                            android:textColor="#000000"
+                            app:strokeColor="#000000"
+                            app:strokeWidth="1dp"
+                            app:icon="@drawable/ic_calendar"
+                            app:iconTint="#000000"
+                            app:cornerRadius="8dp" />
 
                         <!-- Action Buttons -->
                         <LinearLayout
@@ -151,20 +172,24 @@
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/clearFilterButton"
-                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="Clear" />
+                                android:text="Xóa lọc"
+                                android:backgroundTint="#E0E0E0"
+                                android:textColor="#000000"
+                                app:cornerRadius="8dp" />
 
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/applyFilterButton"
-                                style="@style/Widget.Material3.Button"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginStart="8dp"
-                                android:text="Apply" />
+<!--                            <com.google.android.material.button.MaterialButton-->
+<!--                                android:id="@+id/applyFilterButton"-->
+<!--                                android:layout_width="0dp"-->
+<!--                                android:layout_height="wrap_content"-->
+<!--                                android:layout_weight="1"-->
+<!--                                android:layout_marginStart="8dp"-->
+<!--                                android:text="Apply"-->
+<!--                                android:backgroundTint="#000000"-->
+<!--                                android:textColor="#FFFFFF"-->
+<!--                                app:cornerRadius="8dp" />-->
 
                         </LinearLayout>
 
@@ -193,6 +218,8 @@
                         android:visibility="gone" />
 
                     <!-- RecyclerView -->
+
+                    <!-- Empty State -->
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recyclerView"
                         android:layout_width="match_parent"
@@ -201,7 +228,6 @@
                         android:padding="8dp"
                         tools:listitem="@layout/item_repair_order" />
 
-                    <!-- Empty State -->
                     <LinearLayout
                         android:id="@+id/emptyState"
                         android:layout_width="match_parent"
@@ -227,14 +253,14 @@
                             android:textSize="16sp"
                             android:textStyle="bold" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:gravity="center"
-                            android:text="There are no repair orders to display at the moment"
-                            android:textColor="@color/gray"
-                            android:textSize="14sp" />
+<!--                        <TextView-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_marginTop="8dp"-->
+<!--                            android:gravity="center"-->
+<!--                            android:text="There are no repair orders to display at the moment"-->
+<!--                            android:textColor="@color/gray"-->
+<!--                            android:textSize="14sp" />-->
 
                     </LinearLayout>
 
@@ -248,12 +274,14 @@
 
     <!-- Filter FAB -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/filterButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_filter"
-        app:tint="@color/white" />
+    android:id="@+id/filterButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom|end"
+    android:layout_margin="16dp"
+    android:src="@drawable/ic_filter"
+    app:backgroundTint="#FFFFFF"
+    app:tint="#000000"
+    app:borderWidth="1dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

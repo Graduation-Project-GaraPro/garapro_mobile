@@ -4,21 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:background="#FFFFFF">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/background"
-        android:elevation="0dp">
+        android:background="#FFFFFF"
+        android:elevation="2dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/background"
+            android:background="#FFFFFF"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:title="Repair Order Details" />
+            app:title="Chi tiết Đơn sửa chữa"
+            app:titleTextColor="#000000" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -38,7 +39,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:strokeColor="#E0E0E0"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -49,8 +53,8 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Order Overview"
-                        android:textColor="@color/black"
+                        android:text="Tổng quan Đơn hàng"
+                        android:textColor="#000000"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -58,7 +62,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_marginVertical="12dp"
-                        android:background="@color/gray_light" />
+                        android:background="#E0E0E0" />
 
                     <!-- Vehicle Info -->
                     <LinearLayout
@@ -71,7 +75,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_car"
-                            app:tint="@color/primary" />
+                            app:tint="#000000" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -85,7 +89,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="51F67890 • Civic • 2018"
-                                android:textColor="@color/black"
+                                android:textColor="#000000"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
 
@@ -95,7 +99,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="Honda"
-                                android:textColor="@color/gray"
+                                android:textColor="#666666"
                                 android:textSize="14sp" />
 
                         </LinearLayout>
@@ -113,8 +117,8 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Receive Date:"
-                            android:textColor="@color/gray"
+                            android:text="Ngày nhận:"
+                            android:textColor="#666666"
                             android:textSize="12sp"
                             app:layout_column="0"
                             app:layout_row="0" />
@@ -125,7 +129,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:text="26/10/2025 15:42"
-                            android:textColor="@color/black"
+                            android:textColor="#000000"
                             android:textSize="12sp"
                             app:layout_column="1"
                             app:layout_row="0" />
@@ -135,8 +139,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Est. Completion:"
-                            android:textColor="@color/gray"
+                            android:text="Dự kiến hoàn thành:"
+                            android:textColor="#666666"
                             android:textSize="12sp"
                             app:layout_column="0"
                             app:layout_row="1" />
@@ -148,7 +152,7 @@
                             android:layout_marginStart="8dp"
                             android:layout_marginTop="4dp"
                             android:text="29/10/2025 15:42"
-                            android:textColor="@color/black"
+                            android:textColor="#000000"
                             android:textSize="12sp"
                             app:layout_column="1"
                             app:layout_row="1" />
@@ -158,8 +162,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="RO Type:"
-                            android:textColor="@color/gray"
+                            android:text="Loại đơn:"
+                            android:textColor="#666666"
                             android:textSize="12sp"
                             app:layout_column="0"
                             app:layout_row="2" />
@@ -170,8 +174,8 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:layout_marginTop="4dp"
-                            android:text="Scheduled"
-                            android:textColor="@color/black"
+                            android:text="Đã lên lịch"
+                            android:textColor="#000000"
                             android:textSize="12sp"
                             app:layout_column="1"
                             app:layout_row="2" />
@@ -181,8 +185,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Paid Status:"
-                            android:textColor="@color/gray"
+                            android:text="Trạng thái thanh toán:"
+                            android:textColor="#666666"
                             android:textSize="12sp"
                             app:layout_column="0"
                             app:layout_row="3" />
@@ -193,7 +197,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:layout_marginTop="4dp"
-                            android:text="Pending"
+                            android:text="Đang chờ"
                             android:textColor="@color/orange"
                             android:textSize="12sp"
                             android:textStyle="bold"
@@ -207,7 +211,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:background="@color/gray_light"
+                        android:background="#F5F5F5"
                         android:orientation="horizontal"
                         android:padding="12dp">
 
@@ -221,8 +225,8 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Estimated"
-                                android:textColor="@color/gray"
+                                android:text="Dự kiến"
+                                android:textColor="#666666"
                                 android:textSize="10sp" />
 
                             <TextView
@@ -231,7 +235,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="800,000 VND"
-                                android:textColor="@color/black"
+                                android:textColor="#000000"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
 
@@ -247,8 +251,8 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Paid"
-                                android:textColor="@color/gray"
+                                android:text="Đã thanh toán"
+                                android:textColor="#666666"
                                 android:textSize="10sp" />
 
                             <TextView
@@ -257,7 +261,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="0 VND"
-                                android:textColor="@color/black"
+                                android:textColor="#000000"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
 
@@ -273,8 +277,8 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Cost"
-                                android:textColor="@color/gray"
+                                android:text="Chi phí"
+                                android:textColor="#666666"
                                 android:textSize="10sp" />
 
                             <TextView
@@ -283,7 +287,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="0 VND"
-                                android:textColor="@color/black"
+                                android:textColor="#000000"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
 
@@ -298,7 +302,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:text="Tire rotation and basic inspection"
-                        android:textColor="@color/gray"
+                        android:textColor="#666666"
                         android:textSize="12sp"
                         android:textStyle="italic" />
 
@@ -312,7 +316,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:strokeColor="#E0E0E0"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -323,8 +330,8 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Progress"
-                        android:textColor="@color/black"
+                        android:text="Tiến độ"
+                        android:textColor="#000000"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -332,7 +339,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_marginVertical="12dp"
-                        android:background="@color/gray" />
+                        android:background="#E0E0E0" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -345,7 +352,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Chưa bắt đầu"
-                            android:textColor="@color/gray"
+                            android:textColor="#666666"
                             android:textSize="14sp" />
 
                         <TextView
@@ -382,7 +389,7 @@
                             android:background="@drawable/bg_status_pill"
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="6dp"
-                            android:text="Completed"
+                            android:text="Hoàn thành"
                             android:textColor="@color/white"
                             android:textSize="12sp"
                             android:textStyle="bold" />
@@ -408,7 +415,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:strokeColor="#E0E0E0"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -419,8 +429,8 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Jobs"
-                        android:textColor="@color/black"
+                        android:text="Công việc"
+                        android:textColor="#000000"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -428,7 +438,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_marginVertical="12dp"
-                        android:background="@color/gray_light" />
+                        android:background="#E0E0E0" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/jobsRecyclerView"

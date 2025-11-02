@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.garapro.data.local.TokenManager
 import com.example.garapro.data.model.quotations.CustomerResponseRequest
 import com.example.garapro.data.model.quotations.Quotation
+import com.example.garapro.data.model.quotations.QuotationDetail
 import com.example.garapro.data.model.quotations.QuotationResponse
 import com.example.garapro.data.remote.QuotationService
 import com.example.garapro.data.model.quotations.QuotationStatus
@@ -30,13 +31,13 @@ class QuotationRepository(
 
     }
 
-    suspend fun getQuotationById(id: String): Result<Quotation> {
+    suspend fun getQuotationDetailById(id: String): Result<QuotationDetail> {
         return try {
-            val response = quotationService.getQuotationById(id)
+            val response = quotationService.getQuotationDetailById(id)
             if (response.isSuccessful) {
                 Result.success(response.body()!!)
             } else {
-                Result.failure(Exception("Failed to fetch quotation: ${response.code()} - ${response.message()}"))
+                Result.failure(Exception("Failed to fetch quotation detail: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)

@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.garapro.R
 import com.example.garapro.data.model.RepairProgresses.FilterChipData
+import com.example.garapro.data.model.RepairProgresses.RepairOrderFilter
 import com.example.garapro.data.model.RepairProgresses.RoType
 import com.example.garapro.data.repository.RepairProgress.RepairProgressRepository
 import com.example.garapro.databinding.FragmentRepairProgressListBinding
@@ -69,16 +70,26 @@ class RepairProgressListFragment : Fragment() {
 
     private fun setupFilterOptions() {
         // Status filter
+
+        binding.statusFilterLayout.setEndIconOnClickListener {
+            showStatusFilterDialog()
+        }
         binding.statusFilter.setOnClickListener {
             showStatusFilterDialog()
         }
 
         // RO Type filter
+        binding.roTypeFilterLayout.setEndIconOnClickListener {
+            showRoTypeFilterDialog()
+        }
         binding.roTypeFilter.setOnClickListener {
             showRoTypeFilterDialog()
         }
 
         // Paid status filter
+        binding.paidStatusFilterLayout.setEndIconOnClickListener {
+            showPaidStatusFilterDialog()
+        }
         binding.paidStatusFilter.setOnClickListener {
             showPaidStatusFilterDialog()
         }
@@ -87,6 +98,12 @@ class RepairProgressListFragment : Fragment() {
         binding.dateFilter.setOnClickListener {
             showDateRangePicker()
         }
+
+        // Apply filter button
+//        binding.applyFilterButton.setOnClickListener {
+//            viewModel.toggleFilterVisibility()
+//            // Không cần gọi loadRepairOrders() vì đã được gọi khi update filter
+//        }
     }
 
     private fun showStatusFilterDialog() {
@@ -97,29 +114,35 @@ class RepairProgressListFragment : Fragment() {
         } ?: -1
 
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Filter by Status")
+            .setTitle("Lọc theo trạng thái")
             .setSingleChoiceItems(items, checkedItem) { dialog, which ->
                 val selectedStatus = statuses.getOrNull(which)
                 viewModel.updateStatusFilter(selectedStatus?.orderStatusId)
                 dialog.dismiss()
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton("Hủy", null)
             .show()
     }
 
+
     private fun showRoTypeFilterDialog() {
-        val roTypes = RoType.values().map { it.name }.toTypedArray()
+        val roTypes = arrayOf("Khách vãng lai", "Đã lên lịch", "Sự cố")
         val currentFilter = viewModel.filterState.value.roType
         val checkedItem = currentFilter?.ordinal ?: -1
 
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Filter by RO Type")
+            .setTitle("Lọc theo loại RO")
             .setSingleChoiceItems(roTypes, checkedItem) { dialog, which ->
-                val selectedType = RoType.values().getOrNull(which)
+                val selectedType = when (which) {
+                    0 -> RoType.WalkIn
+                    1 -> RoType.Scheduled
+                    2 -> RoType.Breakdown
+                    else -> null
+                }
                 viewModel.updateRoTypeFilter(selectedType)
                 dialog.dismiss()
             }
-            .setNegativeButton("Clear") { dialog, _ ->
+            .setNegativeButton("Xóa") { dialog, _ ->
                 viewModel.updateRoTypeFilter(null)
                 dialog.dismiss()
             }
@@ -128,17 +151,28 @@ class RepairProgressListFragment : Fragment() {
     }
 
     private fun showPaidStatusFilterDialog() {
-        val paidStatuses = arrayOf("Pending", "Partial", "Paid")
+        val paidStatuses = arrayOf("Chờ thanh toán", "Thanh toán một phần", "Đã thanh toán")
         val currentFilter = viewModel.filterState.value.paidStatus
-        val checkedItem = paidStatuses.indexOfFirst { it == currentFilter }
+        val checkedItem = when (currentFilter) {
+            "Pending" -> 0
+            "Partial" -> 1
+            "Paid" -> 2
+            else -> -1
+        }
 
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Filter by Paid Status")
+            .setTitle("Lọc theo trạng thái thanh toán")
             .setSingleChoiceItems(paidStatuses, checkedItem) { dialog, which ->
-                viewModel.updatePaidStatusFilter(paidStatuses[which])
+                val selectedStatus = when (which) {
+                    0 -> "Pending"
+                    1 -> "Partial"
+                    2 -> "Paid"
+                    else -> null
+                }
+                viewModel.updatePaidStatusFilter(selectedStatus)
                 dialog.dismiss()
             }
-            .setNegativeButton("Clear") { dialog, _ ->
+            .setNegativeButton("Xóa") { dialog, _ ->
                 viewModel.updatePaidStatusFilter(null)
                 dialog.dismiss()
             }
@@ -170,9 +204,9 @@ class RepairProgressListFragment : Fragment() {
 
                         binding.emptyState.visibility = if (orders.isEmpty()) View.VISIBLE else View.GONE
                         binding.emptyText.text = if (viewModel.filterChips.value.isNotEmpty()) {
-                            "No orders match your filters"
+                            "Không có đơn hàng nào phù hợp với bộ lọc"
                         } else {
-                            "No repair orders found"
+                            "Không tìm thấy đơn sửa chữa"
                         }
                     }
                     is RepairProgressRepository.ApiResponse.Error -> {
@@ -194,10 +228,68 @@ class RepairProgressListFragment : Fragment() {
             }
         }
 
+//        viewLifecycleOwner.lifecycleScope.launch {
+//            viewModel.filterChips.collect { chips ->
+//                updateFilterChips(chips)
+//            }
+//        }
+
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.filterChips.collect { chips ->
-                updateFilterChips(chips)
+            viewModel.filterState.collect { filter ->
+                updateFilterInputs(filter)
             }
+        }
+    }
+
+    private fun updateFilterInputs(filter: RepairOrderFilter) {
+        // Cập nhật trạng thái
+        filter.statusId?.let { statusId ->
+            val statusName = viewModel.orderStatuses.value.find { it.orderStatusId == statusId }?.statusName ?: "Trạng thái"
+            var statusVietnamese= when (statusName) {
+                "Completed" -> "Hoàn tất"
+                "In Progress" -> "Đang sửa"
+                "Pending" -> "Đang xử lý"
+                else -> {"Không xác định"}
+            }
+            binding.statusFilter.setText(statusVietnamese)
+        } ?: run {
+            binding.statusFilter.setText("")
+        }
+
+        // Cập nhật loại RO
+        filter.roType?.let { roType ->
+            binding.roTypeFilter.setText(
+                when (roType) {
+                    RoType.WalkIn -> "Khách vãng lai"
+                    RoType.Scheduled -> "Đã lên lịch"
+                    RoType.Breakdown -> "Sự cố"
+                }
+            )
+        } ?: run {
+            binding.roTypeFilter.setText("")
+        }
+
+        // Cập nhật trạng thái thanh toán
+        filter.paidStatus?.let { paidStatus ->
+            binding.paidStatusFilter.setText(
+                when (paidStatus) {
+                    "Pending" -> "Chờ thanh toán"
+                    "Partial" -> "Thanh toán một phần"
+                    "Paid" -> "Đã thanh toán"
+                    else -> paidStatus
+                }
+            )
+        } ?: run {
+            binding.paidStatusFilter.setText("")
+        }
+
+        // Cập nhật ngày
+        if (filter.fromDate != null || filter.toDate != null) {
+            val fromText = filter.fromDate ?: ""
+            val toText = filter.toDate ?: ""
+            binding.dateFilter.text = "$fromText - $toText"
+        } else {
+            binding.dateFilter.text = "Chọn khoảng ngày"
         }
     }
 

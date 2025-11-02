@@ -339,20 +339,45 @@
 
                 </LinearLayout>
 
+
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Nút hành động -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSubmit"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Gửi phản hồi"
-                android:textSize="16sp"
-                android:backgroundTint="#000000"
-                android:textColor="#FFFFFF"
-                app:icon="@drawable/ic_send"
-                app:iconGravity="textStart"
-                app:cornerRadius="8dp" />
+                android:orientation="horizontal"
+                android:layout_margin="16dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnReject"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="Từ chối toàn bộ"
+                    android:backgroundTint="@color/red" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSubmit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="Chấp nhận dịch vụ đã chọn" />
+
+            </LinearLayout>
+            <!-- Nút hành động -->
+<!--            <com.google.android.material.button.MaterialButton-->
+<!--                android:id="@+id/btnSubmit"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="Gửi phản hồi"-->
+<!--                android:textSize="16sp"-->
+<!--                android:backgroundTint="#000000"-->
+<!--                android:textColor="#FFFFFF"-->
+<!--                app:icon="@drawable/ic_send"-->
+<!--                app:iconGravity="textStart"-->
+<!--                app:cornerRadius="8dp" />-->
 
         </LinearLayout>
 

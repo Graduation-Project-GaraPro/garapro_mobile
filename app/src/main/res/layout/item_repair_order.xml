@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:background="@color/white"
         android:padding="16dp">
 
         <!-- Header Row -->
@@ -60,7 +61,7 @@
                     android:background="@drawable/bg_status_pill"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="4dp"
-                    android:text="Completed"
+                    android:text="Hoàn thành"
                     android:textColor="@color/white"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -70,7 +71,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="Scheduled"
+                    android:text="Đã lên lịch"
                     android:textColor="@color/gray"
                     android:textSize="10sp" />
 
@@ -146,7 +147,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Cost"
+                    android:text="Chi phí"
                     android:textColor="@color/gray"
                     android:textSize="10sp" />
 
@@ -172,7 +173,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Paid Status"
+                    android:text="Trạng thái thanh toán"
                     android:textColor="@color/gray"
                     android:textSize="10sp" />
 
@@ -181,7 +182,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="Pending"
+                    android:text="Đang chờ"
                     android:textColor="@color/orange"
                     android:textSize="14sp"
                     android:textStyle="bold" />

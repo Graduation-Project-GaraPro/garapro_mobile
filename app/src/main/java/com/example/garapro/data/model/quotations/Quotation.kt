@@ -13,9 +13,10 @@ data class Quotation(
     val totalAmount: Double,
     val discountAmount: Double,
     val note: String?,
+    val customerNote: String,
     val expiresAt: String?,
-    val customerName: String? = "", // Cho phép null và có giá trị mặc định
-    val vehicleInfo: String? = "",  // Cho phép null và có giá trị mặc định
+    val customerName: String? = "",
+    val vehicleInfo: String? = "",
     val quotationServices: List<QuotationService>,
     val quotationServiceParts: List<QuotationServicePart>?,
     val inspection: Inspection?,
@@ -39,6 +40,7 @@ data class QuotationService(
     val quotationId: String,
     val serviceId: String,
     var isSelected: Boolean,
+    var isRequired : Boolean,
     val price: Double,
     val quantity: Int,
     val totalPrice: Double,
@@ -50,17 +52,14 @@ data class QuotationService(
 
 data class QuotationServicePart(
     val quotationServicePartId: String,
-    val quotationServiceId: String,
-    val partId: String,
-    var isSelected: Boolean,
-    val isRecommended: Boolean,
-    val recommendationNote: String?,
-    val price: Double,
-    val quantity: Int,
-    val totalPrice: Double,
-    val createdAt: String,
-    val partName: String,
-    val partDescription: String?
+    val partId: String = "",
+    val partName: String = "",
+    val price: Double = 0.0,
+    val quantity: Int = 1,
+    var isSelected: Boolean = false,
+    val isRecommended: Boolean = false,
+    val partDescription: String? = null,
+    val recommendationNote: String? = null
 )
 // Thêm các class mới
 data class Inspection(
@@ -99,10 +98,3 @@ data class CustomerResponseRequest(
     val selectedServiceParts: List<SelectedServicePart>
 )
 
-data class SelectedService(
-    val quotationServiceId: String
-)
-
-data class SelectedServicePart(
-    val quotationServicePartId: String
-)

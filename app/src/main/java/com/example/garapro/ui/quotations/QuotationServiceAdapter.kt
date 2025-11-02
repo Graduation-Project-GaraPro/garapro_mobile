@@ -5,35 +5,30 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.garapro.data.model.quotations.QuotationServicePart
-import com.example.garapro.data.model.quotations.QuotationService
+import com.example.garapro.data.model.quotations.PartCategory
+import com.example.garapro.data.model.quotations.QuotationServiceDetail
 import com.example.garapro.databinding.ItemQuotationServiceBinding
 import java.text.NumberFormat
 import java.util.Locale
 
 class QuotationServiceAdapter(
-    private var services: List<QuotationService>,
+    private var services: List<QuotationServiceDetail>,
     private var onCheckChanged: (String, Boolean) -> Unit,
-    private var isEditable: Boolean = true // 🔥 THÊM: Biến kiểm tra có được chỉnh sửa không
+    private var onPartToggle: (String, String, String) -> Unit, // 🔥 THÊM: callback cho part
+    private var isEditable: Boolean = true
 ) : RecyclerView.Adapter<QuotationServiceAdapter.ViewHolder>() {
 
-    /**
-     * 🔥 HÀM MỚI: Cập nhật trạng thái chỉnh sửa
-     */
     fun updateEditable(editable: Boolean) {
         this.isEditable = editable
-        notifyDataSetChanged() // Refresh toàn bộ để áp dụng trạng thái mới
+        notifyDataSetChanged()
     }
 
-    /**
-     * 🔥 HÀM MỚI: Cập nhật callback cho checkbox
-     */
     fun updateOnCheckChanged(newOnCheckChanged: (String, Boolean) -> Unit) {
         this.onCheckChanged = newOnCheckChanged
         notifyDataSetChanged()
     }
 
-    fun updateServices(newServices: List<QuotationService>) {
+    fun updateServices(newServices: List<QuotationServiceDetail>) {
         services = newServices
         notifyDataSetChanged()
     }
@@ -51,19 +46,27 @@ class QuotationServiceAdapter(
     inner class ViewHolder(private val binding: ItemQuotationServiceBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(service: QuotationService) {
+        fun bind(service: QuotationServiceDetail) {
             binding.tvServiceName.text = service.serviceName
             binding.tvServiceDescription.text = service.serviceDescription
             binding.tvServicePrice.text = formatCurrency(service.totalPrice)
 
-            // 🔥 THAY ĐỔI: Vô hiệu hóa checkbox khi không được chỉnh sửa
-            binding.cbService.isEnabled = isEditable
+            // 🔥 THÊM: Hiển thị "Bắt buộc" nếu service là required
+            if (service.isRequired) {
+                binding.tvRequired.visibility = View.VISIBLE
+                binding.tvRequired.text = "Bắt buộc"
+            } else {
+                binding.tvRequired.visibility = View.GONE
+            }
+
+            // Vô hiệu hóa checkbox khi không được chỉnh sửa HOẶC service là required
+            val canToggleService = isEditable && !service.isRequired
+            binding.cbService.isEnabled = canToggleService
 
             binding.cbService.setOnCheckedChangeListener(null)
             binding.cbService.isChecked = service.isSelected
 
-            // THAY ĐỔI: Chỉ set listener khi được phép chỉnh sửa
-            if (isEditable) {
+            if (isEditable && canToggleService) {
                 binding.cbService.setOnCheckedChangeListener { _, isChecked ->
                     onCheckChanged(service.quotationServiceId, isChecked)
                 }
@@ -71,20 +74,20 @@ class QuotationServiceAdapter(
                 binding.cbService.setOnCheckedChangeListener(null)
             }
 
-            setupPartsInfo(service.quotationServiceParts)
+            // 🔥 THAY ĐỔI: Setup part categories thay vì parts
+            setupPartCategories(service.partCategories, service.quotationServiceId)
         }
 
-        private fun setupPartsInfo(parts: List<QuotationServicePart>) {
-            parts.joinToString("\n") {
-                "• ${it.partName} - ${formatCurrency(it.totalPrice)}${if (it.isRecommended) "" else ""}"
-            }.takeIf { it.isNotEmpty() }?.let { info ->
-                binding.tvPartsInfo.visibility = View.VISIBLE
-                binding.tvPartsInfo.text = "Phụ tùng kèm theo:\n$info"
-            } ?: run {
-                binding.tvPartsInfo.visibility = View.GONE
+        private fun setupPartCategories(partCategories: List<PartCategory>, serviceId: String) {
+            if (partCategories.isNotEmpty()) {
+                binding.rvPartCategories.visibility = View.VISIBLE
+                val adapter = PartCategoryAdapter(partCategories, serviceId, onPartToggle, isEditable)
+                binding.rvPartCategories.adapter = adapter
+                binding.rvPartCategories.layoutManager = LinearLayoutManager(binding.root.context)
+            } else {
+                binding.rvPartCategories.visibility = View.GONE
             }
         }
-
 
         private fun formatCurrency(amount: Double) =
             NumberFormat.getCurrencyInstance(Locale("vi", "VN")).format(amount)

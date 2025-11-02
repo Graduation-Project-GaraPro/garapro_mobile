@@ -61,19 +61,27 @@
                 android:textStyle="bold" />
 
         </LinearLayout>
-
+        <TextView
+            android:id="@+id/tvQuantity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Số lượng: 1"
+            android:textColor="#666"
+            android:textSize="12sp" />
         <!-- Khuyến nghị -->
         <TextView
             android:id="@+id/tvRecommendation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
-            android:background="#FFF3E0"
+            android:background="#E8F5E8"
             android:padding="4dp"
-            android:text="Khuyến nghị: Nên thay để đảm bảo hiệu suất"
-            android:textColor="#E65100"
+            android:text="Khuyến nghị"
+            android:textColor="#2E7D32"
             android:textSize="12sp"
             android:visibility="gone" />
+
+
 
         <TextView
             android:id="@+id/tvRecommendationNote"

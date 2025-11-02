@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.garapro.R
 import com.example.garapro.data.model.repairRequest.RepairRequestDetail
 import com.example.garapro.data.model.repairRequest.RequestServiceDetail
@@ -15,6 +16,7 @@ import com.example.garapro.utils.MoneyUtils
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.imageview.ShapeableImageView
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -75,13 +77,18 @@ class RepairRequestDetailBottomSheet : BottomSheetDialogFragment() {
         val rvServices = view?.findViewById<RecyclerView>(R.id.rvServices)
         val tvTotalCost = view?.findViewById<TextView>(R.id.tvTotalCost)
 
+        // Image views
+        val image1 = view?.findViewById<ShapeableImageView>(R.id.ivImage1)
+        val image2 = view?.findViewById<ShapeableImageView>(R.id.ivImage2)
+        val image3 = view?.findViewById<ShapeableImageView>(R.id.ivImage3)
+        val image4 = view?.findViewById<ShapeableImageView>(R.id.ivImage4)
+
         // Basic info
         tvRequestId?.text = "ID: ${detail.repairRequestID.take(8)}..." // Rút gọn ID cho đẹp
         tvDescription?.text = detail.description
         tvRequestDate?.text = formatDate(detail.requestDate)
         tvStatus?.text = getStatusText(detail.status)
         tvStatus?.setBackgroundResource(getStatusBackground(detail.status))
-//        tvEstimatedCost?.text = "${MoneyUtils.formatVietnameseCurrency(detail.estimatedCost)}"
         tvEstimatedCost?.visibility = View.GONE
 
         // Vehicle info
@@ -91,14 +98,59 @@ class RepairRequestDetailBottomSheet : BottomSheetDialogFragment() {
         tvYear?.text = detail.vehicle.year.toString()
         tvOdometer?.text = "${detail.vehicle.odometer} km"
 
-//         Services and parts
+        // Load images
+        loadImages(detail.imageUrls, image1, image2, image3, image4)
+
+        // Services and parts
         if (rvServices != null) {
             setupServicesList(rvServices, detail.requestServices)
         }
-//
-//        // Total calculation
+
+        // Total calculation
         val totalCost = detail.requestServices.sumOf { it.price }
         tvTotalCost?.text = "${MoneyUtils.formatVietnameseCurrency(totalCost)}"
+    }
+
+    private fun loadImages(
+        imageUrls: List<String>?,
+        image1: ShapeableImageView?,
+        image2: ShapeableImageView?,
+        image3: ShapeableImageView?,
+        image4: ShapeableImageView?
+    ) {
+        val imageViews = listOf(image1, image2, image3, image4)
+
+        // Ẩn tất cả image views trước
+        imageViews.forEach { it?.visibility = View.GONE }
+
+        // Hiển thị ảnh nếu có URL
+        imageUrls?.take(4)?.forEachIndexed { index, imageUrl ->
+            imageViews.getOrNull(index)?.let { imageView ->
+                imageView.visibility = View.VISIBLE
+                Glide.with(this)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.ic_camera) // Thêm placeholder nếu cần
+                    .error(R.drawable.ic_camera) // Thêm error image nếu cần
+                    .centerCrop()
+                    .into(imageView)
+            }
+        }
+
+        // Xử lý trường hợp có nhiều hơn 4 ảnh
+        if (imageUrls != null && imageUrls.size > 4) {
+            image4?.let {
+                // Có thể thêm badge hoặc indicator cho ảnh cuối
+                it.setOnClickListener {
+                    // Mở fullscreen image viewer với tất cả ảnh
+                    showFullScreenImages(imageUrls)
+                }
+            }
+        }
+    }
+
+    private fun showFullScreenImages(imageUrls: List<String>) {
+        // Implement fullscreen image viewer ở đây
+        // Có thể sử dụng DialogFragment hoặc Activity mới
     }
 
     private fun setupServicesList(recyclerView: RecyclerView, services: List<RequestServiceDetail>) {
@@ -119,13 +171,6 @@ class RepairRequestDetailBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun getStatusText(status: Int): String {
-//        return when (status) {
-//            0 -> "PENDING"
-//            1 -> "ACCEPTED"
-//            2 -> "ARRIVED"
-//            3 -> "CANCELLED"
-//            else -> "UNKNOWN"
-//        }
         return when (status) {
             0 -> "Đang chờ xử lý"
             1 -> "Đã chấp nhận"

@@ -1,9 +1,11 @@
 package com.example.garapro.ui.RepairProgress
 
+import android.R.attr.orientation
 import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,7 +21,9 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 class JobAdapter : ListAdapter<Job, JobAdapter.ViewHolder>(DiffCallback) {
 
@@ -56,7 +60,7 @@ class JobAdapter : ListAdapter<Job, JobAdapter.ViewHolder>(DiffCallback) {
             binding.apply {
                 jobName.text = job.jobName
                 jobLevel.text = "Level ${job.level}"
-                jobStatus.text = job.status
+                jobStatus.text = getStatusNameVietnamese(job.status)
                 jobAmount.text = formatCurrency(job.totalAmount)
                 jobDeadline.text = formatDate(job.deadline)
                 jobNote.text = job.note ?: "No note"
@@ -111,37 +115,127 @@ class JobAdapter : ListAdapter<Job, JobAdapter.ViewHolder>(DiffCallback) {
             }
         }
 
+        private fun getStatusNameVietnamese(statusName: String): String {
+            return when (statusName) {
+                "Pending" -> "Đang chờ"
+                "New" -> "Mới"
+                "InProgress" -> "Đang sửa"
+                "Completed" -> "Hoàn tất"
+                "OnHold" -> "Tạm dừng"
+                else -> "Không xác định"
+            }
+        }
         private fun setupRepairTimes(repair: Repair) {
-            // You can add more detailed time information here if needed
             val times = StringBuilder()
+            var hasTimeInfo = false
 
-            repair.startTime?.let { startTime ->
-                times.append("Start: ${formatTime(startTime)}\n")
+            repair.startTime?.let { startTimeString ->
+                parseTimeString(startTimeString)?.let { startTime ->
+                    times.append("• Bắt đầu: ${formatDateTime(startTime)}\n")
+                    hasTimeInfo = true
+                }
             }
 
-            repair.endTime?.let { endTime ->
-                times.append("End: ${formatTime(endTime)}\n")
+            repair.endTime?.let { endTimeString ->
+                parseTimeString(endTimeString)?.let { endTime ->
+                    times.append("• Kết thúc: ${formatDateTime(endTime)}\n")
+                    hasTimeInfo = true
+                }
             }
 
             repair.actualTime?.let { actualTime ->
-                times.append("Actual: $actualTime")
+                times.append("• Thời gian thực tế: ${formatDuration(actualTime)}")
+                hasTimeInfo = true
             }
 
-            // If you want to display times, you can add a TextView for it
+            // Hiển thị hoặc ẩn layout dựa trên thông tin thời gian
+            binding.repairTimesLayout.visibility = if (hasTimeInfo) View.VISIBLE else View.GONE
+
+            if (hasTimeInfo) {
+                binding.tvRepairTimes.text = times.toString().trim()
+            }
+        }
+        private fun formatDateTime(date: Date): String {
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+            val dayFormat = SimpleDateFormat("EEEE", Locale.getDefault())
+
+            return "${dateFormat.format(date)} • ${timeFormat.format(date)} • ${getVietnameseDay(dayFormat.format(date))}"
+        }
+        private fun formatDuration(durationString: String): String {
+            // Split phần giờ, phút, giây
+            val timeParts = durationString.split(":")
+            if (timeParts.size < 3) return durationString // fallback nếu format sai
+
+            val hours = timeParts[0].toIntOrNull() ?: 0
+            val minutes = timeParts[1].toIntOrNull() ?: 0
+
+            return if (hours > 0) {
+                if (minutes > 0) {
+                    "${hours}h${minutes}p"    // VD: 1h30p
+                } else {
+                    "${hours} giờ"           // VD: 1 giờ
+                }
+            } else {
+                "$minutes phút"             // VD: 30 phút
+            }
+        }
+        private fun parseTimeString(timeString: String): Date? {
+            return try {
+                // Thử các format phổ biến
+                val formats = arrayOf(
+                    "yyyy-MM-dd HH:mm:ss",
+                    "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+                    "yyyy-MM-dd'T'HH:mm:ss",
+                    "dd/MM/yyyy HH:mm:ss",
+                    "dd/MM/yyyy HH:mm",
+                    "yyyy-MM-dd",
+                    "HH:mm:ss",
+                    "HH:mm"
+                )
+
+                for (format in formats) {
+                    try {
+                        val sdf = SimpleDateFormat(format, Locale.getDefault())
+                        sdf.timeZone = TimeZone.getTimeZone("Asia/Ho_Chi_Minh") // Set timezone Việt Nam
+                        return sdf.parse(timeString)
+                    } catch (e: Exception) {
+                        continue
+                    }
+                }
+                null
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+
+
+        private fun getVietnameseDay(englishDay: String): String {
+            return when (englishDay.toLowerCase(Locale.getDefault())) {
+                "monday" -> "Thứ 2"
+                "tuesday" -> "Thứ 3"
+                "wednesday" -> "Thứ 4"
+                "thursday" -> "Thứ 5"
+                "friday" -> "Thứ 6"
+                "saturday" -> "Thứ 7"
+                "sunday" -> "Chủ nhật"
+                else -> englishDay
+            }
         }
 
         private fun setupTechnicians(technicians: List<Technician>) {
             binding.techniciansChipGroup.removeAllViews()
             technicians.forEach { technician ->
                 val chip = Chip(binding.root.context).apply {
+
                     text = technician.fullName
                     isCloseIconVisible = false
+                    setTextColor(ContextCompat.getColor(context, R.color.white))
                     chipBackgroundColor = ColorStateList.valueOf(
-                        ContextCompat.getColor(context, R.color.gray_light)
+                        ContextCompat.getColor(context, R.color.black)
                     )
-                    setOnClickListener {
-                        showTechnicianInfo(technician)
-                    }
+                    setOnClickListener { showTechnicianInfo(technician) }
                 }
                 binding.techniciansChipGroup.addView(chip)
             }

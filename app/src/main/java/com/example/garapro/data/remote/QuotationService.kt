@@ -2,6 +2,7 @@ package com.example.garapro.data.remote
 
 import com.example.garapro.data.model.quotations.CustomerResponseRequest
 import com.example.garapro.data.model.quotations.Quotation
+import com.example.garapro.data.model.quotations.QuotationDetail
 import com.example.garapro.data.model.quotations.QuotationResponse
 import com.example.garapro.data.model.quotations.QuotationStatus
 import retrofit2.Response
@@ -19,8 +20,9 @@ interface QuotationService {
         @Query("status") status: QuotationStatus? = null
     ): Response<QuotationResponse>
 
-    @GET("Quotations/{id}")
-    suspend fun getQuotationById(@Path("id") id: String): Response<Quotation>
+
+        @GET("Quotations/{id}/details")
+        suspend fun getQuotationDetailById(@Path("id") id: String): Response<QuotationDetail>
 
     @PUT("Quotations/customer-response")
     suspend fun submitCustomerResponse(@Body responseDto: CustomerResponseRequest): Response<Unit>

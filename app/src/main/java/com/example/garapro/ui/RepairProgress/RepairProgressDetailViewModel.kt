@@ -2,6 +2,7 @@ package com.example.garapro.ui.RepairProgress
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.garapro.data.model.RepairProgresses.RepairOrderFilter
 import com.example.garapro.data.model.RepairProgresses.RepairProgressDetail
 import com.example.garapro.data.remote.RetrofitInstance
 import com.example.garapro.data.repository.RepairProgress.RepairProgressRepository
@@ -22,5 +23,8 @@ class RepairProgressDetailViewModel : ViewModel() {
             val result = repository.getRepairOrderDetail(repairOrderId)
             _repairOrderDetail.value = result
         }
+    }
+    fun RepairOrderFilter.hasActiveFilters(): Boolean {
+        return statusId != null || roType != null || paidStatus != null || fromDate != null || toDate != null
     }
 }

@@ -13,6 +13,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.garapro.R
 import com.example.garapro.data.model.quotations.Quotation
+import com.example.garapro.data.model.quotations.QuotationDetail
 import com.example.garapro.data.model.quotations.QuotationService
 import com.example.garapro.data.model.quotations.QuotationStatus
 import com.example.garapro.data.model.quotations.SubmitConfirmationType
@@ -66,8 +67,11 @@ class QuotationDetailFragment : Fragment() {
 
         // Khởi tạo adapter
         adapter = QuotationServiceAdapter(
-            emptyList(),
-            { id, checked -> viewModel.onServiceCheckChanged(id, checked) }
+            services = emptyList(),
+            onCheckChanged = { id, checked -> viewModel.onServiceCheckChanged(id, checked) },
+            onPartToggle = { serviceId, categoryId, partId ->
+                viewModel.togglePartSelection(serviceId, categoryId, partId)
+            }
         )
 
 
@@ -175,8 +179,32 @@ class QuotationDetailFragment : Fragment() {
 
         binding.customerNoteSection.visibility = View.GONE
 
+        binding.btnReject.visibility = View.VISIBLE
+        binding.btnReject.setOnClickListener {
+            showRejectConfirmation()
+        }
+
         calculateTotal()
     }
+
+    private fun showRejectConfirmation() {
+        val customerNote = viewModel.customerNote.value
+
+        if (customerNote.isNullOrBlank() || customerNote.length < 10) {
+            Snackbar.make(binding.root, "Vui lòng nhập ghi chú ít nhất 10 ký tự", Snackbar.LENGTH_SHORT).show()
+            return
+        }
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Xác nhận từ chối")
+            .setMessage("Bạn có chắc chắn muốn từ chối toàn bộ báo giá này?")
+            .setPositiveButton("Từ chối") { _, _ ->
+                viewModel.rejectQuotation(customerNote)
+            }
+            .setNegativeButton("Hủy", null)
+            .show()
+    }
+
 
     /**
      * 🔥 HÀM MỚI: Setup chế độ chỉ xem (các trạng thái khác)
@@ -197,6 +225,7 @@ class QuotationDetailFragment : Fragment() {
         binding.tvlabelSelectedTotal.visibility = View.GONE
         binding.tvSelectedTotal.visibility = View.GONE
 
+        binding.btnReject.visibility = View.GONE
         // THÊM: Ẩn customer note field
         val quotation = viewModel.quotation.value
         val hasNote = !viewModel.customerNote.value.isNullOrBlank()
@@ -244,9 +273,9 @@ class QuotationDetailFragment : Fragment() {
             else -> "Chế độ xem"
         }
     }
-    private fun setupQuotationDetails(quotation: Quotation) {
-        binding.tvVehicleInfo.text = quotation.getSafeVehicleInfo()
-        binding.tvCustomerName.text = quotation.getSafeCustomerName()
+    private fun setupQuotationDetails(quotation: QuotationDetail) {
+        binding.tvVehicleInfo.text = quotation.vehicleInfo
+        binding.tvCustomerName.text = quotation.customerName
         binding.tvTotalAmount.text = formatCurrency(quotation.totalAmount)
         binding.tvStatus.text = getStatusText(quotation.status)
         binding.tvStatus.setTextColor(getStatusColor(quotation.status))
@@ -263,25 +292,33 @@ class QuotationDetailFragment : Fragment() {
 
     private fun calculateTotal() {
         val total = viewModel.quotation.value?.quotationServices?.sumOf { service ->
-            if (service.isSelected) service.totalPrice + service.quotationServiceParts.sumOf { it.totalPrice } else 0.0
+            if (service.isSelected) {
+                service.totalPrice + service.partCategories.flatMap { it.parts }
+                    .sumOf { part -> if (part.isSelected) part.price else 0.0 }
+            } else {
+                0.0
+            }
         } ?: 0.0
+
         binding.tvSelectedTotal.text = formatCurrency(total)
         updateSubmitButton(viewModel.isSubmitting.value ?: false)
     }
 
     private fun updateSubmitButton(isSubmitting: Boolean) {
         val canSubmit = viewModel.canSubmit.value == true
-        binding.btnSubmit.isEnabled = canSubmit && !isSubmitting
+        val isRejectMode = viewModel.isRejectMode.value == true
 
-        // SỬA: Text nút theo logic mới
+        binding.btnSubmit.isEnabled = canSubmit && !isSubmitting
+        binding.btnReject.isEnabled = !isSubmitting
+
         binding.btnSubmit.text = when {
             isSubmitting -> "Đang gửi..."
-            viewModel.getSubmitConfirmationType() == SubmitConfirmationType.APPROVED -> "Chấp nhận toàn bộ"
-            else -> "Từ chối dịch vụ"
+            isRejectMode -> "Chấp nhận một phần" // Nút này để quay lại chọn service
+            else -> "Chấp nhận dịch vụ đã chọn"
         }
 
         binding.btnSubmit.setBackgroundColor(ContextCompat.getColor(requireContext(),
-            if (binding.btnSubmit.text == "Chấp nhận toàn bộ") R.color.green else R.color.red))
+            if (isRejectMode) R.color.blue else R.color.green))
     }
 
     private fun showUnselectWarning(event: QuotationDetailViewModel.ServiceToggleEvent) {
@@ -310,18 +347,26 @@ class QuotationDetailFragment : Fragment() {
 
     private fun showSubmitConfirmation() {
         val quotation = viewModel.quotation.value ?: return
-        val customerNote = viewModel.customerNote.value
 
+        // 🔥 KIỂM TRA VALIDATION TRƯỚC KHI SUBMIT
+        if (!viewModel.validateQuotationSelection()) {
+            val validationMessage = viewModel.getValidationMessage()
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Thiếu thông tin")
+                .setMessage(validationMessage)
+                .setPositiveButton("OK", null)
+                .show()
+            return
+        }
+
+        val customerNote = viewModel.customerNote.value
         val (title, message) = when (viewModel.getSubmitConfirmationType()) {
             SubmitConfirmationType.APPROVED -> {
                 val totalAmount = calculateSelectedTotal(quotation)
                 "Xác nhận chấp nhận" to "Bạn đang chấp nhận TOÀN BỘ dịch vụ với tổng số tiền ${formatCurrency(totalAmount)}. Tiếp tục?"
             }
             SubmitConfirmationType.REJECTED -> {
-                val unselectedCount = quotation.quotationServices.count { !it.isSelected }
-                val noteText = if (customerNote.isNullOrBlank()) "Chưa có ghi chú"
-                else "với ghi chú: $customerNote"
-                "Xác nhận từ chối" to "Bạn đang từ chối $unselectedCount dịch vụ $noteText. Tiếp tục?"
+                "Xác nhận từ chối" to "Bạn có chắc chắn muốn từ chối báo giá này?"
             }
         }
 
@@ -332,17 +377,25 @@ class QuotationDetailFragment : Fragment() {
             .setNegativeButton("Hủy", null)
             .show()
     }
-    private fun calculateSelectedTotal(quotation: Quotation): Double {
+    private fun calculateSelectedTotal(quotation: QuotationDetail): Double {
         var total = 0.0
+
         quotation.quotationServices.forEach { service ->
             if (service.isSelected) {
+                // Cộng giá dịch vụ
                 total += service.totalPrice
-                // Tính cả part prices
-                service.quotationServiceParts.forEach { part ->
-                    total += part.totalPrice
+
+                // Cộng giá phụ tùng trong các PartCategory
+                service.partCategories.forEach { category ->
+                    category.parts.forEach { part ->
+                        if (part.isSelected) { // chỉ tính phần nào được chọn (nếu có flag)
+                            total += part.price
+                        }
+                    }
                 }
             }
         }
+
         return total
     }
     private fun onSubmitSuccess() {

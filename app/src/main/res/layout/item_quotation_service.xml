@@ -21,6 +21,17 @@
             android:orientation="horizontal"
             android:layout_marginBottom="8dp">
 
+            <TextView
+                android:id="@+id/tvRequired"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bắt buộc"
+                android:textColor="#F44336"
+                android:textSize="12sp"
+                android:background="@drawable/bg_required"
+                android:padding="4dp"
+                android:visibility="gone" />
+
             <CheckBox
                 android:id="@+id/cbService"
                 android:layout_width="wrap_content"
@@ -71,7 +82,7 @@
 
         <!-- Danh sách phụ tùng -->
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvParts"
+            android:id="@+id/rvPartCategories"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
