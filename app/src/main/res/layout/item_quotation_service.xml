@@ -3,9 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="1dp"
+    android:layout_marginVertical="6dp"
+    android:layout_marginHorizontal="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    android:background="@color/white"
+
+    app:strokeWidth="1dp"
     app:cardUseCompatPadding="true">
 
     <LinearLayout
@@ -13,39 +17,26 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="@color/white"
-        android:padding="12dp">
+        android:padding="10dp">
 
+        <!-- 🔹 Header Service Info -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="8dp">
+            android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/tvRequired"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Bắt buộc"
-                android:textColor="#F44336"
-                android:textSize="12sp"
-                android:background="@drawable/bg_required"
-                android:padding="4dp"
-                android:visibility="gone" />
-
-            <CheckBox
+            <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/cbService"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
-                android:buttonTint="@drawable/checkbox_selector"
-                android:clickable="true"
-                />
+                app:useMaterialThemeColors="true" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="12dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -53,17 +44,22 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Bảo dưỡng định kỳ"
-                    android:textColor="#333"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textAppearance="@style/TextAppearance.Material3.TitleSmall.Emphasized"
+                    android:textSize="11dp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:maxLines="1"
+
+                    android:ellipsize="end" />
 
                 <TextView
                     android:id="@+id/tvServiceDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Thay nhớt máy, lọc gió, kiểm tra hệ thống"
-                    android:textColor="#666"
-                    android:textSize="14sp"
+                    android:layout_marginTop="2dp"
+                    android:text="Thay nhớt, lọc gió, kiểm tra hệ thống"
+                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    android:textSize="7dp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:maxLines="2"
                     android:ellipsize="end" />
 
@@ -73,30 +69,83 @@
                 android:id="@+id/tvServicePrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1,500,000 ₫"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
+                android:text="1.500.000 ₫"
+                android:textAppearance="@style/TextAppearance.Material3.LabelSmall.Emphasized"
+                android:textSize="7dp"
+                android:textColor="?attr/colorPrimary"
+                android:layout_marginStart="8dp" />
         </LinearLayout>
 
-        <!-- Danh sách phụ tùng -->
+        <!-- 🔸 Required chip -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/tvRequired"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Quan trọng"
+            android:textSize="10dp"
+            style="@style/Widget.Material3.Chip.Assist.Elevated"
+            app:chipBackgroundColor="?attr/colorErrorContainer"
+            app:chipStrokeColor="?attr/colorError"
+            app:chipStrokeWidth="0.5dp"
+            android:textColor="?attr/colorOnErrorContainer"
+            android:visibility="gone" />
+
+        <!-- 🔹 Selected parts summary -->
+        <LinearLayout
+            android:id="@+id/selectedPartsSummary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:layout_marginTop="10dp"
+            android:background="?attr/colorSurfaceContainerHigh"
+            app:cardCornerRadius="5dp"
+            android:visibility="gone"
+            android:dividerPadding="4dp">
+
+            <TextView
+                android:id="@+id/tvSelectedPartsTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Đã chọn:"
+                android:textSize="12dp"
+                android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                android:textColor="?attr/colorOnSurface" />
+
+            <TextView
+                android:id="@+id/tvSelectedParts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="10dp"
+                android:text="Nhớt động cơ, Lọc gió"
+                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+        </LinearLayout>
+
+        <!-- 🔸 Toggle button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnToggleParts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Hiển thị phụ tùng"
+            android:textSize="10dp"
+            style="@style/Widget.Material3.Button.TextButton"
+            app:icon="@drawable/ic_expand_more_black"
+            app:iconGravity="end"
+            app:iconSize="18dp"
+            app:iconTint="?attr/colorOnSurfaceVariant" />
+
+        <!-- 🔹 Parts list -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvPartCategories"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="8dp" />
-
-        <TextView
-            android:id="@+id/tvPartsInfo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
             android:layout_marginTop="8dp"
-            android:textColor="#666"
-            android:textSize="12sp"
             android:visibility="gone" />
+
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

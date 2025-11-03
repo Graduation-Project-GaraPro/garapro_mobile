@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.garapro.R
 import com.example.garapro.data.model.quotations.PartCategory
 import com.example.garapro.data.model.quotations.QuotationServiceDetail
 import com.example.garapro.databinding.ItemQuotationServiceBinding
@@ -14,9 +15,11 @@ import java.util.Locale
 class QuotationServiceAdapter(
     private var services: List<QuotationServiceDetail>,
     private var onCheckChanged: (String, Boolean) -> Unit,
-    private var onPartToggle: (String, String, String) -> Unit, // 🔥 THÊM: callback cho part
+    private var onPartToggle: (String, String, String) -> Unit,
     private var isEditable: Boolean = true
 ) : RecyclerView.Adapter<QuotationServiceAdapter.ViewHolder>() {
+
+    private val expandedStates = mutableMapOf<String, Boolean>()
 
     fun updateEditable(editable: Boolean) {
         this.isEditable = editable
@@ -51,16 +54,17 @@ class QuotationServiceAdapter(
             binding.tvServiceDescription.text = service.serviceDescription
             binding.tvServicePrice.text = formatCurrency(service.totalPrice)
 
-            // 🔥 THÊM: Hiển thị "Bắt buộc" nếu service là required
-            if (service.isRequired) {
-                binding.tvRequired.visibility = View.VISIBLE
-                binding.tvRequired.text = "Bắt buộc"
-            } else {
-                binding.tvRequired.visibility = View.GONE
-            }
+            // Hiển thị chip "Bắt buộc"
+            binding.tvRequired.visibility = if (service.isRequired) View.VISIBLE else View.GONE
 
             // Vô hiệu hóa checkbox khi không được chỉnh sửa HOẶC service là required
-            val canToggleService = isEditable && !service.isRequired
+            val canToggleService = if (service.isRequired) {
+                // Service required: chỉ cho phép toggle nếu chưa được chọn
+                isEditable && !service.isSelected
+            } else {
+                // Service không required: cho phép toggle bình thường
+                isEditable && !service.isRequired
+            }
             binding.cbService.isEnabled = canToggleService
 
             binding.cbService.setOnCheckedChangeListener(null)
@@ -70,22 +74,78 @@ class QuotationServiceAdapter(
                 binding.cbService.setOnCheckedChangeListener { _, isChecked ->
                     onCheckChanged(service.quotationServiceId, isChecked)
                 }
+            }
+            if (!service.isSelected) {
+                // Reset expanded state
+                expandedStates.remove(service.quotationServiceId)
+
+                // Ẩn tất cả
+                binding.rvPartCategories.visibility = View.GONE
+                binding.btnToggleParts.visibility = View.GONE
+                binding.selectedPartsSummary.visibility = View.GONE
             } else {
-                binding.cbService.setOnCheckedChangeListener(null)
+                // Service được chọn -> hiện toggle button
+                binding.btnToggleParts.visibility = View.VISIBLE
+
+                val isExpanded = expandedStates[service.quotationServiceId] ?: false
+                setupPartCategoriesVisibility(service, isExpanded)
             }
 
-            // 🔥 THAY ĐỔI: Setup part categories thay vì parts
-            setupPartCategories(service.partCategories, service.quotationServiceId)
+            // Xử lý ẩn/hiện part categories
+            val isExpanded = expandedStates[service.quotationServiceId] ?: false
+            setupPartCategoriesVisibility(service, isExpanded)
+
+            binding.btnToggleParts.setOnClickListener {
+                togglePartCategories(service)
+            }
         }
 
-        private fun setupPartCategories(partCategories: List<PartCategory>, serviceId: String) {
-            if (partCategories.isNotEmpty()) {
+        private fun setupPartCategoriesVisibility(service: QuotationServiceDetail, isExpanded: Boolean) {
+            if (isExpanded) {
+                // Hiển thị danh sách part categories
                 binding.rvPartCategories.visibility = View.VISIBLE
-                val adapter = PartCategoryAdapter(partCategories, serviceId, onPartToggle, isEditable)
+                binding.selectedPartsSummary.visibility = View.GONE
+                binding.btnToggleParts.text = "Ẩn phụ tùng"
+                binding.btnToggleParts.setIconResource(R.drawable.ic_arrow_drop_up_24dp)
+
+                setupPartCategories(service.partCategories, service)
+            } else {
+                // Ẩn danh sách, hiển thị summary
+                binding.rvPartCategories.visibility = View.GONE
+                binding.selectedPartsSummary.visibility = View.VISIBLE
+                binding.btnToggleParts.text = "Hiển thị phụ tùng"
+                binding.btnToggleParts.setIconResource(R.drawable.ic_arrow_drop_down_24dp)
+
+                setupSelectedPartsSummary(service)
+            }
+        }
+
+        private fun togglePartCategories(service: QuotationServiceDetail) {
+            val serviceId = service.quotationServiceId
+            val currentState = expandedStates[serviceId] ?: false
+            expandedStates[serviceId] = !currentState
+            setupPartCategoriesVisibility(service, !currentState)
+        }
+
+        private fun setupSelectedPartsSummary(service: QuotationServiceDetail) {
+            val selectedParts = service.partCategories.flatMap { category ->
+                category.parts.filter { it.isSelected }
+            }
+
+            if (selectedParts.isNotEmpty()) {
+                val partsText = selectedParts.joinToString(", ") { it.partName }
+                binding.tvSelectedParts.text = partsText
+                binding.selectedPartsSummary.visibility = View.VISIBLE
+            } else {
+                binding.selectedPartsSummary.visibility = View.GONE
+            }
+        }
+
+        private fun setupPartCategories(partCategories: List<PartCategory>, service: QuotationServiceDetail) {
+            if (partCategories.isNotEmpty()) {
+                val adapter = PartCategoryAdapter(partCategories, service, onPartToggle, isEditable)
                 binding.rvPartCategories.adapter = adapter
                 binding.rvPartCategories.layoutManager = LinearLayoutManager(binding.root.context)
-            } else {
-                binding.rvPartCategories.visibility = View.GONE
             }
         }
 

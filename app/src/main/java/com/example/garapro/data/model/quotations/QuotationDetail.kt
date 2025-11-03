@@ -27,6 +27,8 @@ data class QuotationServiceDetail(
     val quotationId: String,
     val serviceId: String,
     var isSelected: Boolean,
+    val isAdvanced: Boolean,
+
     val isRequired: Boolean, // 🔥 THÊM: Service bắt buộc không được bỏ
     val price: Double,
     val quantity: Int,
@@ -40,8 +42,7 @@ data class QuotationServiceDetail(
 data class PartCategory(
     val partCategoryId: String,
     val partCategoryName: String,
-    val parts: List<QuotationServicePart>,
-    val isAdvanced: Boolean
+    val parts: List<QuotationServicePart>
 )
 
 data class SelectedService(

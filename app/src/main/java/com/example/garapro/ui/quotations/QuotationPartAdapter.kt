@@ -14,7 +14,6 @@ import java.util.Locale
 
 class QuotationPartAdapter(
     private val parts: List<QuotationServicePart>,
-
     private val isEditable: Boolean,
     private val onPartToggle: (String) -> Unit
 ) : RecyclerView.Adapter<QuotationPartAdapter.ViewHolder>() {
@@ -38,8 +37,6 @@ class QuotationPartAdapter(
         fun bind(part: QuotationServicePart) {
             try {
                 binding.tvPartName.text = part.partName
-//                binding.tvPartPrice.text = MoneyUtils.formatVietnameseCurrency(part.totalPrice)
-                binding.tvQuantity.text = "Số lượng: ${part.quantity}"
                 binding.cbPart.isChecked = part.isSelected
                 binding.cbPart.isEnabled = isEditable
 
@@ -50,8 +47,19 @@ class QuotationPartAdapter(
                     binding.root.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.unselected_part_bg))
                 }
 
+                // 🔥 QUAN TRỌNG: Remove previous listener to avoid duplicate calls
+                binding.cbPart.setOnCheckedChangeListener(null)
+
                 binding.cbPart.setOnCheckedChangeListener { _, isChecked ->
+                    // 🔥 QUAN TRỌNG: Only trigger if state actually changed AND is editable
                     if (isChecked != part.isSelected && isEditable) {
+                        onPartToggle(part.quotationServicePartId)
+                    }
+                }
+
+                // 🔥 THÊM: Click trên toàn bộ item cũng trigger toggle
+                binding.root.setOnClickListener {
+                    if (isEditable) {
                         onPartToggle(part.quotationServicePartId)
                     }
                 }

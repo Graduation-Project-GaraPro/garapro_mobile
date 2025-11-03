@@ -6,13 +6,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.garapro.data.model.quotations.PartCategory
+import com.example.garapro.data.model.quotations.QuotationServiceDetail
 import com.example.garapro.databinding.ItemQuotationPartCategoryBinding
 import java.text.NumberFormat
 import java.util.Locale
 
 class PartCategoryAdapter(
     private val partCategories: List<PartCategory>,
-    private val serviceId: String,
+    private val service: QuotationServiceDetail,
     private val onPartToggle: (String, String, String) -> Unit,
     private val isEditable: Boolean = true
 ) : RecyclerView.Adapter<PartCategoryAdapter.ViewHolder>() {
@@ -33,28 +34,22 @@ class PartCategoryAdapter(
         fun bind(partCategory: PartCategory) {
             binding.tvCategoryName.text = partCategory.partCategoryName
 
-            // 🔥 HIỂN THỊ RULES MỚI
-            val selectionRule = if (partCategory.isAdvanced) {
-                "Bắt buộc chọn 1 part - Có thể chọn part khác category"
+            // 🔥 CẬP NHẬT RULES CHO CHÍNH XÁC
+            val selectionRule = if (service.isAdvanced) {
+                "Chọn 1 part trong category này - Có thể chọn part khác category khác"
             } else {
-                "Bắt buộc chọn 1 part - Không thể chọn part trùng category khác"
+                "Chọn 1 part - Tự động bỏ chọn part khác toàn service"
             }
             binding.tvSelectionRule.text = selectionRule
 
             // 🔥 HIỂN THỊ TRẠNG THÁI ĐÃ CHỌN
-            val selectedPart = partCategory.parts.find { it.isSelected }
-            if (selectedPart != null) {
-                binding.tvSelectedPart.text = "Đã chọn: ${selectedPart.partName}"
-                binding.tvSelectedPart.visibility = View.VISIBLE
-            } else {
-                binding.tvSelectedPart.visibility = View.GONE
-            }
+
 
             val adapter = QuotationPartAdapter(
                 parts = partCategory.parts,
                 isEditable = isEditable
             ) { partId ->
-                onPartToggle(serviceId, partCategory.partCategoryId, partId)
+                onPartToggle(service.quotationServiceId, partCategory.partCategoryId, partId)
             }
 
             binding.rvParts.adapter = adapter

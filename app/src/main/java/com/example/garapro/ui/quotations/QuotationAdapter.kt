@@ -64,7 +64,7 @@ class QuotationAdapter(
         private fun getStatusText(status: QuotationStatus): String {
             return when (status) {
                 QuotationStatus.Pending -> "Chờ xử lý"
-                QuotationStatus.Sent -> "Đã gửi"
+                QuotationStatus.Sent -> "Chưa quyết định"
                 QuotationStatus.Approved -> "Đã duyệt"
                 QuotationStatus.Rejected -> "Đã từ chối"
                 QuotationStatus.Expired -> "Hết hạn"

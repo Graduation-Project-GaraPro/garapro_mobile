@@ -3,95 +3,46 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="2dp"
-    app:cardBackgroundColor="#F8F9FA"
-    app:cardCornerRadius="4dp"
-    app:cardElevation="0dp">
+    android:layout_marginVertical="2dp"
+    app:cardCornerRadius="6dp"
+    app:cardElevation="0dp"
+    app:cardUseCompatPadding="true"
+    app:cardBackgroundColor="@color/surface_container_low">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="8dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+
+        >
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/cbPart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:buttonTint="@color/checkbox_color"
+            app:useMaterialThemeColors="true" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="4dp">
-
-            <CheckBox
-                android:id="@+id/cbPart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:buttonTint="#4CAF50" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tvPartName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Nhớt động cơ 5W-30"
-                    android:textColor="#333"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/tvPartDescription"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Nhớt tổng hợp cao cấp"
-                    android:textColor="#666"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tvPartPrice"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvPartName"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="500,000 ₫"
-                android:textColor="#4CAF50"
-                android:textSize="14sp"
+                android:text="Nhớt động cơ 5W-30"
+                android:textColor="@android:color/black"
+                android:textSize="10dp"
                 android:textStyle="bold" />
 
         </LinearLayout>
-        <TextView
-            android:id="@+id/tvQuantity"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Số lượng: 1"
-            android:textColor="#666"
-            android:textSize="12sp" />
-        <!-- Khuyến nghị -->
-        <TextView
-            android:id="@+id/tvRecommendation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:background="#E8F5E8"
-            android:padding="4dp"
-            android:text="Khuyến nghị"
-            android:textColor="#2E7D32"
-            android:textSize="12sp"
-            android:visibility="gone" />
-
-
-
-        <TextView
-            android:id="@+id/tvRecommendationNote"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:text="Ghi chú: Phụ tùng chính hãng"
-            android:textColor="#666"
-            android:textSize="12sp"
-            android:visibility="gone" />
 
     </LinearLayout>
 

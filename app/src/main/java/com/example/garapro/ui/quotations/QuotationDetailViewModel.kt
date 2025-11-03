@@ -153,50 +153,13 @@ class QuotationDetailViewModel(
         val currentQuotation = _quotation.value ?: return
 
         val updatedServices = currentQuotation.quotationServices.map { service ->
-            if (service.quotationServiceId == serviceId) {
-                service.copy(
-                    partCategories = service.partCategories.map { category ->
-                        val isTargetCategory = category.partCategoryId == partCategoryId
-
-                        if (isTargetCategory) {
-                            val partToToggle = category.parts.find { it.quotationServicePartId == partId } ?: return@map category
-
-                            val canSelectPart = validatePartSelection(
-                                serviceId = serviceId,
-                                categoryId = partCategoryId,
-                                partId = partId,
-                                category = category,
-                                allCategories = service.partCategories
-                            )
-
-                            if (!canSelectPart) return@map category
-
-                            val updatedParts = if (category.isAdvanced) {
-                                // ✅ Advanced: chỉ chọn 1 part trong 1 category
-                                category.parts.map { part ->
-                                    part.copy(isSelected = part.quotationServicePartId == partId)
-                                }
-                            } else {
-                                // ✅ Non-advanced: chỉ được chọn 1 part duy nhất trong toàn bộ service
-                                category.parts.map { part ->
-                                    part.copy(isSelected = part.quotationServicePartId == partId)
-                                }
-                            }
-
-                            category.copy(parts = updatedParts)
-                        } else {
-                            if (category.isAdvanced) {
-                                // ✅ Advanced: Giữ nguyên category khác
-                                category
-                            } else {
-                                // ✅ Non-advanced: Khi chọn part trong 1 category => bỏ chọn tất cả category khác
-                                category.copy(
-                                    parts = category.parts.map { it.copy(isSelected = false) }
-                                )
-                            }
-                        }
-                    }
-                )
+            if (service.quotationServiceId == serviceId) { // 🔥 ĐẢM BẢO DÙNG quotationServiceId
+                val updatedCategories = if (service.isAdvanced) {
+                    handleAdvancedSelection(service, partCategoryId, partId)
+                } else {
+                    handleNonAdvancedSelection(service, partCategoryId, partId)
+                }
+                service.copy(partCategories = updatedCategories)
             } else {
                 service
             }
@@ -205,59 +168,85 @@ class QuotationDetailViewModel(
         _quotation.value = currentQuotation.copy(quotationServices = updatedServices)
     }
 
+    private fun handleAdvancedSelection(
+        service: QuotationServiceDetail,
+        targetCategoryId: String,
+        targetPartId: String
+    ): List<PartCategory> {
+        return service.partCategories.map { category ->
+            if (category.partCategoryId == targetCategoryId) {
+                // ✅ Category đích: Toggle part selection (radio button trong category)
+                val updatedParts = category.parts.map { part ->
+                    part.copy(isSelected = part.quotationServicePartId == targetPartId)
+                }
+                category.copy(parts = updatedParts)
+            } else {
+                // ✅ Category khác: GIỮ NGUYÊN trạng thái (không thay đổi gì)
+                category
+            }
+        }
+    }
 
-    private fun validatePartSelection(
-        serviceId: String,
-        categoryId: String,
-        partId: String,
-        category: PartCategory,
-        allCategories: List<PartCategory>
-    ): Boolean {
-        val partToToggle = category.parts.find { it.quotationServicePartId == partId } ?: return false
+    private fun handleNonAdvancedSelection(
+        service: QuotationServiceDetail,
+        targetCategoryId: String,
+        targetPartId: String
+    ): List<PartCategory> {
+        val targetPart = service.partCategories
+            .flatMap { it.parts }
+            .find { it.quotationServicePartId == targetPartId }
 
-        // ✅ Luôn cho phép bỏ chọn
-        if (partToToggle.isSelected) return true
+        // ✅ Nếu part đã được chọn -> KHÔNG CHO BỎ CHỌN (luôn phải có 1 part được chọn)
+        val shouldDeselectAll = targetPart?.isSelected == true
 
-        // ✅ Non-advanced: không cần kiểm tra gì thêm
-        if (!category.isAdvanced) return true
+        // 🔥 QUAN TRỌNG: Non-advanced - không cho bỏ chọn nếu đây là part duy nhất đang được chọn
+        val totalSelectedParts = service.partCategories.flatMap { it.parts }.count { it.isSelected }
+        val canDeselect = totalSelectedParts > 1 // Chỉ cho bỏ chọn nếu còn part khác đang được chọn
 
-        // 🔥 Advanced: kiểm tra part có bị chọn ở Category khác không
-        val isPartAlreadySelectedInOtherCategory = allCategories.any { otherCategory ->
-            otherCategory.partCategoryId != categoryId &&
-                    otherCategory.parts.any { part ->
-                        part.partId == partToToggle.partId && part.isSelected
+        return service.partCategories.map { category ->
+            val updatedParts = if (category.partCategoryId == targetCategoryId) {
+                // ✅ Category đích
+                if (shouldDeselectAll && canDeselect) {
+                    // Cho phép bỏ chọn part này (vì còn part khác đang được chọn)
+                    category.parts.map { part ->
+                        if (part.quotationServicePartId == targetPartId) {
+                            part.copy(isSelected = false)
+                        } else {
+                            part
+                        }
                     }
+                } else if (shouldDeselectAll && !canDeselect) {
+                    // 🔥 KHÔNG CHO BỎ CHỌN - vì đây là part duy nhất đang được chọn
+                    category.parts.map { part ->
+                        part.copy(isSelected = part.quotationServicePartId == targetPartId)
+                    }
+                } else {
+                    // Chọn part mới
+                    category.parts.map { part ->
+                        part.copy(isSelected = part.quotationServicePartId == targetPartId)
+                    }
+                }
+            } else {
+                // ✅ Category khác: luôn bỏ chọn tất cả parts
+                category.parts.map { it.copy(isSelected = false) }
+            }
+            category.copy(parts = updatedParts)
         }
-
-        if (isPartAlreadySelectedInOtherCategory) {
-            _errorMessage.value = "Part \"${partToToggle.partName}\" đã được chọn trong category khác"
-            return false
-        }
-
-        return true
     }
 
 
+
     fun isServiceFullySelected(service: QuotationServiceDetail): Boolean {
-        // ✅ Service phải được chọn
         if (!service.isSelected) return false
 
-        // ✅ Nếu tất cả category đều là non-advanced
-        val allNonAdvanced = service.partCategories.all { !it.isAdvanced }
-
-        // ✅ Nếu service toàn non-advanced → chỉ cần có 1 part được chọn là đủ
-        if (allNonAdvanced) {
-            return service.partCategories.any { category ->
+        return if (service.isAdvanced) {
+            // ✅ Advanced: mỗi category phải có ít nhất 1 part được chọn
+            service.partCategories.all { category ->
                 category.parts.any { it.isSelected }
             }
-        }
-
-        // ✅ Nếu có category advanced → mỗi category advanced phải có ít nhất 1 part được chọn
-        return service.partCategories.all { category ->
-            when {
-                category.isAdvanced -> category.parts.any { it.isSelected } // advanced → cần chọn part trong category
-                else -> true // non-advanced → không bắt buộc phải có part riêng
-            }
+        } else {
+            // ✅ Non-advanced: chỉ cần có đúng 1 part được chọn trong toàn bộ service
+            service.partCategories.flatMap { it.parts }.count { it.isSelected } == 1
         }
     }
 
@@ -272,13 +261,13 @@ class QuotationDetailViewModel(
             return false
         }
 
+
+
         // ✅ Kiểm tra service nào chưa đủ parts theo logic advanced/non-advanced
         val incompleteServices = selectedServices.filterNot { isServiceFullySelected(it) }
 
         if (incompleteServices.isNotEmpty()) {
-            val incompleteNames = incompleteServices.joinToString { it.serviceName ?: "Unknown Service" }
-            _errorMessage.value =
-                "Các service sau chưa chọn đầy đủ part: $incompleteNames"
+            _errorMessage.value = getValidationMessage();
             return false
         }
 
@@ -287,11 +276,13 @@ class QuotationDetailViewModel(
 
     fun getValidationMessage(): String {
         val quotation = _quotation.value ?: return ""
+        val selectedServices = quotation.quotationServices.filter { it.isSelected }
 
-        val incompleteServices = quotation.quotationServices.filter { service ->
-            service.isSelected && !isServiceFullySelected(service)
+        if (selectedServices.isEmpty()) {
+            return "Vui lòng chọn ít nhất một service."
         }
 
+        val incompleteServices = selectedServices.filterNot { isServiceFullySelected(it) }
         return if (incompleteServices.isNotEmpty()) {
             "Các dịch vụ sau cần chọn part:\n" +
                     incompleteServices.joinToString("\n") { it.serviceName }
@@ -350,7 +341,7 @@ class QuotationDetailViewModel(
         val quotation = _quotation.value ?: return SubmitConfirmationType.REJECTED
 
         // LOGIC MỚI: Nếu có BẤT KỲ service nào bị bỏ chọn => TỪ CHỐI
-        val hasUnselectedServices = quotation.quotationServices.any { !it.isSelected }
+        val hasUnselectedServices = quotation.quotationServices.any { !it.isSelected && it.isRequired }
 
         return if (hasUnselectedServices) {
             SubmitConfirmationType.REJECTED
@@ -380,7 +371,19 @@ class QuotationDetailViewModel(
             val status = if (quotation.quotationServices.any{ !it.isSelected}) QuotationStatus.Rejected else QuotationStatus.Approved
             Log.d("quotation note", _customerNote.value.toString());
 
-            repository.submitCustomerResponse(
+
+
+            Log.d("quotation Request", CustomerResponseRequest(
+                                quotationId = quotation.quotationId,
+                                status = status,
+                                customerNote = _customerNote.value,
+                                selectedServices = selectedServices,
+                                selectedServiceParts = selectedParts
+                            ).toString());
+
+
+
+           repository.submitCustomerResponse(
                 CustomerResponseRequest(
                     quotationId = quotation.quotationId,
                     status = status,

@@ -228,7 +228,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="10dp">
 
                     <TextView
                         android:layout_width="match_parent"
@@ -270,7 +270,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Ghi chú (bắt buộc khi từ chối)"
+                        android:text="Ghi chú (*)"
                         android:textColor="#000000"
                         android:textSize="16sp"
                         android:textStyle="bold" />
@@ -345,39 +345,41 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="12dp"
                 android:orientation="horizontal"
-                android:layout_margin="16dp">
+                android:gravity="center">
 
+                <!-- Nút Từ chối -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnReject"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
-                    android:text="Từ chối toàn bộ"
-                    android:backgroundTint="@color/red" />
+                    android:text="Từ chối"
+                    android:textAllCaps="false"
+                    android:textColor="@color/red"
+                    app:strokeColor="@color/red"
+                    app:strokeWidth="1dp" />
 
+                <!-- Nút Chấp nhận -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSubmit"
+                    style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
-                    android:text="Chấp nhận dịch vụ đã chọn" />
+                    android:text="Chấp nhận"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
+                    android:backgroundTint="@color/primary_color" />
 
             </LinearLayout>
-            <!-- Nút hành động -->
-<!--            <com.google.android.material.button.MaterialButton-->
-<!--                android:id="@+id/btnSubmit"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="Gửi phản hồi"-->
-<!--                android:textSize="16sp"-->
-<!--                android:backgroundTint="#000000"-->
-<!--                android:textColor="#FFFFFF"-->
-<!--                app:icon="@drawable/ic_send"-->
-<!--                app:iconGravity="textStart"-->
-<!--                app:cornerRadius="8dp" />-->
+
 
         </LinearLayout>
 

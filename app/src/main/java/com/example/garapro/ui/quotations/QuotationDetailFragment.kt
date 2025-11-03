@@ -188,22 +188,37 @@ class QuotationDetailFragment : Fragment() {
     }
 
     private fun showRejectConfirmation() {
-        val customerNote = viewModel.customerNote.value
-
-        if (customerNote.isNullOrBlank() || customerNote.length < 10) {
-            Snackbar.make(binding.root, "Vui lòng nhập ghi chú ít nhất 10 ký tự", Snackbar.LENGTH_SHORT).show()
-            return
-        }
-
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Xác nhận từ chối")
-            .setMessage("Bạn có chắc chắn muốn từ chối toàn bộ báo giá này?")
-            .setPositiveButton("Từ chối") { _, _ ->
-                viewModel.rejectQuotation(customerNote)
+            .setTitle("Từ chối báo giá")
+            .setMessage("Bạn có muốn cho chúng tôi biết lý do từ chối?")
+            .setPositiveButton("Có, nhập lý do") { _, _ ->
+                // Hiện customer note section và focus vào input
+                binding.customerNoteSection.visibility = View.VISIBLE
+                binding.etCustomerNote.requestFocus()
+
+                // Hiện nút từ chối sau khi nhập lý do
+                setupRejectWithNoteMode()
             }
-            .setNegativeButton("Hủy", null)
+            .setNegativeButton("Không") { _, _ ->
+                // Gửi request với customerNote trống
+                viewModel.rejectQuotation("")
+            }
+            .setNeutralButton("Hủy", null)
             .show()
     }
+
+    private fun setupRejectWithNoteMode() {
+        binding.btnReject.text = "Gửi lý do từ chối"
+        binding.btnReject.setOnClickListener {
+            val note = viewModel.customerNote.value ?: ""
+            if (note.length >= 10) {
+                viewModel.rejectQuotation(note)
+            } else {
+                Snackbar.make(binding.root, "Vui lòng nhập ít nhất 10 ký tự", Snackbar.LENGTH_SHORT).show()
+            }
+        }
+    }
+
 
 
     /**
@@ -235,10 +250,15 @@ class QuotationDetailFragment : Fragment() {
             // Vô hiệu hóa edit text và hiển thị note
             binding.etCustomerNote.isEnabled = false
             binding.etCustomerNote.setText(quotation?.note)
-            binding.tilCustomerNote.helperText = "Ghi chú từ khách hàng"
+            binding.tilCustomerNote.helperText = "Ghi chú từ của bạn"
             binding.tilCustomerNote.boxBackgroundColor = ContextCompat.getColor(requireContext(), R.color.gray_light)
         } else {
-            binding.customerNoteSection.visibility = View.GONE
+            binding.customerNoteSection.visibility = View.VISIBLE // 👈 giữ hiển thị
+            binding.etCustomerNote.isEnabled = false
+            binding.etCustomerNote.setText("Không có")
+            binding.tilCustomerNote.helperText = "Không có ghi chú"
+            binding.tilCustomerNote.boxBackgroundColor =
+           ContextCompat.getColor(requireContext(), R.color.gray_light)
         }
         // Hiện thông báo trạng thái
 
@@ -308,13 +328,19 @@ class QuotationDetailFragment : Fragment() {
         val canSubmit = viewModel.canSubmit.value == true
         val isRejectMode = viewModel.isRejectMode.value == true
 
+
         binding.btnSubmit.isEnabled = canSubmit && !isSubmitting
         binding.btnReject.isEnabled = !isSubmitting
-
+        if (!canSubmit || isSubmitting) {
+            binding.btnSubmit.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.material_on_surface_disabled))
+        } else {
+            binding.btnSubmit.setBackgroundColor(ContextCompat.getColor(requireContext(),
+                if (isRejectMode) R.color.blue else R.color.green))
+        }
         binding.btnSubmit.text = when {
             isSubmitting -> "Đang gửi..."
             isRejectMode -> "Chấp nhận một phần" // Nút này để quay lại chọn service
-            else -> "Chấp nhận dịch vụ đã chọn"
+            else -> "Chấp nhận"
         }
 
         binding.btnSubmit.setBackgroundColor(ContextCompat.getColor(requireContext(),
@@ -348,9 +374,9 @@ class QuotationDetailFragment : Fragment() {
     private fun showSubmitConfirmation() {
         val quotation = viewModel.quotation.value ?: return
 
-        // 🔥 KIỂM TRA VALIDATION TRƯỚC KHI SUBMIT
-        if (!viewModel.validateQuotationSelection()) {
-            val validationMessage = viewModel.getValidationMessage()
+        // 🔥 KIỂM TRA VALIDATION - nếu fail thì chỉ hiện 1 thông báo và return
+        val validationMessage = viewModel.getValidationMessage()
+        if (validationMessage.isNotEmpty()) {
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Thiếu thông tin")
                 .setMessage(validationMessage)
@@ -410,7 +436,7 @@ class QuotationDetailFragment : Fragment() {
     private fun getStatusText(status: QuotationStatus): String {
         return when (status) {
             QuotationStatus.Pending -> "Chờ xử lý"
-            QuotationStatus.Sent -> "Đã gửi"
+            QuotationStatus.Sent -> "Chưa quyết định"
             QuotationStatus.Approved -> "Đã duyệt"
             QuotationStatus.Rejected -> "Đã từ chối"
             QuotationStatus.Expired -> "Hết hạn"
