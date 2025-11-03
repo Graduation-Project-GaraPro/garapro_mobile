@@ -5,6 +5,8 @@
     android:id="@+id/nav_customer"
     app:startDestination="@id/homeFragment">
 
+    <!-- Bottom Navigation Destinations -->
+
     <!-- Home -->
     <fragment
         android:id="@+id/homeFragment"
@@ -12,12 +14,33 @@
         android:label="Trang chính"
         tools:layout="@layout/fragment_home" />
 
-    <!-- Vehicles -->
+    <!-- Appointment Navigation (Container cho TabLayout) -->
     <fragment
-        android:id="@+id/vehiclesFragment"
-        android:name="com.example.garapro.ui.vehicles.VehiclesFragment"
-        android:label="Xe của tôi"
-        tools:layout="@layout/fragment_vehicles" />
+        android:id="@+id/appointmentNavFragment"
+        android:name="com.example.garapro.ui.appointmentNav.AppointmentNavFragment"
+        android:label="Đặt lịch"
+        tools:layout="@layout/fragment_appointment_nav" />
+
+    <!-- Repair Tracking -->
+    <fragment
+        android:id="@+id/repairTrackingFragment"
+        android:name="com.example.garapro.ui.RepairProgress.RepairProgressListFragment"
+        android:label="Quá trình sửa chữa"
+        tools:layout="@layout/fragment_repair_tracking">
+
+        <action
+            android:id="@+id/action_repairTrackingFragment_to_repairProgressDetailFragment"
+            app:destination="@id/repairProgressDetailFragment" />
+    </fragment>
+
+    <!-- Profile -->
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.garapro.ui.profile.ProfileFragment"
+        android:label="Hồ sơ"
+        tools:layout="@layout/fragment_profile" />
+
+    <!-- Nested Destinations trong AppointmentNavFragment -->
 
     <!-- Appointments -->
     <fragment
@@ -26,6 +49,58 @@
         android:label="Lịch hẹn"
         tools:layout="@layout/fragment_appointments" />
 
+    <!-- Quotations -->
+    <fragment
+        android:id="@+id/quotationsFragment"
+        android:name="com.example.garapro.ui.quotations.QuotationsFragment"
+        android:label="Báo Giá"
+        tools:layout="@layout/fragment_quotations">
+
+        <action
+            android:id="@+id/action_quotationsFragment_to_quotationDetailFragment"
+            app:destination="@id/quotationDetailFragment" />
+    </fragment>
+
+    <!-- Detail Destinations -->
+
+    <!-- Quotation Detail -->
+    <fragment
+        android:id="@+id/quotationDetailFragment"
+        android:name="com.example.garapro.ui.quotations.QuotationDetailFragment"
+        android:label="Chi tiết Báo Giá"
+        tools:layout="@layout/fragment_quotation_detail">
+
+        <argument
+            android:name="quotationId"
+            app:argType="string" />
+    </fragment>
+
+
+    <action
+        android:id="@+id/action_global_quotationDetailFragment"
+        app:destination="@id/quotationDetailFragment" />
+
+    <!-- Repair Progress Detail -->
+    <fragment
+        android:id="@+id/repairProgressDetailFragment"
+        android:name="com.example.garapro.ui.RepairProgress.RepairProgressDetailFragment"
+        android:label="Chi tiết Sửa chữa"
+        tools:layout="@layout/fragment_repair_progress_detail">
+
+        <argument
+            android:name="repairOrderId"
+            app:argType="string" />
+    </fragment>
+
+    <!-- Secondary Destinations (có thể truy cập từ menu khác) -->
+
+    <!-- Vehicles -->
+    <fragment
+        android:id="@+id/vehiclesFragment"
+        android:name="com.example.garapro.ui.vehicles.VehiclesFragment"
+        android:label="Xe của tôi"
+        tools:layout="@layout/fragment_vehicles" />
+
     <!-- Notifications -->
     <fragment
         android:id="@+id/notificationsFragment"
@@ -33,10 +108,4 @@
         android:label="Thông báo"
         tools:layout="@layout/fragment_notifications" />
 
-    <!-- Profile -->
-    <fragment
-        android:id="@+id/profileFragment"
-        android:name="com.example.garapro.ui.profile.ProfileFragment"
-        android:label="Hồ sơ"
-        tools:layout="@layout/fragment_profile" />
 </navigation>

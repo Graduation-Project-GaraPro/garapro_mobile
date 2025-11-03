@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:gravity="center_vertical"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:layout_marginBottom="6dp"
+    android:backgroundTint="@android:color/transparent">
+
+    <!-- Checkbox -->
+    <CheckBox
+        android:id="@+id/checkboxPart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="12dp" />
+
+    <!-- Nội dung phần thông tin linh kiện -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="1">
+
+        <!-- Tên linh kiện -->
+        <TextView
+            android:id="@+id/tvPartName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Part Name"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:ellipsize="end"
+            android:maxLines="1" />
+
+        <!-- Giá linh kiện -->
+        <TextView
+            android:id="@+id/tvPartPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Price"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary"
+            android:layout_marginTop="2dp" />
+    </LinearLayout>
+
+    <!-- Tình trạng hàng -->
+    <TextView
+        android:id="@+id/tvStock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Còn hàng"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:paddingStart="8dp"
+        android:paddingEnd="4dp"
+        android:textColor="@color/success"
+        android:background="@drawable/bg_stock_label"
+        android:paddingVertical="2dp"
+        android:minWidth="60dp"
+        android:gravity="center" />
+</LinearLayout>

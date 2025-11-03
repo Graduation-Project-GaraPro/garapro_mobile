@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/homeFragment"
+            android:icon="@drawable/ic_home"
+            android:title="Trang chủ" />
+        <item
+            android:id="@+id/vehiclesFragment"
+            android:icon="@drawable/ic_car"
+            android:title="Phương tiện" />
+        <item
+            android:id="@+id/appointmentsFragment"
+            android:icon="@drawable/ic_calendar"
+            android:title="Lịch hẹn" />
+        <item
+            android:id="@+id/quotationsFragment"
+            android:icon="@drawable/ic_quotation"
+            android:title="Báo Giá" />
+        <item
+            android:id="@+id/repairTrackingFragment"
+            android:icon="@drawable/ic_repair"
+            android:title="Theo dõi Sửa chữa" />
+        <item
+            android:id="@+id/notificationsFragment"
+            android:icon="@drawable/ic_notifications"
+            android:title="Thông báo" />
+        <item
+            android:id="@+id/profileFragment"
+            android:icon="@drawable/ic_user"
+            android:title="Hồ sơ" />
+    </group>
+</menu>

@@ -23,8 +23,48 @@
     <color name="warning">#FF9800</color>
     <color name="info">#2196F3</color>
 
+
     <!-- Common colors -->
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
+    <color name="primary_color">#2196F3</color>
+    <color name="gray">#757575</color>
+    <color name="selected_color">#E3F2FD</color>
+
+    <!-- New colors for part item -->
+    <color name="green">#4CAF50</color>
+    <color name="red">#F44336</color>
+    <color name="orange">#FF9800</color>
+    <color name="blue">#2196F3</color>
+
+
+    <color name="gray_light">#D3D3D3</color> <!-- Light Gray -->
+
+
+    <color name="divider">#E0E0E0</color>
+
+    <!-- Quotation status colors -->
+    <!-- Chip selector -->
+    <color name="chip_selector">#E0E0E0</color>
+
+    <color name="selected_part_bg">#E8F5E8</color>
+    <color name="unselected_part_bg">#FFFFFF</color>
+    <color name="material_on_surface_disabled">#1F000000</color>
+    <color name="checkbox_disabled">#BDBDBD</color>
+
+    <!-- Màu cơ bản -->
+    <color name="checkbox_color">#424242</color>
+    <color name="success_color">#4CAF50</color>
+    <color name="error_color">#F44336</color>
+
+    <!-- Surface colors theo Material Design 3 -->
+    <color name="surface_container">#F5F5F5</color>
+    <color name="surface_container_low">#FAFAFA</color>
+    <color name="surface_container_highest">#E0E0E0</color>
+
+    <!-- Material emphasis colors -->
+    <color name="material_on_surface_emphasis_medium">#6D6D6D</color>
+
+
 </resources>

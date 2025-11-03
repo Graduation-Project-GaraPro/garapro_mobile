@@ -52,6 +52,7 @@ class TokenManager(private val context: Context) {
         return context.dataStore.data.first()[USER_ROLE_KEY]
     }
 
+
     suspend fun clearUserRole() {
         context.dataStore.edit { it.remove(USER_ROLE_KEY) }
     }

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph_booking"
+    app:startDestination="@id/vehicleSelectionFragment">
+
+    <fragment
+        android:id="@+id/vehicleSelectionFragment"
+        android:name="com.example.garapro.ui.repairRequest.VehicleSelectionFragment"
+        android:label="Chọn Xe"
+        tools:layout="@layout/fragment_vehicle_selection">
+        <action
+            android:id="@+id/action_vehicleSelection_to_branchSelection"
+            app:destination="@id/branchSelectionFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/branchSelectionFragment"
+        android:name="com.example.garapro.ui.repairRequest.BranchSelectionFragment"
+        android:label="Chọn Chi Nhánh"
+        tools:layout="@layout/fragment_branch_selection">
+        <action
+            android:id="@+id/action_branchSelection_to_parentCategorySelection"
+            app:destination="@id/parentCategorySelectionFragment" />
+        <action
+            android:id="@+id/action_branchSelection_to_vehicleSelection"
+            app:destination="@id/vehicleSelectionFragment"
+            app:popUpTo="@id/vehicleSelectionFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/serviceSelectionFragment"
+        android:name="com.example.garapro.ui.repairRequest.ServiceSelectionFragment"
+        android:label="Chọn Dịch Vụ"
+        tools:layout="@layout/fragment_service_selection">
+        <action
+            android:id="@+id/action_serviceSelection_to_details"
+            app:destination="@id/detailsFragment" />
+        <action
+            android:id="@+id/action_serviceSelection_to_branchSelection"
+            app:destination="@id/branchSelectionFragment"
+            app:popUpTo="@id/branchSelectionFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/detailsFragment"
+        android:name="com.example.garapro.ui.repairRequest.DetailsFragment"
+        android:label="Thông Tin Đặt Lịch"
+        tools:layout="@layout/fragment_details">
+        <action
+            android:id="@+id/action_details_to_confirmation"
+            app:destination="@id/confirmationFragment" />
+        <action
+            android:id="@+id/action_details_to_servicePartsSelection"
+            app:destination="@id/servicePartsSelectionFragment"
+            app:popUpTo="@id/servicePartsSelectionFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- New Parent Category Selection -->
+    <fragment
+        android:id="@+id/parentCategorySelectionFragment"
+        android:name="com.example.garapro.ui.repairRequest.ParentCategorySelectionFragment"
+        android:label="Chọn Danh Mục"
+        tools:layout="@layout/fragment_parent_booking_category_selection">
+        <action
+            android:id="@+id/action_parentCategorySelection_to_childCategorySelection"
+            app:destination="@id/childCategorySelectionFragment" />
+
+        <action
+            android:id="@+id/action_parentCategorySelection_to_branchSelection"
+            app:destination="@id/branchSelectionFragment"
+            app:popUpTo="@id/branchSelectionFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- New Child Category Selection -->
+    <fragment
+        android:id="@+id/childCategorySelectionFragment"
+        android:name="com.example.garapro.ui.repairRequest.ChildCategorySelectionFragment"
+        android:label="Chọn Dịch Vụ"
+        tools:layout="@layout/fragment_child_booking_category_selection">
+        <action
+            android:id="@+id/action_childCategorySelection_to_servicePartsSelection"
+            app:destination="@id/servicePartsSelectionFragment" />
+
+        <action
+            android:id="@+id/action_childCategorySelection_to_details"
+            app:destination="@id/detailsFragment" />
+        <action
+            android:id="@+id/action_childCategorySelection_to_parentCategorySelection"
+            app:destination="@id/parentCategorySelectionFragment"
+            app:popUpTo="@id/parentCategorySelectionFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- New Service Parts Selection -->
+    <fragment
+        android:id="@+id/servicePartsSelectionFragment"
+        android:name="com.example.garapro.ui.repairRequest.ServicePartsSelectionFragment"
+        android:label="Chọn Linh Kiện"
+        tools:layout="@layout/fragment_service_booking_parts_selection">
+        <action
+            android:id="@+id/action_servicePartsSelection_to_details"
+            app:destination="@id/detailsFragment" />
+        <action
+            android:id="@+id/action_servicePartsSelection_to_childCategorySelection"
+            app:destination="@id/childCategorySelectionFragment"
+            app:popUpTo="@id/childCategorySelectionFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/confirmationFragment"
+        android:name="com.example.garapro.ui.repairRequest.ConfirmationFragment"
+        android:label="Xác Nhận Đặt Lịch"
+        tools:layout="@layout/fragment_booking_confirmation" />
+
+</navigation>

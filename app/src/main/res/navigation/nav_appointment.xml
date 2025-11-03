@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_appointment"
+    app:startDestination="@id/appointmentsFragment">
+
+    <fragment
+        android:id="@+id/appointmentsFragment"
+        android:name="com.example.garapro.ui.appointments.AppointmentsFragment"
+        android:label="Lịch hẹn"
+        tools:layout="@layout/fragment_appointments" />
+
+    <fragment
+        android:id="@+id/quotationsFragment"
+        android:name="com.example.garapro.ui.quotations.QuotationsFragment"
+        android:label="Báo Giá"
+        tools:layout="@layout/fragment_quotations">
+
+        <action
+            android:id="@+id/action_quotationsFragment_to_quotationDetailFragment"
+            app:destination="@id/quotationDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/quotationDetailFragment"
+        android:name="com.example.garapro.ui.quotations.QuotationDetailFragment"
+        android:label="Chi tiết Báo Giá"
+        tools:layout="@layout/fragment_quotation_detail">
+
+        <argument
+            android:name="quotationId"
+            app:argType="string" />
+    </fragment>
+</navigation>
