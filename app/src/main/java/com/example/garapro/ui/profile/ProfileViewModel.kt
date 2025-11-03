@@ -1,12 +1,16 @@
 package com.example.garapro.ui.profile
 
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.garapro.data.local.TokenManager
 import com.example.garapro.data.model.ImageResponse
 import com.example.garapro.data.model.User
 import com.example.garapro.data.repository.UserRepository
+import com.example.garapro.ui.login.LoginActivity
 import com.example.garapro.utils.Resource
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
@@ -55,4 +59,16 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
             _uploadState.value = result
         }
     }
+
+    fun logout(context: Context) {
+        viewModelScope.launch {
+            val tokenManager = TokenManager(context)
+            tokenManager.clearTokens()
+
+            val intent = Intent(context, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            context.startActivity(intent)
+        }
+    }
+
 }
