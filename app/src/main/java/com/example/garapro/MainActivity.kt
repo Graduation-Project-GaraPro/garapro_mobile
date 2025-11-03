@@ -1,10 +1,14 @@
 package com.example.garapro
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -23,6 +27,7 @@ import com.example.garapro.utils.Constants
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), TokenExpiredListener {
@@ -48,7 +53,18 @@ class MainActivity : AppCompatActivity(), TokenExpiredListener {
             }
         }
 
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val token = task.result
+                Log.d("DeviceToken", "Current token: $token")
+            } else {
+                Log.w("DeviceToken", "Fetching FCM token failed", task.exception)
+            }
+        }
+
         requestNotificationPermission()
+
+
     }
     private fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -65,6 +81,8 @@ class MainActivity : AppCompatActivity(), TokenExpiredListener {
             }
         }
     }
+
+
     private fun setupNavigationByRole(role: String?) {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
