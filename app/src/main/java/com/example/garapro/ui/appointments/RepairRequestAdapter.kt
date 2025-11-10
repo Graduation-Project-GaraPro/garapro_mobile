@@ -83,20 +83,14 @@ class RepairRequestAdapter(
         }
 
         private fun getStatusText(status: Int): String {
-//            return when (status) {
-//                0 -> "PENDING"
-//                1 -> "ACCEPTED"
-//                2 -> "ARRIVED"
-//                3 -> "CANCELLED"
-//                else -> "UNKNOWN"
-//            }
             return when (status) {
-                0 -> "Đang chờ xử lý"
-                1 -> "Đã chấp nhận"
-                2 -> "Đã đến nơi"
-                3 -> "Đã hủy"
-                else -> "Không xác định"
+                0 -> "PENDING"
+                1 -> "ACCEPTED"
+                2 -> "ARRIVED"
+                3 -> "CANCELLED"
+                else -> "UNKNOWN"
             }
+
         }
 
         private fun getStatusBackground(status: Int): Int {

@@ -65,12 +65,12 @@ class ConfirmationFragment : BaseBookingFragment() {
     private fun displayConfirmationData() {
         // Vehicle
         bookingViewModel.selectedVehicle.value?.let { vehicle ->
-            binding.tvVehicle.text = "${vehicle.brandName} ${vehicle.modelName}\nBiển số: ${vehicle.licensePlate}\nNăm sản xuất: ${vehicle.year}"
+            binding.tvVehicle.text = "${vehicle.brandName} ${vehicle.modelName}\nLicense plate: ${vehicle.licensePlate}\nYear: ${vehicle.year}"
         }
 
         // Branch
         bookingViewModel.selectedBranch.value?.let { branch ->
-            binding.tvBranch.text = "${branch.branchName}\n${branch.district}, ${branch.city}\nĐiện thoại: ${branch.phoneNumber}"
+            binding.tvBranch.text = "${branch.branchName}\n${branch.street}, ${branch.commune}, ${branch.province}\nPhone: ${branch.phoneNumber}"
         }
 
         // Services
@@ -88,15 +88,14 @@ class ConfirmationFragment : BaseBookingFragment() {
 
         // Images
         bookingViewModel.imageUris.value?.let { images ->
-            binding.tvImages.text = "Số ảnh: ${images.size}"
+            binding.tvImages.text = "Number of images: ${images.size}"
             imageAdapter.updateData(images.toMutableList())
         }
 
         // Total Price
         val totalPrice = bookingViewModel.calculateTotalPrice()
-        binding.tvTotalPrice.text = "Tổng tiền: ${MoneyUtils.formatVietnameseCurrency(totalPrice)}"
+        binding.tvTotalPrice.text = "Total: ${MoneyUtils.formatVietnameseCurrency(totalPrice)}"
     }
-
     private fun displayServicesDetails() {
         val container = binding.containerServices
         container.removeAllViews()

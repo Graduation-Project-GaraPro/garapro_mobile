@@ -103,6 +103,13 @@ class AppointmentsViewModel(private val repository: BookingRepository) : ViewMod
         refreshData()
     }
 
+    fun clearAllFilters() {
+        currentStatus = null
+        currentVehicleId = null
+        currentBranchId = null
+        loadInitialData() // hoặc refresh data
+    }
+
 
 
     // 🔹 Gọi API lấy RepairRequests (đã hỗ trợ phân trang, filter)
@@ -124,6 +131,7 @@ class AppointmentsViewModel(private val repository: BookingRepository) : ViewMod
         hasMore = result.size >= 10
         currentPage = page
     }
+
 
 
 }

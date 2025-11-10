@@ -82,14 +82,13 @@ class BookingActivity : AppCompatActivity(), TokenExpiredListener {
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             supportActionBar?.title = when (destination.id) {
-                R.id.vehicleSelectionFragment -> "Chọn Xe"
-                R.id.branchSelectionFragment -> "Chọn Chi Nhánh"
-                R.id.parentCategorySelectionFragment -> "Chọn Danh mục Dịch vụ"
-                R.id.childCategorySelectionFragment -> "Chọn Dịch Vụ Theo Thể Loại"
-//                R.id.servicePartsSelectionFragment -> "Chọn Linh Kiện Theo Dịch Vụ"
-                R.id.detailsFragment -> "Thông Tin Đặt Lịch"
-                R.id.confirmationFragment -> "Xác Nhận"
-                else -> "Đặt Lịch Sửa Chữa"
+                R.id.vehicleSelectionFragment -> "Select Vehicle"
+                R.id.branchSelectionFragment -> "Select Branch"
+                R.id.parentCategorySelectionFragment -> "Select Service Category"
+                R.id.childCategorySelectionFragment -> "Select Service by Type"
+                R.id.detailsFragment -> "Booking Information"
+                R.id.confirmationFragment -> "Confirmation"
+                else -> "Repair Booking"
             }
         }
     }

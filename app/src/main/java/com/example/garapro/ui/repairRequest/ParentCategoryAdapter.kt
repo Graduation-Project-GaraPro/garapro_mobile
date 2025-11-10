@@ -35,7 +35,7 @@ class ParentCategoryAdapter(
         holder.tvCategoryName.text = category.categoryName
         holder.tvDescription.text = category.description
 
-        holder.tvChildCount.text = category.childCategories?.size.toString() + " Loại dịch vụ đang có";
+        holder.tvChildCount.text = category.childCategories?.size.toString() + " service types available"
         holder.cardView.setOnClickListener {
             Log.d("ParentTochild","toggle");
             onCategorySelected(category)

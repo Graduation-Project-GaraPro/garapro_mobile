@@ -58,7 +58,8 @@ data class Repair(
 data class Part(
     val partId: String,
     val name: String,
-    val price: Double
+    val price: Double,
+    val description: String
 )
 
 data class Technician(

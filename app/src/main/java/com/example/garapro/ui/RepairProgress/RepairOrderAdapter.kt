@@ -62,17 +62,16 @@ class RepairOrderAdapter(
             binding.apply {
                 vehicleInfo.text = "${item.vehicleLicensePlate} • ${item.vehicleModel}"
                 receiveDate.text = formatDate(item.receiveDate)
-                statusText.text = getStatusNameVietnamese(item.statusName)
+                statusText.text = getStatusNameEnglish(item.statusName)
                 progressStatus.text = item.progressStatus
                 progressPercentage.text = (item.progressPercentage?.toString() ?: "0") + "%"
                 progressBar.progress = item.progressPercentage
                 costText.text = formatCurrency(item.cost)
-                paidStatusText.text = getPaidStatusVietnamese(item.paidStatus)
-                roTypeText.text = getROTypeNameVietnamese(item.roType)
+                paidStatusText.text = getPaidStatusEnglish(item.paidStatus)
+                roTypeText.text = getROTypeNameEnglish(item.roType)
                 Log.d("progressPercentage",item.progressPercentage.toString())
                 // Set status color
                 val statusColor = getStatusColor(item.statusName)
-//                statusText.setTextColor(statusColor)
                 statusText.setBackgroundColor(statusColor)
 
                 // Setup labels
@@ -81,17 +80,7 @@ class RepairOrderAdapter(
         }
 
         private fun setupLabels(labels: List<Label>) {
-//            binding.labelsContainer.removeAllViews()
-//            labels.forEach { label ->
-//                val chip = Chip(binding.root.context).apply {
-//                    text = label.labelName
-//                    setTextColor(Color.parseColor(label.hexCode))
-//                    chipStrokeColor = ColorStateList.valueOf(Color.parseColor(label.hexCode))
-//                    chipStrokeWidth = 1f
-//                    setChipBackgroundColorResource(android.R.color.transparent)
-//                }
-//                binding.labelsContainer.addView(chip)
-//            }
+            // Commented out label setup
         }
 
         private fun formatDate(dateString: String): String {
@@ -117,29 +106,31 @@ class RepairOrderAdapter(
                 else -> ContextCompat.getColor(binding.root.context, R.color.gray)
             }
         }
-        private fun getStatusNameVietnamese(statusName: String): String{
+
+        private fun getStatusNameEnglish(statusName: String): String {
             return when (statusName) {
-                "Completed" -> "Hoàn tất"
-                "In Progress" -> "Đang sửa"
-                "Pending" -> "Đang xử lý"
-                else -> "Không xác định"
-            }
-        }
-        private fun getPaidStatusVietnamese(statusName: String): String{
-            return when (statusName) {
-                "Paid" -> "Đã thanh toán"
-                "Partial" -> "Trả 1 phần"
-                "Pending" -> "chưa thanh toán"
-                else -> "Không xác định"
+                "Completed" -> "Completed"
+                "In Progress" -> "In Progress"
+                "Pending" -> "Pending"
+                else -> "Unknown"
             }
         }
 
-        private fun getROTypeNameVietnamese(statusName: String): String{
+        private fun getPaidStatusEnglish(statusName: String): String {
             return when (statusName) {
-                "WalkIn" -> "vãng lai"
-                "Scheduled" -> "Đặt lịch"
-                "Breakdown" -> "Sự cố"
-                else -> "Không xác định"
+                "Paid" -> "Paid"
+                "Partial" -> "Partial"
+                "Unpaid" -> "Pending"
+                else -> "Unknown"
+            }
+        }
+
+        private fun getROTypeNameEnglish(statusName: String): String {
+            return when (statusName) {
+                "WalkIn" -> "Walk-in"
+                "Scheduled" -> "Scheduled"
+                "Breakdown" -> "Breakdown"
+                else -> "Unknown"
             }
         }
     }

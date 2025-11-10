@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.example.garapro.R
 import com.example.garapro.databinding.FragmentAppointmentNavBinding
 import com.example.garapro.ui.appointments.AppointmentsFragment
 import com.example.garapro.ui.quotations.QuotationsFragment
@@ -34,14 +36,21 @@ class AppointmentNavFragment : Fragment() {
         val adapter = ViewPagerAdapter(this)
 
         // Thêm AppointmentsFragment và QuotationsFragment
-        adapter.addFragment(com.example.garapro.ui.appointments.AppointmentsFragment(), "Lịch hẹn")
-        adapter.addFragment(com.example.garapro.ui.quotations.QuotationsFragment(), "Báo giá")
+        adapter.addFragment(com.example.garapro.ui.appointments.AppointmentsFragment(), "Appointments")
+        adapter.addFragment(com.example.garapro.ui.quotations.QuotationsFragment(), "Quotations")
 
         binding.viewPager.adapter = adapter
 
         // Kết nối TabLayout với ViewPager2
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = adapter.getPageTitle(position)
+            when (position) {
+                0 -> tab.setIcon(R.drawable.ic_calendar)
+                1 -> tab.setIcon(R.drawable.ic_quotation)
+            }
+
+            // Optional: Customize icon appearance
+            tab.icon?.setTintList(ContextCompat.getColorStateList(requireContext(), R.color.black))
         }.attach()
     }
 

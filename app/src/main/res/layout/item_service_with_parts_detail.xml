@@ -16,7 +16,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Giá chưa bao gồm giá linh kiện:"
+            android:text="Price does not include parts cost:"
             android:textColor="@color/text_secondary"
             android:textSize="12sp"
             android:layout_marginBottom="4dp" />

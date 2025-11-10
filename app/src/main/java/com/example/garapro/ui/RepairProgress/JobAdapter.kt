@@ -60,7 +60,7 @@ class JobAdapter : ListAdapter<Job, JobAdapter.ViewHolder>(DiffCallback) {
             binding.apply {
                 jobName.text = job.jobName
                 jobLevel.text = "Level ${job.level}"
-                jobStatus.text = getStatusNameVietnamese(job.status)
+                jobStatus.text = getStatusNameEnglish(job.status)
                 jobAmount.text = formatCurrency(job.totalAmount)
                 jobDeadline.text = formatDate(job.deadline)
                 jobNote.text = job.note ?: "No note"
@@ -68,9 +68,9 @@ class JobAdapter : ListAdapter<Job, JobAdapter.ViewHolder>(DiffCallback) {
                 // Set status background color
                 setJobStatusColor(job.status)
 
-                // Setup repair info
+                // Setup service details
                 job.repair?.let { repair ->
-                    repairInfoLayout.visibility = View.VISIBLE
+                    serviceDetailsCard.visibility = View.VISIBLE
                     repairDescription.text = repair.description
                     estimatedTime.text = repair.estimatedTime ?: "N/A"
 
@@ -85,7 +85,7 @@ class JobAdapter : ListAdapter<Job, JobAdapter.ViewHolder>(DiffCallback) {
                     // Repair times
                     setupRepairTimes(repair)
                 } ?: run {
-                    repairInfoLayout.visibility = View.GONE
+                    serviceDetailsCard.visibility = View.GONE
                 }
 
                 // Setup technicians
@@ -115,74 +115,83 @@ class JobAdapter : ListAdapter<Job, JobAdapter.ViewHolder>(DiffCallback) {
             }
         }
 
-        private fun getStatusNameVietnamese(statusName: String): String {
+        private fun getStatusNameEnglish(statusName: String): String {
             return when (statusName) {
-                "Pending" -> "Đang chờ"
-                "New" -> "Mới"
-                "InProgress" -> "Đang sửa"
-                "Completed" -> "Hoàn tất"
-                "OnHold" -> "Tạm dừng"
-                else -> "Không xác định"
+                "Pending" -> "Pending"
+                "New" -> "New"
+                "InProgress" -> "In Progress"
+                "Completed" -> "Completed"
+                "OnHold" -> "On Hold"
+                else -> "Unknown"
             }
         }
+
         private fun setupRepairTimes(repair: Repair) {
-            val times = StringBuilder()
             var hasTimeInfo = false
 
+            // Reset all layouts
+            binding.repairTimeLogsLayout.visibility = View.GONE
+            binding.startTimeLayout.visibility = View.GONE
+            binding.endTimeLayout.visibility = View.GONE
+            binding.actualTimeLayout.visibility = View.GONE
+
+            // Setup start time
             repair.startTime?.let { startTimeString ->
                 parseTimeString(startTimeString)?.let { startTime ->
-                    times.append("• Bắt đầu: ${formatDateTime(startTime)}\n")
+                    binding.startTimeLayout.visibility = View.VISIBLE
+                    binding.tvStartTime.text = formatDateTime(startTime)
                     hasTimeInfo = true
                 }
             }
 
+            // Setup end time
             repair.endTime?.let { endTimeString ->
                 parseTimeString(endTimeString)?.let { endTime ->
-                    times.append("• Kết thúc: ${formatDateTime(endTime)}\n")
+                    binding.endTimeLayout.visibility = View.VISIBLE
+                    binding.tvEndTime.text = formatDateTime(endTime)
                     hasTimeInfo = true
                 }
             }
 
+            // Setup actual time
             repair.actualTime?.let { actualTime ->
-                times.append("• Thời gian thực tế: ${formatDuration(actualTime)}")
+                binding.actualTimeLayout.visibility = View.VISIBLE
+                binding.tvActualTime.text = formatDuration(actualTime)
                 hasTimeInfo = true
             }
 
-            // Hiển thị hoặc ẩn layout dựa trên thông tin thời gian
-            binding.repairTimesLayout.visibility = if (hasTimeInfo) View.VISIBLE else View.GONE
-
-            if (hasTimeInfo) {
-                binding.tvRepairTimes.text = times.toString().trim()
-            }
+            // Show time logs section if any time info exists
+            binding.repairTimeLogsLayout.visibility = if (hasTimeInfo) View.VISIBLE else View.GONE
         }
+
         private fun formatDateTime(date: Date): String {
-            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
             val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-            val dayFormat = SimpleDateFormat("EEEE", Locale.getDefault())
-
-            return "${dateFormat.format(date)} • ${timeFormat.format(date)} • ${getVietnameseDay(dayFormat.format(date))}"
+            return "${dateFormat.format(date)} at ${timeFormat.format(date)}"
         }
+
         private fun formatDuration(durationString: String): String {
-            // Split phần giờ, phút, giây
+            // Split hours, minutes, seconds
             val timeParts = durationString.split(":")
-            if (timeParts.size < 3) return durationString // fallback nếu format sai
+            if (timeParts.size < 3) return durationString // fallback if wrong format
 
             val hours = timeParts[0].toIntOrNull() ?: 0
             val minutes = timeParts[1].toIntOrNull() ?: 0
 
             return if (hours > 0) {
                 if (minutes > 0) {
-                    "${hours}h${minutes}p"    // VD: 1h30p
+                    "${hours}h${minutes}m"    // e.g., 1h30m
                 } else {
-                    "${hours} giờ"           // VD: 1 giờ
+                    "${hours} hour"           // e.g., 1 hour
                 }
             } else {
-                "$minutes phút"             // VD: 30 phút
+                "$minutes minutes"           // e.g., 30 minutes
             }
         }
+
         private fun parseTimeString(timeString: String): Date? {
             return try {
-                // Thử các format phổ biến
+                // Try common formats
                 val formats = arrayOf(
                     "yyyy-MM-dd HH:mm:ss",
                     "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
@@ -197,7 +206,7 @@ class JobAdapter : ListAdapter<Job, JobAdapter.ViewHolder>(DiffCallback) {
                 for (format in formats) {
                     try {
                         val sdf = SimpleDateFormat(format, Locale.getDefault())
-                        sdf.timeZone = TimeZone.getTimeZone("Asia/Ho_Chi_Minh") // Set timezone Việt Nam
+                        sdf.timeZone = TimeZone.getTimeZone("UTC") // Use UTC for consistency
                         return sdf.parse(timeString)
                     } catch (e: Exception) {
                         continue
@@ -209,18 +218,16 @@ class JobAdapter : ListAdapter<Job, JobAdapter.ViewHolder>(DiffCallback) {
             }
         }
 
-
-
-        private fun getVietnameseDay(englishDay: String): String {
-            return when (englishDay.toLowerCase(Locale.getDefault())) {
-                "monday" -> "Thứ 2"
-                "tuesday" -> "Thứ 3"
-                "wednesday" -> "Thứ 4"
-                "thursday" -> "Thứ 5"
-                "friday" -> "Thứ 6"
-                "saturday" -> "Thứ 7"
-                "sunday" -> "Chủ nhật"
-                else -> englishDay
+        private fun getEnglishDay(dayString: String): String {
+            return when (dayString.toLowerCase(Locale.getDefault())) {
+                "thứ 2", "monday" -> "Monday"
+                "thứ 3", "tuesday" -> "Tuesday"
+                "thứ 4", "wednesday" -> "Wednesday"
+                "thứ 5", "thursday" -> "Thursday"
+                "thứ 6", "friday" -> "Friday"
+                "thứ 7", "saturday" -> "Saturday"
+                "chủ nhật", "sunday" -> "Sunday"
+                else -> dayString
             }
         }
 
@@ -228,7 +235,6 @@ class JobAdapter : ListAdapter<Job, JobAdapter.ViewHolder>(DiffCallback) {
             binding.techniciansChipGroup.removeAllViews()
             technicians.forEach { technician ->
                 val chip = Chip(binding.root.context).apply {
-
                     text = technician.fullName
                     isCloseIconVisible = false
                     setTextColor(ContextCompat.getColor(context, R.color.white))
@@ -254,11 +260,11 @@ class JobAdapter : ListAdapter<Job, JobAdapter.ViewHolder>(DiffCallback) {
 
         private fun toggleExpansion() {
             binding.apply {
-                repairInfoLayout.visibility = if (isExpanded) View.VISIBLE else View.GONE
+                serviceDetailsCard.visibility = if (isExpanded) View.VISIBLE else View.GONE
                 techniciansLayout.visibility = if (isExpanded) View.VISIBLE else View.GONE
                 partsLayout.visibility = if (isExpanded) View.VISIBLE else View.GONE
 
-                expandButton.text = if (isExpanded) "Hide Details" else "Show Details"
+                expandButton.text = if (isExpanded) "Hide Details" else "View Details"
                 expandButton.setIconResource(
                     if (isExpanded) R.drawable.ic_expand_less else R.drawable.ic_expand_more
                 )
@@ -270,6 +276,8 @@ class JobAdapter : ListAdapter<Job, JobAdapter.ViewHolder>(DiffCallback) {
                 "Completed" -> R.color.green
                 "In Progress" -> R.color.blue
                 "New" -> R.color.orange
+                "Pending" -> R.color.orange
+                "OnHold" -> R.color.red
                 "Cancelled" -> R.color.red
                 else -> R.color.gray
             }
@@ -279,14 +287,48 @@ class JobAdapter : ListAdapter<Job, JobAdapter.ViewHolder>(DiffCallback) {
         }
 
         private fun showTechnicianInfo(technician: Technician) {
+            val spannableMessage = android.text.SpannableStringBuilder()
+
+            if (!technician.email.isNullOrBlank()) {
+                spannableMessage.append(" Email\n")
+                spannableMessage.append("${technician.email}\n\n")
+            }
+
+            if (!technician.phoneNumber.isNullOrBlank()) {
+                spannableMessage.append(" Phone\n")
+                spannableMessage.append("${technician.phoneNumber}\n\n")
+            }
+
+
+
+            if (spannableMessage.isEmpty()) {
+                spannableMessage.append("No additional information available")
+            }
+
+            // Apply styling to labels (make them bold)
+            val labels = arrayOf(" Email", " Phone")
+            labels.forEach { label ->
+                val start = spannableMessage.indexOf(label)
+                if (start != -1) {
+                    val end = start + label.length
+                    spannableMessage.setSpan(
+                        android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+                        start,
+                        end,
+                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    spannableMessage.setSpan(
+                        android.text.style.ForegroundColorSpan(ContextCompat.getColor(binding.root.context, R.color.primary_color)),
+                        start,
+                        end,
+                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+            }
+
             MaterialAlertDialogBuilder(binding.root.context)
                 .setTitle(technician.fullName)
-                .setMessage(
-                    """
-                    Email: ${technician.email}
-                    Phone: ${technician.phoneNumber}
-                    """.trimIndent()
-                )
+                .setMessage(spannableMessage)
                 .setPositiveButton("OK", null)
                 .show()
         }
@@ -299,23 +341,11 @@ class JobAdapter : ListAdapter<Job, JobAdapter.ViewHolder>(DiffCallback) {
             if (dateString == null) return "No deadline"
             return try {
                 val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
-                val outputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                val outputFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
                 val date = inputFormat.parse(dateString)
                 outputFormat.format(date!!)
             } catch (e: Exception) {
                 dateString
-            }
-        }
-
-        private fun formatTime(timeString: String?): String {
-            if (timeString == null) return "N/A"
-            return try {
-                val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
-                val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-                val date = inputFormat.parse(timeString)
-                outputFormat.format(date!!)
-            } catch (e: Exception) {
-                timeString
             }
         }
     }

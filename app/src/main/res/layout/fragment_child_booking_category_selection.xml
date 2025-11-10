@@ -12,7 +12,7 @@
         android:id="@+id/tvSelectedParent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Danh mục: Bảo dưỡng"
+        android:text="Category: Maintenance"
         android:textSize="14sp"
         android:textColor="#000000"
         android:gravity="center"
@@ -39,7 +39,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Tìm kiếm dịch vụ..."
+                android:hint="Search services..."
                 app:boxBackgroundColor="#FFFFFF"
                 app:boxStrokeColor="#000000"
                 app:hintTextColor="#666666">
@@ -66,7 +66,6 @@
             android:scaleType="centerInside"
             app:tint="#000000" />
 
-
     </LinearLayout>
 
     <!-- Active Filter Indicator -->
@@ -82,7 +81,7 @@
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Bộ lọc:"
+            android:text="Filter:"
             android:textSize="14sp"
             android:textColor="#666666"
             android:layout_marginEnd="8dp" />
@@ -91,7 +90,7 @@
             android:id="@+id/chipActiveFilter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tất cả"
+            android:text="All"
             android:textColor="#000000"
             app:chipBackgroundColor="#F5F5F5"
             app:closeIconVisible="true"
@@ -120,13 +119,13 @@
             <com.google.android.material.textview.MaterialTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Lọc theo kiểu dịch vụ:"
+                android:text="Filter by service type:"
                 android:textSize="16sp"
                 android:textColor="#000000"
                 android:textStyle="bold"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Sử dụng RecyclerView cho filter chips -->
+            <!-- Using RecyclerView for filter chips -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvFilterChips"
                 android:layout_width="match_parent"
@@ -165,7 +164,7 @@
                 android:id="@+id/tvSelectedCount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Chưa chọn dịch vụ nào"
+                android:text="No services selected"
                 android:textSize="14sp"
                 android:textColor="#000000"
                 android:textStyle="bold" />
@@ -195,7 +194,7 @@
             android:layout_height="48dp"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            android:text="Quay lại"
+            android:text="Back"
             android:backgroundTint="#E0E0E0"
             android:textColor="#000000"
             app:cornerRadius="8dp" />
@@ -206,7 +205,7 @@
             android:layout_height="48dp"
             android:layout_weight="1"
             android:layout_marginStart="8dp"
-            android:text="Tiếp theo"
+            android:text="Next"
             android:backgroundTint="#000000"
             android:textColor="#FFFFFF"
             app:cornerRadius="8dp" />

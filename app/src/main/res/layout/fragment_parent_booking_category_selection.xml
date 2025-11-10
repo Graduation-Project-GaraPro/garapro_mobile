@@ -7,22 +7,11 @@
     android:padding="16dp"
     android:background="@color/background">
 
-    <!-- Header -->
-<!--    <TextView-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Chọn Danh Mục Dịch Vụ"-->
-<!--        android:textSize="20sp"-->
-<!--        android:textStyle="bold"-->
-<!--        android:textColor="@color/text_primary"-->
-<!--        android:gravity="center"-->
-<!--        android:layout_marginBottom="16dp" />-->
-
     <!-- Instruction -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Chọn danh mục phù hợp với nhu cầu của bạn"
+        android:text="Select the category that fits your needs"
         android:textSize="14sp"
         android:textColor="@color/text_secondary"
         android:gravity="center"
@@ -48,7 +37,7 @@
             android:layout_height="48dp"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            android:text="Quay lại"
+            android:text="Back"
             android:backgroundTint="@color/divider"
             android:textColor="@color/text_primary" />
 
@@ -57,7 +46,7 @@
             android:layout_height="48dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="Bước 3/6"
+            android:text="Step 3/6"
             android:textColor="@color/text_secondary"
             android:textSize="14sp" />
 

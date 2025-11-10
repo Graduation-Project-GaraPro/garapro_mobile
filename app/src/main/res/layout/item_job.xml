@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="1dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
     app:cardBackgroundColor="#FFFFFF"
     app:strokeColor="#E0E0E0"
     app:strokeWidth="1dp">
@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
 
         <!-- Header Row -->
         <LinearLayout
@@ -34,9 +34,9 @@
                     android:id="@+id/jobName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Dịch vụ đảo lốp"
+                    android:text="Tire Rotation Service"
                     android:textColor="#000000"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -44,9 +44,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="Cấp độ 1"
+                    android:text="Level 1"
                     android:textColor="#666666"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    android:textStyle="normal" />
 
             </LinearLayout>
 
@@ -61,195 +62,305 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_job_status"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="Mới"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp"
+                    android:text="New"
                     android:textColor="@color/white"
-                    android:textSize="10sp"
-                    android:textStyle="bold" />
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.02" />
 
                 <TextView
                     android:id="@+id/jobAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginTop="8dp"
                     android:text="200,000 VND"
                     android:textColor="#000000"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
             </LinearLayout>
 
         </LinearLayout>
 
-        <!-- Deadline -->
+        <!-- Deadline & Basic Info -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
             <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_marginEnd="8dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="12dp"
                 android:src="@drawable/ic_schedule"
-                />
+                app:tint="#666666" />
 
             <TextView
                 android:id="@+id/jobDeadline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="29/10/2025 15:42"
+                android:text="Oct 29, 2025 15:42"
                 android:textColor="#666666"
-                android:textSize="12sp" />
+                android:textSize="13sp"
+                android:textStyle="normal" />
 
         </LinearLayout>
 
-        <!-- Note -->
+        <!-- Service Description -->
         <TextView
             android:id="@+id/jobNote"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Dịch vụ đảo lốp theo lịch trình"
-            android:textColor="#666666"
-            android:textSize="12sp"
-            android:lineSpacingExtra="2dp" />
-
-        <!-- Repair Info -->
-        <LinearLayout
-            android:id="@+id/repairInfoLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="#F8F8F8"
-            android:orientation="vertical"
-            android:padding="12dp"
-            android:visibility="gone">
+            android:text="Scheduled tire rotation service with wheel balancing"
+            android:textColor="#666666"
+            android:textSize="13sp"
+            android:lineSpacingExtra="4dp" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Chi tiết sửa chữa"
-                android:textColor="#000000"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/repairDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="Dịch vụ đảo lốp kèm cân bằng bánh xe"
-                android:textColor="#666666"
-                android:textSize="12sp"
-                android:lineSpacingExtra="2dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Thời gian dự kiến:"
-                    android:textColor="#666666"
-                    android:textSize="11sp" />
-
-                <TextView
-                    android:id="@+id/estimatedTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:text="01:30:00"
-                    android:textColor="#000000"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-
-
-
-        </LinearLayout>
-
-        <!-- repair-->
-
-
+        <!-- Service Details Section -->
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/repairTimesLayout"
+            android:id="@+id/serviceDetailsCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:visibility="gone"
-            app:cardBackgroundColor="#F8F9FA"
+            app:cardBackgroundColor="#ffffff"
             app:cardCornerRadius="8dp"
-            app:strokeColor="#E0E0E0"
-            app:strokeWidth="1dp">
+            app:strokeColor="#ffffff"
+            app:strokeWidth="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:padding="0dp">
 
-                <TextView
+
+
+
+
+                <!-- Estimated Time -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="⏱ Thời gian thực hiện"
-                    android:textColor="#000000"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
 
-                <TextView
-                    android:id="@+id/tvRepairTimes"
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Estimated:"
+                        android:textColor="#666666"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/estimatedTime"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:text="1 hour 30 minutes"
+                        android:textColor="#000000"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <!-- Repair Times -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:textColor="#666666"
-                    android:textSize="12sp"
-                    android:lineSpacingExtra="3dp" />
+                    android:orientation="vertical"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="gone"
+                    android:id="@+id/repairTimeLogsLayout">
 
-                <TextView
-                    android:id="@+id/repairNotes"
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Repair Time"
+                        android:textColor="#000000"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp" />
+
+                    <!-- Start Time -->
+                    <LinearLayout
+                        android:id="@+id/startTimeLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="6dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Start Time:"
+                            android:textColor="#666666"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvStartTime"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:text="Not started"
+                            android:textColor="#000000"
+                            android:textSize="12sp" />
+
+                    </LinearLayout>
+
+                    <!-- End Time -->
+                    <LinearLayout
+                        android:id="@+id/endTimeLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="6dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="End Time:"
+                            android:textColor="#666666"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvEndTime"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:text="Not completed"
+                            android:textColor="#000000"
+                            android:textSize="12sp" />
+
+                    </LinearLayout>
+
+                    <!-- Actual Time -->
+                    <LinearLayout
+                        android:id="@+id/actualTimeLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Duration:"
+                            android:textColor="#666666"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvActualTime"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:text="N/A"
+                            android:textColor="#000000"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <!-- Description -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Description:"
+                            android:textColor="#666666"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/repairDescription"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="2"
+                            android:text="Tire rotation service including wheel balancing and pressure adjustment"
+                            android:textColor="#000000"
+                            android:textSize="12sp"
+                            android:lineSpacingExtra="2dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- Additional Notes -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Dịch vụ theo lịch trình. Bao gồm điều chỉnh áp suất lốp và kiểm tra trực quan độ mòn không đều."
-                    android:textColor="#666666"
-                    android:textSize="11sp"
-                    android:lineSpacingExtra="2dp" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Notes:"
+                        android:textColor="#666666"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/repairNotes"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:text="Scheduled service. Includes tire pressure adjustment and visual inspection for uneven wear."
+                        android:textColor="#666666"
+                        android:textSize="12sp"
+                        android:lineSpacingExtra="2dp" />
+
+                </LinearLayout>
+
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
+
         <!-- Technicians Section -->
         <LinearLayout
             android:id="@+id/techniciansLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             android:orientation="vertical"
             android:visibility="gone">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Kỹ thuật viên"
+                android:text="Technicians"
                 android:textColor="#000000"
-                android:textSize="13sp"
-                android:textStyle="bold" />
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/techniciansChipGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                app:chipSpacingHorizontal="6dp"
+                app:chipSpacingHorizontal="8dp"
                 app:singleLine="false" />
 
         </LinearLayout>
@@ -259,25 +370,24 @@
             android:id="@+id/partsLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             android:orientation="vertical"
             android:visibility="gone">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Phụ tùng"
+                android:text="Parts and Materials"
                 android:textColor="#000000"
-                android:textSize="13sp"
-                android:textStyle="bold" />
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/partsRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:clipToPadding="false"
-                android:scrollbars="vertical" />
+                android:clipToPadding="false" />
 
         </LinearLayout>
 
@@ -287,13 +397,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:layout_marginTop="12dp"
-            android:text="Xem chi tiết"
+            android:layout_marginTop="16dp"
+            android:text="View Details"
             android:textColor="#000000"
+            android:textSize="12sp"
             app:icon="@drawable/ic_expand_more"
             app:iconGravity="textEnd"
             app:iconTint="#000000"
-            style="@style/Widget.Material3.Button.TextButton" />
+            style="@style/Widget.Material3.Button.TextButton"
+            app:cornerRadius="20dp" />
 
     </LinearLayout>
 

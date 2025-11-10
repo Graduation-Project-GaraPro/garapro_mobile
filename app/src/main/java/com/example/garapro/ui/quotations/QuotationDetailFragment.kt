@@ -25,8 +25,6 @@ import com.google.android.material.snackbar.Snackbar
 import java.text.NumberFormat
 import java.util.Locale
 
-
-
 class QuotationDetailFragment : Fragment() {
     private var _binding: FragmentQuotationDetailBinding? = null
     private val binding get() = _binding!!
@@ -53,19 +51,17 @@ class QuotationDetailFragment : Fragment() {
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
         binding.btnSubmit.setOnClickListener { showSubmitConfirmation() }
 
-
         binding.etCustomerNote.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-
                 val note = s?.toString() ?: ""
                 viewModel.updateCustomerNote(note)
                 updateNoteValidationUI(note)
             }
         })
 
-        // Khởi tạo adapter
+        // Initialize adapter
         adapter = QuotationServiceAdapter(
             services = emptyList(),
             onCheckChanged = { id, checked -> viewModel.onServiceCheckChanged(id, checked) },
@@ -74,25 +70,23 @@ class QuotationDetailFragment : Fragment() {
             }
         )
 
-
         binding.rvServices.adapter = adapter
         binding.rvServices.layoutManager = LinearLayoutManager(requireContext())
-
-
     }
+
     private fun updateNoteValidationUI(note: String) {
         val isValid = note.length >= 10
 
         if (note.isNotEmpty()) {
             if (isValid) {
                 binding.tilCustomerNote.error = null
-                binding.tilCustomerNote.helperText = "Đã nhập ${note.length}/10 ký tự"
+                binding.tilCustomerNote.helperText = "Entered ${note.length}/10 characters"
             } else {
-                binding.tilCustomerNote.error = "Cần ít nhất 10 ký tự"
-                binding.tilCustomerNote.helperText = "Đã nhập ${note.length}/10 ký tự"
+                binding.tilCustomerNote.error = "Minimum 10 characters required"
+                binding.tilCustomerNote.helperText = "Entered ${note.length}/10 characters"
             }
         } else {
-            binding.tilCustomerNote.error = "Bắt buộc nhập khi có dịch vụ bị bỏ chọn"
+            binding.tilCustomerNote.error = "Required when services are unselected"
             binding.tilCustomerNote.helperText = null
         }
     }
@@ -101,7 +95,7 @@ class QuotationDetailFragment : Fragment() {
         viewModel.quotation.observe(viewLifecycleOwner) { quotation ->
             quotation?.let {
                 setupQuotationDetails(it)
-                setupUIBasedOnStatus(it.status) // 🔥 THAY ĐỔI: Setup UI theo trạng thái
+                setupUIBasedOnStatus(it.status)
                 adapter.updateServices(it.quotationServices)
             }
         }
@@ -137,45 +131,39 @@ class QuotationDetailFragment : Fragment() {
         }
 
         viewModel.hasUnselectedServices.observe(viewLifecycleOwner) { hasUnselected ->
-            // HIỆN customer note field khi có service bị bỏ chọn
+            // Show customer note field when services are unselected
             binding.customerNoteSection.visibility = if (hasUnselected) View.VISIBLE else View.GONE
-
-//            if (hasUnselected) {
-//                binding.tvNoteRequirement.text = "* Bắt buộc nhập ghi chú khi có dịch vụ bị bỏ chọn"
-//            }
         }
     }
-
 
     private fun setupUIBasedOnStatus(status: QuotationStatus) {
         val isEditable = status == QuotationStatus.Sent
 
         if (isEditable) {
-            // 🔥 TRẠNG THÁI SENT: Cho phép chỉnh sửa
+            // SENT status: Allow editing
             setupEditableMode()
         } else {
-            // 🔥 CÁC TRẠNG THÁI KHÁC: Chỉ xem
+            // Other statuses: Read-only mode
             setupReadOnlyMode(status)
         }
 
-        // 🔥 THAY ĐỔI: Cập nhật trạng thái chỉnh sửa cho adapter
+        // Update editable status for adapter
         adapter.updateEditable(isEditable)
     }
+
     private fun setupEditableMode() {
-        // Cho phép click checkbox
+        // Allow checkbox clicks
         adapter.updateOnCheckChanged { id, checked ->
             viewModel.onServiceCheckChanged(id, checked)
         }
 
-        // Hiện nút gửi phản hồi
+        // Show submit button
         binding.btnSubmit.visibility = View.VISIBLE
         binding.tvEditNotice.visibility = View.VISIBLE
         binding.tvReadOnlyNotice.visibility = View.GONE
 
-        // Hiện tổng tiền đã chọn
-//        binding.tvSelectedTotalLabel.visibility = View.VISIBLE
+        // Show selected total
         binding.tvSelectedTotal.visibility = View.VISIBLE
-
 
         binding.customerNoteSection.visibility = View.GONE
 
@@ -189,110 +177,98 @@ class QuotationDetailFragment : Fragment() {
 
     private fun showRejectConfirmation() {
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Từ chối báo giá")
-            .setMessage("Bạn có muốn cho chúng tôi biết lý do từ chối?")
-            .setPositiveButton("Có, nhập lý do") { _, _ ->
-                // Hiện customer note section và focus vào input
+            .setTitle("Reject Quotation")
+            .setMessage("Would you like to provide a reason for rejection?")
+            .setPositiveButton("Yes, enter reason") { _, _ ->
+                // Show customer note section and focus on input
                 binding.customerNoteSection.visibility = View.VISIBLE
                 binding.etCustomerNote.requestFocus()
 
-                // Hiện nút từ chối sau khi nhập lý do
+                // Show reject button after entering reason
                 setupRejectWithNoteMode()
             }
-            .setNegativeButton("Không") { _, _ ->
-                // Gửi request với customerNote trống
+            .setNegativeButton("No") { _, _ ->
+                // Send request with empty customerNote
                 viewModel.rejectQuotation("")
             }
-            .setNeutralButton("Hủy", null)
+            .setNeutralButton("Cancel", null)
             .show()
     }
 
     private fun setupRejectWithNoteMode() {
-        binding.btnReject.text = "Gửi lý do từ chối"
+        binding.btnReject.text = "Submit rejection reason"
         binding.btnReject.setOnClickListener {
             val note = viewModel.customerNote.value ?: ""
             if (note.length >= 10) {
                 viewModel.rejectQuotation(note)
             } else {
-                Snackbar.make(binding.root, "Vui lòng nhập ít nhất 10 ký tự", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, "Please enter at least 10 characters", Snackbar.LENGTH_SHORT).show()
             }
         }
     }
 
-
-
-    /**
-     * 🔥 HÀM MỚI: Setup chế độ chỉ xem (các trạng thái khác)
-     */
     private fun setupReadOnlyMode(status: QuotationStatus) {
-        // Vô hiệu hóa checkbox - đã được xử lý trong adapter.updateEditable(false)
+        // Disable checkboxes - handled in adapter.updateEditable(false)
         adapter.updateOnCheckChanged { _, _ ->
-            // Không làm gì khi click
+            // Do nothing when clicked
             showReadOnlyMessage(status)
         }
 
-        // Ẩn nút gửi phản hồi
+        // Hide submit button
         binding.btnSubmit.visibility = View.GONE
         binding.tvEditNotice.visibility = View.GONE
         binding.tvReadOnlyNotice.visibility = View.VISIBLE
 
-        // Ẩn tổng tiền đã chọn
+        // Hide selected total
         binding.tvlabelSelectedTotal.visibility = View.GONE
         binding.tvSelectedTotal.visibility = View.GONE
 
         binding.btnReject.visibility = View.GONE
-        // THÊM: Ẩn customer note field
+
+        // Hide customer note field
         val quotation = viewModel.quotation.value
         val hasNote = !viewModel.customerNote.value.isNullOrBlank()
         binding.customerNoteSection.visibility = if (hasNote) View.VISIBLE else View.GONE
 
         if (hasNote) {
-            // Vô hiệu hóa edit text và hiển thị note
+            // Disable edit text and show note
             binding.etCustomerNote.isEnabled = false
             binding.etCustomerNote.setText(quotation?.note)
-            binding.tilCustomerNote.helperText = "Ghi chú từ của bạn"
+            binding.tilCustomerNote.helperText = "Your note"
             binding.tilCustomerNote.boxBackgroundColor = ContextCompat.getColor(requireContext(), R.color.gray_light)
         } else {
-            binding.customerNoteSection.visibility = View.VISIBLE // 👈 giữ hiển thị
+            binding.customerNoteSection.visibility = View.VISIBLE
             binding.etCustomerNote.isEnabled = false
-            binding.etCustomerNote.setText("Không có")
-            binding.tilCustomerNote.helperText = "Không có ghi chú"
-            binding.tilCustomerNote.boxBackgroundColor =
-           ContextCompat.getColor(requireContext(), R.color.gray_light)
+            binding.etCustomerNote.setText("No note")
+            binding.tilCustomerNote.helperText = "No note"
+            binding.tilCustomerNote.boxBackgroundColor = ContextCompat.getColor(requireContext(), R.color.gray_light)
         }
-        // Hiện thông báo trạng thái
 
-
+        // Show status notification
         binding.tvReadOnlyNotice.text = getReadOnlyMessage(status)
     }
 
-
-    /**
-     * 🔥 HÀM MỚI: Hiển thị thông báo khi cố chỉnh sửa trong chế độ xem
-     */
     private fun showReadOnlyMessage(status: QuotationStatus) {
         val message = when (status) {
-            QuotationStatus.Approved -> "Báo giá đã được chấp nhận, không thể thay đổi"
-            QuotationStatus.Rejected -> "Báo giá đã bị từ chối, không thể thay đổi"
-            QuotationStatus.Expired -> "Báo giá đã hết hạn, không thể thay đổi"
-            QuotationStatus.Pending -> "Báo giá đang chờ xử lý, chưa thể phản hồi"
-            else -> "Không thể thay đổi báo giá ở trạng thái hiện tại"
+            QuotationStatus.Approved -> "Quotation has been approved, cannot be changed"
+            QuotationStatus.Rejected -> "Quotation has been rejected, cannot be changed"
+            QuotationStatus.Expired -> "Quotation has expired, cannot be changed"
+            QuotationStatus.Pending -> "Quotation is pending, cannot respond yet"
+            else -> "Cannot change quotation in current status"
         }
         Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
     }
 
-    /**
-     * 🔥 HÀM MỚI: Lấy thông báo cho chế độ chỉ xem
-     */
     private fun getReadOnlyMessage(status: QuotationStatus): String {
         return when (status) {
-            QuotationStatus.Approved -> "Báo giá đã được chấp nhận"
-            QuotationStatus.Rejected -> "Báo giá đã bị từ chối"
-            QuotationStatus.Expired -> "Báo giá đã hết hạn"
-            QuotationStatus.Pending -> "Báo giá đang chờ xử lý"
-            else -> "Chế độ xem"
+            QuotationStatus.Approved -> "Quotation has been approved"
+            QuotationStatus.Rejected -> "Quotation has been rejected"
+            QuotationStatus.Expired -> "Quotation has expired"
+            QuotationStatus.Pending -> "Quotation is pending"
+            else -> "View mode"
         }
     }
+
     private fun setupQuotationDetails(quotation: QuotationDetail) {
         binding.tvVehicleInfo.text = quotation.vehicleInfo
         binding.tvCustomerName.text = quotation.customerName
@@ -303,8 +279,7 @@ class QuotationDetailFragment : Fragment() {
         if (!quotation.note.isNullOrBlank() && quotation.status != QuotationStatus.Sent) {
             binding.etCustomerNote.setText(quotation.note)
             binding.etCustomerNote.isEnabled = false
-            binding.tilCustomerNote.helperText = "Ghi chú từ khách hàng"
-
+            binding.tilCustomerNote.helperText = "Customer note"
         }
 
         calculateTotal()
@@ -328,19 +303,20 @@ class QuotationDetailFragment : Fragment() {
         val canSubmit = viewModel.canSubmit.value == true
         val isRejectMode = viewModel.isRejectMode.value == true
 
-
         binding.btnSubmit.isEnabled = canSubmit && !isSubmitting
         binding.btnReject.isEnabled = !isSubmitting
+
         if (!canSubmit || isSubmitting) {
             binding.btnSubmit.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.material_on_surface_disabled))
         } else {
             binding.btnSubmit.setBackgroundColor(ContextCompat.getColor(requireContext(),
                 if (isRejectMode) R.color.blue else R.color.green))
         }
+
         binding.btnSubmit.text = when {
-            isSubmitting -> "Đang gửi..."
-            isRejectMode -> "Chấp nhận một phần" // Nút này để quay lại chọn service
-            else -> "Chấp nhận"
+            isSubmitting -> "Submitting..."
+            isRejectMode -> "Accept partially"
+            else -> "Accept"
         }
 
         binding.btnSubmit.setBackgroundColor(ContextCompat.getColor(requireContext(),
@@ -349,20 +325,20 @@ class QuotationDetailFragment : Fragment() {
 
     private fun showUnselectWarning(event: QuotationDetailViewModel.ServiceToggleEvent) {
         val dialog = MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Xác nhận bỏ chọn")
-            .setMessage("Bỏ chọn dịch vụ \"${event.serviceName}\"?")
-            .setPositiveButton("Bỏ chọn") { _, _ ->
+            .setTitle("Confirm Unselection")
+            .setMessage("Unselect service \"${event.serviceName}\"?")
+            .setPositiveButton("Unselect") { _, _ ->
                 viewModel.confirmServiceToggle(event.serviceId, event.currentChecked)
                 calculateTotal()
             }
-            .setNegativeButton("Giữ nguyên") { _, _ ->
+            .setNegativeButton("Keep") { _, _ ->
                 viewModel.cancelServiceToggle()
             }
             .create()
 
-        // QUAN TRỌNG: Xử lý khi dialog bị dismiss
+        // IMPORTANT: Handle when dialog is dismissed
         dialog.setOnDismissListener {
-            // Nếu dialog bị dismiss mà không chọn button, cancel việc toggle
+            // If dialog is dismissed without selecting button, cancel toggle
             if (viewModel.pendingServiceToggle.value != null) {
                 viewModel.cancelServiceToggle()
             }
@@ -374,11 +350,11 @@ class QuotationDetailFragment : Fragment() {
     private fun showSubmitConfirmation() {
         val quotation = viewModel.quotation.value ?: return
 
-        // 🔥 KIỂM TRA VALIDATION - nếu fail thì chỉ hiện 1 thông báo và return
+        // CHECK VALIDATION - if fail, show only one notification and return
         val validationMessage = viewModel.getValidationMessage()
         if (validationMessage.isNotEmpty()) {
             MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Thiếu thông tin")
+                .setTitle("Missing Information")
                 .setMessage(validationMessage)
                 .setPositiveButton("OK", null)
                 .show()
@@ -389,32 +365,33 @@ class QuotationDetailFragment : Fragment() {
         val (title, message) = when (viewModel.getSubmitConfirmationType()) {
             SubmitConfirmationType.APPROVED -> {
                 val totalAmount = calculateSelectedTotal(quotation)
-                "Xác nhận chấp nhận" to "Bạn đang chấp nhận TOÀN BỘ dịch vụ với tổng số tiền ${formatCurrency(totalAmount)}. Tiếp tục?"
+                "Confirm Acceptance" to "You are accepting ALL services with total amount ${formatCurrency(totalAmount)}. Continue?"
             }
             SubmitConfirmationType.REJECTED -> {
-                "Xác nhận từ chối" to "Bạn có chắc chắn muốn từ chối báo giá này?"
+                "Confirm Rejection" to "Are you sure you want to reject this quotation?"
             }
         }
 
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(title)
             .setMessage(message)
-            .setPositiveButton("Xác nhận") { _, _ -> viewModel.submitCustomerResponse() }
-            .setNegativeButton("Hủy", null)
+            .setPositiveButton("Confirm") { _, _ -> viewModel.submitCustomerResponse() }
+            .setNegativeButton("Cancel", null)
             .show()
     }
+
     private fun calculateSelectedTotal(quotation: QuotationDetail): Double {
         var total = 0.0
 
         quotation.quotationServices.forEach { service ->
             if (service.isSelected) {
-                // Cộng giá dịch vụ
+                // Add service price
                 total += service.totalPrice
 
-                // Cộng giá phụ tùng trong các PartCategory
+                // Add part prices in PartCategories
                 service.partCategories.forEach { category ->
                     category.parts.forEach { part ->
-                        if (part.isSelected) { // chỉ tính phần nào được chọn (nếu có flag)
+                        if (part.isSelected) {
                             total += part.price
                         }
                     }
@@ -424,8 +401,9 @@ class QuotationDetailFragment : Fragment() {
 
         return total
     }
+
     private fun onSubmitSuccess() {
-        Snackbar.make(binding.root, "Đã gửi phản hồi thành công", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(binding.root, "Response submitted successfully", Snackbar.LENGTH_LONG).show()
         findNavController().navigateUp()
     }
 
@@ -433,13 +411,14 @@ class QuotationDetailFragment : Fragment() {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
         viewModel.clearError()
     }
+
     private fun getStatusText(status: QuotationStatus): String {
         return when (status) {
-            QuotationStatus.Pending -> "Chờ xử lý"
-            QuotationStatus.Sent -> "Chưa quyết định"
-            QuotationStatus.Approved -> "Đã duyệt"
-            QuotationStatus.Rejected -> "Đã từ chối"
-            QuotationStatus.Expired -> "Hết hạn"
+            QuotationStatus.Pending -> "Pending"
+            QuotationStatus.Sent -> "Waiting for decision"
+            QuotationStatus.Approved -> "Approved"
+            QuotationStatus.Rejected -> "Rejected"
+            QuotationStatus.Expired -> "Expired"
         }
     }
 
@@ -456,6 +435,7 @@ class QuotationDetailFragment : Fragment() {
     private fun formatCurrency(amount: Double): String {
         return NumberFormat.getCurrencyInstance(Locale("vi", "VN")).format(amount)
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

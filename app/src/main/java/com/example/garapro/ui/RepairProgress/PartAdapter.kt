@@ -50,15 +50,13 @@ class PartAdapter : ListAdapter<Part, PartAdapter.ViewHolder>(DiffCallback) {
         }
 
         private fun showPartDetails(part: Part) {
+            val message = buildString {
+                append("Unit Price: ${formatCurrency(part.price)}")
+            }
+
             MaterialAlertDialogBuilder(itemView.context)
                 .setTitle(part.name)
-                .setMessage(
-                    """
-                   
-                    Unit Price: ${formatCurrency(part.price)}
-                    
-                    """.trimIndent()
-                )
+                .setMessage(message)
                 .setPositiveButton("OK", null)
                 .show()
         }

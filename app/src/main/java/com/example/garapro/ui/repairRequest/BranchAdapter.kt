@@ -33,7 +33,7 @@ class BranchAdapter(
         val branch = branches[position]
 
         holder.tvBranchName.text = branch.branchName
-        holder.tvBranchAddress.text = "${branch.district}, ${branch.city}"
+        holder.tvBranchAddress.text = "${branch.street}, ${branch.commune}, ${branch.phoneNumber}"
 
         // Highlight selected item
         val colorRes = if (position == selectedPosition) R.color.primary_color else R.color.white

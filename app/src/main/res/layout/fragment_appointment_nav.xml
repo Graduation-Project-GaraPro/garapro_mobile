@@ -17,15 +17,19 @@
         app:tabIndicatorColor="@color/black"
         app:tabBackground="@color/white">
 
+        <!-- Appointments Tab with Icon -->
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Lịch hẹn" />
+            android:icon="@drawable/ic_calendar"
+            android:text="Appointments" />
 
+        <!-- Quotations Tab with Icon -->
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Báo giá" />
+            android:icon="@drawable/ic_quotation"
+            android:text="Quotations" />
 
     </com.google.android.material.tabs.TabLayout>
 

@@ -18,7 +18,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="@color/background"
             app:title="Repair Progress"
-            app:menu="@menu/menu_repair_progress" />
+            />
 
         <!-- Filter Chips -->
         <com.google.android.material.chip.ChipGroup
@@ -85,7 +85,7 @@
                             android:id="@+id/statusFilterLayout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint=" Trạng thái hoàn thành"
+                            android:hint="Completion Status"
                             app:boxBackgroundColor="#FFFFFF"
                             app:boxStrokeColor="#000000"
                             app:hintTextColor="#666666"
@@ -108,7 +108,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:hint=" Loại Order"
+                            android:hint="Order Type"
                             app:boxBackgroundColor="#FFFFFF"
                             app:boxStrokeColor="#000000"
                             app:hintTextColor="#666666"
@@ -131,7 +131,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:hint=" Trạng thái thanh toán"
+                            android:hint="Payment Status"
                             app:boxBackgroundColor="#FFFFFF"
                             app:boxStrokeColor="#000000"
                             app:hintTextColor="#666666"
@@ -175,21 +175,10 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="Xóa lọc"
+                                android:text="Clear Filters"
                                 android:backgroundTint="#E0E0E0"
                                 android:textColor="#000000"
                                 app:cornerRadius="8dp" />
-
-<!--                            <com.google.android.material.button.MaterialButton-->
-<!--                                android:id="@+id/applyFilterButton"-->
-<!--                                android:layout_width="0dp"-->
-<!--                                android:layout_height="wrap_content"-->
-<!--                                android:layout_weight="1"-->
-<!--                                android:layout_marginStart="8dp"-->
-<!--                                android:text="Apply"-->
-<!--                                android:backgroundTint="#000000"-->
-<!--                                android:textColor="#FFFFFF"-->
-<!--                                app:cornerRadius="8dp" />-->
 
                         </LinearLayout>
 
@@ -218,8 +207,6 @@
                         android:visibility="gone" />
 
                     <!-- RecyclerView -->
-
-                    <!-- Empty State -->
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recyclerView"
                         android:layout_width="match_parent"
@@ -228,6 +215,7 @@
                         android:padding="8dp"
                         tools:listitem="@layout/item_repair_order" />
 
+                    <!-- Empty State -->
                     <LinearLayout
                         android:id="@+id/emptyState"
                         android:layout_width="match_parent"
@@ -253,15 +241,6 @@
                             android:textSize="16sp"
                             android:textStyle="bold" />
 
-<!--                        <TextView-->
-<!--                            android:layout_width="wrap_content"-->
-<!--                            android:layout_height="wrap_content"-->
-<!--                            android:layout_marginTop="8dp"-->
-<!--                            android:gravity="center"-->
-<!--                            android:text="There are no repair orders to display at the moment"-->
-<!--                            android:textColor="@color/gray"-->
-<!--                            android:textSize="14sp" />-->
-
                     </LinearLayout>
 
                 </LinearLayout>
@@ -274,14 +253,14 @@
 
     <!-- Filter FAB -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-    android:id="@+id/filterButton"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="bottom|end"
-    android:layout_margin="16dp"
-    android:src="@drawable/ic_filter"
-    app:backgroundTint="#FFFFFF"
-    app:tint="#000000"
-    app:borderWidth="1dp" />
+        android:id="@+id/filterButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_filter"
+        app:backgroundTint="#FFFFFF"
+        app:tint="#000000"
+        app:borderWidth="1dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

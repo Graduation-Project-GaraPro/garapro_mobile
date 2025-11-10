@@ -53,7 +53,7 @@ class RepairRequestDetailBottomSheet : BottomSheetDialogFragment() {
     override fun onStart() {
         super.onStart()
 
-        // Set bottom sheet behavior đơn giản
+        // Set bottom sheet behavior
         val dialog = dialog as? BottomSheetDialog
         val bottomSheet = dialog?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
         val behavior = BottomSheetBehavior.from(bottomSheet!!)
@@ -63,7 +63,7 @@ class RepairRequestDetailBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun setupUI(detail: RepairRequestDetail) {
-        // Ánh xạ views
+        // Map views
         val tvRequestId = view?.findViewById<TextView>(R.id.tvRequestId)
         val tvDescription = view?.findViewById<TextView>(R.id.tvDescription)
         val tvRequestDate = view?.findViewById<TextView>(R.id.tvRequestDate)
@@ -83,20 +83,22 @@ class RepairRequestDetailBottomSheet : BottomSheetDialogFragment() {
         val image3 = view?.findViewById<ShapeableImageView>(R.id.ivImage3)
         val image4 = view?.findViewById<ShapeableImageView>(R.id.ivImage4)
 
-        // Basic info
-        tvRequestId?.text = "ID: ${detail.repairRequestID.take(8)}..." // Rút gọn ID cho đẹp
-        tvDescription?.text = detail.description
+        // Basic info with null safety
+        tvRequestId?.text = "ID: ${detail.repairRequestID.take(8)}..." // Shorten ID for display
+        tvDescription?.text = detail.description ?: "No description provided"
         tvRequestDate?.text = formatDate(detail.requestDate)
         tvStatus?.text = getStatusText(detail.status)
         tvStatus?.setBackgroundResource(getStatusBackground(detail.status))
         tvEstimatedCost?.visibility = View.GONE
 
-        // Vehicle info
-        tvVehicle?.text = "${detail.vehicle.brandName ?: ""} ${detail.vehicle.modelName ?: ""}"
-        tvLicensePlate?.text = detail.vehicle.licensePlate
-        tvVin?.text = detail.vehicle.vin
-        tvYear?.text = detail.vehicle.year.toString()
-        tvOdometer?.text = "${detail.vehicle.odometer} km"
+        // Vehicle info with null safety
+        val brandName = detail.vehicle.brandName ?: "Unknown Brand"
+        val modelName = detail.vehicle.modelName ?: "Unknown Model"
+        tvVehicle?.text = "$brandName $modelName"
+        tvLicensePlate?.text = detail.vehicle.licensePlate ?: "Not provided"
+        tvVin?.text = detail.vehicle.vin ?: "Not provided"
+        tvYear?.text = detail.vehicle.year?.toString() ?: "Not provided"
+        tvOdometer?.text = if (detail.vehicle.odometer != null) "${detail.vehicle.odometer} km" else "Not provided"
 
         // Load images
         loadImages(detail.imageUrls, image1, image2, image3, image4)
@@ -106,9 +108,9 @@ class RepairRequestDetailBottomSheet : BottomSheetDialogFragment() {
             setupServicesList(rvServices, detail.requestServices)
         }
 
-        // Total calculation
-        val totalCost = detail.requestServices.sumOf { it.price }
-        tvTotalCost?.text = "${MoneyUtils.formatVietnameseCurrency(totalCost)}"
+        // Total calculation with null safety
+        val totalCost = detail.requestServices?.sumOf { it.price ?: 0.0 } ?: 0.0
+        tvTotalCost?.text = MoneyUtils.formatVietnameseCurrency(totalCost)
     }
 
     private fun loadImages(
@@ -120,28 +122,28 @@ class RepairRequestDetailBottomSheet : BottomSheetDialogFragment() {
     ) {
         val imageViews = listOf(image1, image2, image3, image4)
 
-        // Ẩn tất cả image views trước
+        // Hide all image views first
         imageViews.forEach { it?.visibility = View.GONE }
 
-        // Hiển thị ảnh nếu có URL
+        // Show images if URLs are available
         imageUrls?.take(4)?.forEachIndexed { index, imageUrl ->
             imageViews.getOrNull(index)?.let { imageView ->
                 imageView.visibility = View.VISIBLE
                 Glide.with(this)
                     .load(imageUrl)
-                    .placeholder(R.drawable.ic_camera) // Thêm placeholder nếu cần
-                    .error(R.drawable.ic_camera) // Thêm error image nếu cần
+                    .placeholder(R.drawable.ic_camera) // Add placeholder if needed
+                    .error(R.drawable.ic_camera) // Add error image if needed
                     .centerCrop()
                     .into(imageView)
             }
         }
 
-        // Xử lý trường hợp có nhiều hơn 4 ảnh
+        // Handle case when there are more than 4 images
         if (imageUrls != null && imageUrls.size > 4) {
             image4?.let {
-                // Có thể thêm badge hoặc indicator cho ảnh cuối
+                // Could add badge or indicator for the last image
                 it.setOnClickListener {
-                    // Mở fullscreen image viewer với tất cả ảnh
+                    // Open fullscreen image viewer with all images
                     showFullScreenImages(imageUrls)
                 }
             }
@@ -149,38 +151,41 @@ class RepairRequestDetailBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun showFullScreenImages(imageUrls: List<String>) {
-        // Implement fullscreen image viewer ở đây
-        // Có thể sử dụng DialogFragment hoặc Activity mới
+        // Implement fullscreen image viewer here
+        // Could use DialogFragment or new Activity
     }
 
-    private fun setupServicesList(recyclerView: RecyclerView, services: List<RequestServiceDetail>) {
-        val adapter = RepairRequestServicesAdapter(services)
+    private fun setupServicesList(recyclerView: RecyclerView, services: List<RequestServiceDetail>?) {
+        val serviceList = services ?: emptyList()
+        val adapter = RepairRequestServicesAdapter(serviceList)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
     }
 
-    private fun formatDate(dateString: String): String {
+    private fun formatDate(dateString: String?): String {
+        if (dateString.isNullOrEmpty()) return "Date not available"
+
         return try {
             val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
             val outputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
             val date = inputFormat.parse(dateString)
-            outputFormat.format(date!!)
+            date?.let { outputFormat.format(it) } ?: "Invalid date"
         } catch (e: Exception) {
-            dateString
+            "Date format error"
         }
     }
 
-    private fun getStatusText(status: Int): String {
+    private fun getStatusText(status: Int?): String {
         return when (status) {
-            0 -> "Đang chờ xử lý"
-            1 -> "Đã chấp nhận"
-            2 -> "Đã đến nơi"
-            3 -> "Đã hủy"
-            else -> "Không xác định"
+            0 -> "Pending"
+            1 -> "Accepted"
+            2 -> "Arrived"
+            3 -> "Cancelled"
+            else -> "Unknown"
         }
     }
 
-    private fun getStatusBackground(status: Int): Int {
+    private fun getStatusBackground(status: Int?): Int {
         return when (status) {
             0 -> R.drawable.bg_status_pending
             1 -> R.drawable.bg_status_accept

@@ -61,7 +61,7 @@
                     android:background="@drawable/bg_status_pill"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="4dp"
-                    android:text="Hoàn thành"
+                    android:text="Completed"
                     android:textColor="@color/white"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -71,7 +71,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="Đã lên lịch"
+                    android:text="Scheduled"
                     android:textColor="@color/gray"
                     android:textSize="10sp" />
 
@@ -96,7 +96,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Chưa bắt đầu"
+                    android:text="Not Started"
                     android:textColor="@color/gray"
                     android:textSize="12sp" />
 
@@ -147,7 +147,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Chi phí"
+                    android:text="Cost"
                     android:textColor="@color/gray"
                     android:textSize="10sp" />
 
@@ -173,7 +173,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Trạng thái thanh toán"
+                    android:text="Payment Status"
                     android:textColor="@color/gray"
                     android:textSize="10sp" />
 
@@ -182,7 +182,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="Đang chờ"
+                    android:text="Pending"
                     android:textColor="@color/orange"
                     android:textSize="14sp"
                     android:textStyle="bold" />

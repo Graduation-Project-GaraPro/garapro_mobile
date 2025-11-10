@@ -8,13 +8,13 @@
     <fragment
         android:id="@+id/appointmentsFragment"
         android:name="com.example.garapro.ui.appointments.AppointmentsFragment"
-        android:label="Lịch hẹn"
+        android:label="Appointment"
         tools:layout="@layout/fragment_appointments" />
 
     <fragment
         android:id="@+id/quotationsFragment"
         android:name="com.example.garapro.ui.quotations.QuotationsFragment"
-        android:label="Báo Giá"
+        android:label="Quotation"
         tools:layout="@layout/fragment_quotations">
 
         <action

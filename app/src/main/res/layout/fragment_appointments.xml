@@ -7,6 +7,7 @@
     android:background="#FFFFFF">
 
     <!-- Filter section -->
+    <!-- Filter section -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardFilter"
         android:layout_width="match_parent"
@@ -17,14 +18,42 @@
         app:cardElevation="2dp"
         app:cardBackgroundColor="#FFFFFF"
         app:strokeColor="#E0E0E0"
-        app:strokeWidth="1dp"
-        >
+        app:strokeWidth="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
+
+            <!-- Filter Header with Clear Button -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Filter"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnClearFilter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Clear"
+                    android:textColor="#666666"
+                    android:textSize="12sp"
+                    android:backgroundTint="@android:color/transparent"
+                    app:strokeColor="#666666"
+                    app:strokeWidth="1dp"
+                    app:cornerRadius="16dp" />
+            </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
@@ -35,48 +64,12 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp" />
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupStatus"
+            <Spinner
+                android:id="@+id/spinnerStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp">
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipPending"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Đang xử lý"
-                    app:chipBackgroundColor="#F5F5F5"
-                    app:chipStrokeColor="#000000"
-                    style="@style/Widget.Material3.Chip.Filter" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipAccept"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Đã tiếp nhận"
-                    app:chipBackgroundColor="#F5F5F5"
-                    app:chipStrokeColor="#000000"
-                    style="@style/Widget.Material3.Chip.Filter" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipArrived"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Đã Đến"
-                    app:chipBackgroundColor="#F5F5F5"
-                    app:chipStrokeColor="#000000"
-                    style="@style/Widget.Material3.Chip.Filter" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipCancelled"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Đã hủy"
-                    app:chipBackgroundColor="#F5F5F5"
-                    app:chipStrokeColor="#000000"
-                    style="@style/Widget.Material3.Chip.Filter" />
-            </com.google.android.material.chip.ChipGroup>
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/spinner_background_black" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -92,9 +85,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-
-                android:background="@drawable/spinner_background_black"
-                />
+                android:background="@drawable/spinner_background_black" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -114,13 +105,13 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Phần danh sách + nút hành động -->
+    <!-- List section + action button -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <!-- Danh sách -->
+        <!-- List -->
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipeRefreshLayout"
             android:layout_width="match_parent"
@@ -134,7 +125,7 @@
                 android:padding="8dp" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-        <!-- Nút Đặt lịch chính (FAB) -->
+        <!-- Main Booking button (FAB) -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btnCreateBooking"
             android:layout_width="wrap_content"
@@ -144,10 +135,9 @@
             android:src="@drawable/ic_add"
             app:backgroundTint="#FFFFFF"
             app:tint="#000000"
-            app:borderWidth="1dp"
-             />
+            app:borderWidth="1dp" />
 
-        <!-- Nút Filter (nhỏ hơn, nằm trên FAB) -->
+        <!-- Filter button (smaller, above FAB) -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btnFilter"
             android:layout_width="wrap_content"
@@ -159,7 +149,6 @@
             app:backgroundTint="#FFFFFF"
             app:tint="#000000"
             app:borderWidth="1dp"
-
             app:fabSize="mini" />
 
     </FrameLayout>

@@ -12,4 +12,12 @@
     <string name="goong_map_url">https://tiles.goong.io</string>
     <string name="goong_api_key">YtCqQZb4iVZ8t4ewnGxj1Zvn8wCyzuEBEVLpfmmo</string>
     <string name="goong_map_key">EULxr2WKJuCyhFyPsoUbeAzxg9j61kei4ZSE1Fb8</string>
+
+    <string-array name="repair_status_array">
+        <item>All Status</item>
+        <item>Pending</item>
+        <item>Accepted</item>
+        <item>Arrived</item>
+        <item>Cancelled</item>
+    </string-array>
 </resources>

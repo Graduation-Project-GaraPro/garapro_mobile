@@ -18,7 +18,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="#FFFFFF"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:title="Chi tiết Báo giá"
+            app:title="Quotation Details"
             app:titleTextColor="#000000" />
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -50,7 +50,7 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <!-- Thông báo khi ở chế độ chỉnh sửa -->
+                    <!-- Edit mode notification -->
                     <TextView
                         android:id="@+id/tvEditNotice"
                         android:layout_width="match_parent"
@@ -58,12 +58,12 @@
                         android:layout_marginBottom="8dp"
                         android:background="#F5F5F5"
                         android:padding="12dp"
-                        android:text="Bạn có thể chọn hoặc bỏ chọn các dịch vụ và gửi phản hồi"
+                        android:text="You can select or deselect services and send feedback"
                         android:textColor="#000000"
                         android:textSize="14sp"
                         android:visibility="gone" />
 
-                    <!-- Thông báo khi ở chế độ chỉ xem -->
+                    <!-- Read-only mode notification -->
                     <TextView
                         android:id="@+id/tvReadOnlyNotice"
                         android:layout_width="match_parent"
@@ -71,7 +71,7 @@
                         android:background="#F5F5F5"
                         android:textAlignment="center"
                         android:padding="12dp"
-                        android:text="Chế độ xem - Không thể chỉnh sửa"
+                        android:text="View mode - Cannot edit"
                         android:textColor="#000000"
                         android:textSize="14sp"
                         android:visibility="gone" />
@@ -80,7 +80,7 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Thông tin chung -->
+            <!-- General Information -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -100,7 +100,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Thông tin chung"
+                        android:text="General Information"
                         android:textColor="#000000"
                         android:textSize="18sp"
                         android:textStyle="bold"
@@ -116,7 +116,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Khách hàng:"
+                            android:text="Customer:"
                             android:textColor="#666666"
                             android:textSize="14sp" />
 
@@ -125,7 +125,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Nguyễn Văn A"
+                            android:text="Nguyen Van A"
                             android:textColor="#000000"
                             android:textSize="14sp"
                             android:textStyle="bold" />
@@ -142,7 +142,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Phương tiện:"
+                            android:text="Vehicle:"
                             android:textColor="#666666"
                             android:textSize="14sp" />
 
@@ -168,7 +168,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Tổng tiền:"
+                            android:text="Total Amount:"
                             android:textColor="#666666"
                             android:textSize="14sp" />
 
@@ -193,7 +193,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Trạng thái:"
+                            android:text="Status:"
                             android:textColor="#666666"
                             android:textSize="14sp" />
 
@@ -202,7 +202,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Đã gửi"
+                            android:text="Sent"
                             android:textColor="#000000"
                             android:textSize="14sp"
                             android:textStyle="bold" />
@@ -213,7 +213,7 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Danh sách dịch vụ -->
+            <!-- Services List -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -231,7 +231,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Dịch vụ và Phụ tùng"
+                        android:text="Services and Parts"
                         android:textColor="#000000"
                         android:textSize="18sp"
                         android:textStyle="bold"
@@ -269,7 +269,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Ghi chú (*)"
+                        android:text="Notes (*)"
                         android:textColor="#000000"
                         android:textSize="16sp"
                         android:textStyle="bold" />
@@ -282,7 +282,7 @@
                         app:boxBackgroundColor="#FFFFFF"
                         app:boxStrokeColor="#000000"
                         app:hintTextColor="#666666"
-                        android:hint="Nhập ghi chú của bạn...">
+                        android:hint="Enter your notes...">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etCustomerNote"
@@ -300,7 +300,7 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Tổng tiền đã chọn -->
+            <!-- Selected Total Amount -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -322,7 +322,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Tổng tiền đã chọn:"
+                        android:text="Selected Total:"
                         android:textColor="#000000"
                         android:textSize="16sp"
                         android:textStyle="bold" />
@@ -338,7 +338,6 @@
 
                 </LinearLayout>
 
-
             </com.google.android.material.card.MaterialCardView>
 
             <LinearLayout
@@ -350,7 +349,7 @@
                 android:orientation="horizontal"
                 android:gravity="center">
 
-                <!-- Nút Từ chối -->
+                <!-- Reject Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnReject"
                     style="@style/Widget.Material3.Button.OutlinedButton"
@@ -358,13 +357,13 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
-                    android:text="Từ chối"
+                    android:text="Reject"
                     android:textAllCaps="false"
                     android:textColor="@color/red"
                     app:strokeColor="@color/red"
                     app:strokeWidth="1dp" />
 
-                <!-- Nút Chấp nhận -->
+                <!-- Accept Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSubmit"
                     style="@style/Widget.Material3.Button.TextButton"
@@ -372,13 +371,12 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
-                    android:text="Chấp nhận"
+                    android:text="Accept"
                     android:textAllCaps="false"
                     android:textColor="@android:color/white"
                     android:backgroundTint="@color/primary_color" />
 
             </LinearLayout>
-
 
         </LinearLayout>
 

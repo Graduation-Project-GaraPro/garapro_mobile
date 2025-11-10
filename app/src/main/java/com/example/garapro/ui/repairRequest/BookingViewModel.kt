@@ -26,6 +26,7 @@ import okhttp3.RequestBody
 import java.io.File
 import java.io.InputStream
 import android.util.Log
+import com.example.garapro.data.model.repairRequest.ArrivalWindow
 import com.example.garapro.data.model.repairRequest.ChildCategoriesResponse
 import com.example.garapro.data.model.repairRequest.ParentServiceCategory
 
@@ -80,6 +81,9 @@ class BookingViewModel(
 
     private val _childServiceCategories = MutableLiveData<ChildCategoriesResponse>()
     val childServiceCategories: LiveData<ChildCategoriesResponse> = _childServiceCategories
+
+    private val _arrivalWindows = MutableLiveData<List<ArrivalWindow>>()
+    val arrivalWindows: LiveData<List<ArrivalWindow>> = _arrivalWindows
 
     private val _selectedParentCategory = MutableLiveData<ParentServiceCategory?>()
     val selectedParentCategory: LiveData<ParentServiceCategory?> = _selectedParentCategory
@@ -138,6 +142,23 @@ class BookingViewModel(
             } catch (e: Exception) {
                 _branches.value = emptyList()
                 _errorMessage.value = "Không thể tải danh sách chi nhánh"
+                checkTokenExpired(e)
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+
+    fun loadArrivalAvailability(branchId: String, date: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val slots = repository.getArrivalAvailability(branchId, date)
+                _arrivalWindows.value = slots.filter { !it.isFull && it.remaining > 0 }
+            } catch (e: Exception) {
+                _arrivalWindows.value = emptyList()
+                _errorMessage.value = "Không thể tải khung giờ"
                 checkTokenExpired(e)
             } finally {
                 _isLoading.value = false
@@ -380,8 +401,25 @@ class BookingViewModel(
 
     // Select Parent Category
     fun selectParentCategory(category: ParentServiceCategory) {
+        val isChanged = _selectedParentCategory.value?.serviceCategoryId != category.serviceCategoryId
+
         _selectedParentCategory.value = category
+
+        if (isChanged) {
+            //  ĐỔI PARENT: xoá sạch service/part đã chọn ở parent cũ
+            clearSelectionsForNewParent()
+
+            // (khuyến nghị) reset filter & data con để tránh “treo” state cũ
+            _currentChildFilter.value = null
+            _allChildCategories.value = emptyList()
+            // _childServiceCategories sẽ được nạp lại khi vào màn con
+        }
+
         _navigationState.value = NavigationState.CHILD_CATEGORY_SELECTION
+    }
+    private fun clearSelectionsForNewParent() {
+        _selectedServices.value = mutableListOf()
+        _selectedParts.value = mutableMapOf()
     }
 
     // Update navigation state
@@ -436,19 +474,19 @@ class BookingViewModel(
 
 // ✅ Cách 2: Log chi tiết từng phần nếu muốn tách riêng
                 Log.d("RepairRequest", """
-    Branch ID: ${request.branchId}
-    Vehicle ID: ${request.vehicleID}
-    Description: ${request.description}
-    Request Date: ${request.requestDate}
-    Images: ${request.images.joinToString(", ")}
-    Services: ${
-                    request.services.joinToString("\n") { service ->
-                        " - ServiceID: ${service.serviceId}, Parts: ${
-                            service.parts.joinToString(", ") { it.partId }
-                        }"
-                    }
-                }
-""".trimIndent())
+                        Branch ID: ${request.branchId}
+                        Vehicle ID: ${request.vehicleID}
+                        Description: ${request.description}
+                        Request Date: ${request.requestDate}
+                        Images: ${request.images.joinToString(", ")}
+                        Services: ${
+                                        request.services.joinToString("\n") { service ->
+                                            " - ServiceID: ${service.serviceId}, Parts: ${
+                                                service.parts.joinToString(", ") { it.partId }
+                                            }"
+                                        }
+                                    }
+                    """.trimIndent())
 
                 val result = repository.submitRepairRequest(request)
                 _submitResult.value = result as? Boolean ?: false

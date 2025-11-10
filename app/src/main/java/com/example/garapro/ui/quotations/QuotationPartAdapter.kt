@@ -37,6 +37,7 @@ class QuotationPartAdapter(
         fun bind(part: QuotationServicePart) {
             try {
                 binding.tvPartName.text = part.partName
+                binding.tvPartPrice.text = MoneyUtils.formatVietnameseCurrency(part.price)
                 binding.cbPart.isChecked = part.isSelected
                 binding.cbPart.isEnabled = isEditable
 

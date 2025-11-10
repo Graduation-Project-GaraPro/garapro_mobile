@@ -13,18 +13,18 @@
         android:orientation="vertical"
         android:padding="8dp">
 
-        <!-- Tiêu đề -->
+        <!-- Title -->
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Chi tiết yêu cầu sửa chữa"
+            android:text="Repair Request Details"
             android:textColor="#000000"
             android:textSize="20sp"
             android:textStyle="bold"
             android:gravity="center"
             android:layout_marginBottom="20dp" />
 
-        <!-- Thông tin cơ bản -->
+        <!-- Basic Information -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -44,13 +44,13 @@
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Thông tin cơ bản"
+                    android:text="Basic Information"
                     android:textColor="#000000"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="16dp" />
 
-                <!-- Mã yêu cầu -->
+                <!-- Request ID -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -61,7 +61,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Mã yêu cầu:"
+                        android:text="Request ID:"
                         android:textColor="#666666"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -78,7 +78,7 @@
 
                 </LinearLayout>
 
-                <!-- Trạng thái -->
+                <!-- Status -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -89,7 +89,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Trạng thái:"
+                        android:text="Status:"
                         android:textColor="#666666"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -98,7 +98,7 @@
                         android:id="@+id/tvStatus"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="ĐANG CHỜ"
+                        android:text="PENDING"
                         android:textColor="@color/white"
                         android:textSize="12sp"
                         android:textStyle="bold"
@@ -109,7 +109,7 @@
 
                 </LinearLayout>
 
-                <!-- Ngày yêu cầu -->
+                <!-- Request Date -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -120,7 +120,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Ngày yêu cầu:"
+                        android:text="Request Date:"
                         android:textColor="#666666"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -137,11 +137,11 @@
 
                 </LinearLayout>
 
-                <!-- Mô tả -->
+                <!-- Description -->
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Mô tả"
+                    android:text="Description"
                     android:textColor="#666666"
                     android:textSize="14sp"
                     android:textStyle="bold"
@@ -157,11 +157,11 @@
                     android:layout_marginBottom="16dp"
                     android:lineSpacingExtra="4dp" />
 
-                <!-- Hình ảnh -->
+                <!-- Images -->
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Hình ảnh"
+                    android:text="Images"
                     android:textColor="#666666"
                     android:textSize="14sp"
                     android:textStyle="bold"
@@ -181,8 +181,7 @@
                         android:layout_marginEnd="4dp"
                         android:scaleType="centerCrop"
                         android:visibility="gone"
-                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
-                         />
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small" />
 
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/ivImage2"
@@ -193,8 +192,7 @@
                         android:layout_marginEnd="4dp"
                         android:scaleType="centerCrop"
                         android:visibility="gone"
-                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
-                         />
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small" />
 
                 </LinearLayout>
 
@@ -221,8 +219,7 @@
                         android:layout_marginStart="4dp"
                         android:scaleType="centerCrop"
                         android:visibility="gone"
-                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
-                         />
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small" />
 
                 </LinearLayout>
 
@@ -230,7 +227,7 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Thông tin xe -->
+        <!-- Vehicle Information -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -250,13 +247,13 @@
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Thông tin xe"
+                    android:text="Vehicle Information"
                     android:textColor="#000000"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="16dp" />
 
-                <!-- Tên xe -->
+                <!-- Vehicle Name -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -267,7 +264,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Xe:"
+                        android:text="Vehicle:"
                         android:textColor="#666666"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -284,7 +281,7 @@
 
                 </LinearLayout>
 
-                <!-- Biển số -->
+                <!-- License Plate -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -295,7 +292,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Biển số:"
+                        android:text="License Plate:"
                         android:textColor="#666666"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -312,7 +309,7 @@
 
                 </LinearLayout>
 
-                <!-- Số khung -->
+                <!-- VIN Number -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -323,7 +320,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Số khung:"
+                        android:text="VIN:"
                         android:textColor="#666666"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -340,7 +337,7 @@
 
                 </LinearLayout>
 
-                <!-- Năm sản xuất -->
+                <!-- Manufacturing Year -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -351,7 +348,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Năm sản xuất:"
+                        android:text="Year:"
                         android:textColor="#666666"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -368,7 +365,7 @@
 
                 </LinearLayout>
 
-                <!-- Số km -->
+                <!-- Odometer -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -378,7 +375,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Số km:"
+                        android:text="Odometer:"
                         android:textColor="#666666"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -399,7 +396,7 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Dịch vụ & Phụ tùng -->
+        <!-- Services -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -418,7 +415,7 @@
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Dịch vụ"
+                    android:text="Services"
                     android:textColor="#000000"
                     android:textSize="18sp"
                     android:textStyle="bold"
@@ -430,14 +427,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="20dp" />
 
-                <!-- Đường phân cách -->
+                <!-- Divider -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="#E0E0E0"
                     android:layout_marginBottom="16dp" />
 
-                <!-- Tổng chi phí -->
+                <!-- Total Cost -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -449,7 +446,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Tổng chi phí:"
+                        android:text="Total Cost:"
                         android:textColor="#000000"
                         android:textSize="18sp"
                         android:textStyle="bold" />

@@ -2,6 +2,7 @@ package com.example.garapro.ui.appointments
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,7 +24,6 @@ import com.example.garapro.databinding.FragmentAppointmentsBinding
 import com.example.garapro.ui.repairRequest.BookingActivity
 import kotlinx.coroutines.launch
 
-// AppointmentsFragment.kt
 class AppointmentsFragment : Fragment() {
 
     private lateinit var binding: FragmentAppointmentsBinding
@@ -86,9 +86,6 @@ class AppointmentsFragment : Fragment() {
     private fun navigateToBookingActivity() {
         val intent = Intent(requireContext(), BookingActivity::class.java)
         startActivity(intent)
-
-        // Hoặc có thể dùng navigation component nếu có
-        // findNavController().navigate(R.id.action_appointmentsFragment_to_bookingActivity)
     }
 
     private fun setupFilterSection() {
@@ -97,23 +94,65 @@ class AppointmentsFragment : Fragment() {
             toggleFilterVisibility()
         }
 
-        // Status chips
-        binding.chipGroupStatus.setOnCheckedStateChangeListener { group, checkedIds ->
-            val status = when {
-//                binding.chipAll.isChecked -> null
-                binding.chipPending.isChecked -> 0
-                binding.chipAccept.isChecked -> 1
-                binding.chipArrived.isChecked -> 2
-                binding.chipCancelled.isChecked -> 3
-                else -> null
-            }
-            viewModel.filterByStatus(status)
+        // Clear filter button
+        binding.btnClearFilter.setOnClickListener {
+            clearAllFilters()
         }
 
+        // Status chips
+        setupStatusSpinner()
         // Setup Spinners với adapter rỗng ban đầu
         setupVehicleSpinner()
         setupBranchSpinner()
     }
+
+    private fun clearAllFilters() {
+        // Clear status chips
+        binding.spinnerStatus.setSelection(0)
+
+        // Reset vehicle spinner to "All"
+        binding.spinnerVehicle.setSelection(0)
+
+        // Reset branch spinner to "All"
+        binding.spinnerBranch.setSelection(0)
+
+        // Clear all filters in ViewModel
+        viewModel.clearAllFilters()
+
+        Toast.makeText(requireContext(), "All filters cleared", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun setupStatusSpinner() {
+        // Tạo adapter với các trạng thái
+        val statusAdapter = ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.repair_status_array,
+            android.R.layout.simple_spinner_item
+        ).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+
+        binding.spinnerStatus.adapter = statusAdapter
+
+        binding.spinnerStatus.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                // Chỉ filter khi position > 0 (không phải "All Status")
+                val status = when (position) {
+                    1 -> 0 // Pending
+                    2 -> 1 // Accepted
+                    3 -> 2 // Arrived
+                    4 -> 3 // Cancelled
+                    else -> null // All Status
+                }
+                viewModel.filterByStatus(status)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Không làm gì
+            }
+        }
+    }
+
     private fun setupVehicleSpinner() {
         // Tạo adapter với mảng rỗng ban đầu
         val adapter = ArrayAdapter<String>(
@@ -121,7 +160,7 @@ class AppointmentsFragment : Fragment() {
             android.R.layout.simple_spinner_item
         ).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            add("Tất cả") // Thêm item mặc định
+            add("All") // Thêm item mặc định
         }
 
         binding.spinnerVehicle.adapter = adapter
@@ -150,7 +189,7 @@ class AppointmentsFragment : Fragment() {
             android.R.layout.simple_spinner_item
         ).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            add("Tất cả") // Thêm item mặc định
+            add("All") // Thêm item mặc định
         }
 
         binding.spinnerBranch.adapter = adapter
@@ -171,6 +210,7 @@ class AppointmentsFragment : Fragment() {
             }
         }
     }
+
     private fun toggleFilterVisibility() {
         isFilterVisible = !isFilterVisible
         binding.cardFilter.visibility = if (isFilterVisible) View.VISIBLE else View.GONE
@@ -217,10 +257,6 @@ class AppointmentsFragment : Fragment() {
         }
     }
 
-
-
-
-
     private fun updateVehicleSpinner(vehicles: List<Vehicle>) {
         val adapter = ArrayAdapter<String>(
             requireContext(),
@@ -230,7 +266,7 @@ class AppointmentsFragment : Fragment() {
         }
 
         // Thêm item "All Vehicles" đầu tiên
-        adapter.add("Tất cả")
+        adapter.add("All")
 
         // Thêm các vehicles
         vehicles.forEach { vehicle ->
@@ -249,7 +285,7 @@ class AppointmentsFragment : Fragment() {
         }
 
         // Thêm item "All Branches" đầu tiên
-        adapter.add("Tất cả")
+        adapter.add("All")
 
         // Thêm các branches
         branches.forEach { branch ->
@@ -259,14 +295,12 @@ class AppointmentsFragment : Fragment() {
         binding.spinnerBranch.adapter = adapter
     }
 
-
-
-
     private fun showRepairRequestDetail(repairRequest: RepairRequest) {
         viewLifecycleOwner.lifecycleScope.launch {
             binding.progressBar.visibility = View.VISIBLE
             try {
                 val detail = repository.getRepairRequestDetail(repairRequest.repairRequestID)
+                Log.d("Detail",detail.toString())
                 if (detail != null) {
                     RepairRequestDetailBottomSheet.newInstance(detail)
                         .show(parentFragmentManager, "RepairRequestDetail")
@@ -281,14 +315,13 @@ class AppointmentsFragment : Fragment() {
         }
     }
 
-
-
     private fun updateRepairRequest(repairRequest: RepairRequest) {
         // Navigate to update screen
         Toast.makeText(requireContext(), "Update: ${repairRequest.repairRequestID}", Toast.LENGTH_SHORT).show()
     }
+
     override fun onResume() {
         super.onResume()
-        viewModel.loadInitialData() // hoặc refresh dữ liệu gì đó
+        viewModel.loadInitialData()
     }
 }

@@ -18,7 +18,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="#FFFFFF"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:title="Chi tiết Đơn sửa chữa"
+            app:title="Repair Order Details"
             app:titleTextColor="#000000" />
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -53,7 +53,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Tổng quan Đơn hàng"
+                        android:text="Order Overview"
                         android:textColor="#000000"
                         android:textSize="18sp"
                         android:textStyle="bold" />
@@ -117,7 +117,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Ngày nhận:"
+                            android:text="Receive Date:"
                             android:textColor="#666666"
                             android:textSize="12sp"
                             app:layout_column="0"
@@ -139,7 +139,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Dự kiến hoàn thành:"
+                            android:text="Estimated Completion:"
                             android:textColor="#666666"
                             android:textSize="12sp"
                             app:layout_column="0"
@@ -162,7 +162,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Loại đơn:"
+                            android:text="Order Type:"
                             android:textColor="#666666"
                             android:textSize="12sp"
                             app:layout_column="0"
@@ -174,7 +174,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:layout_marginTop="4dp"
-                            android:text="Đã lên lịch"
+                            android:text="Scheduled"
                             android:textColor="#000000"
                             android:textSize="12sp"
                             app:layout_column="1"
@@ -185,7 +185,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Trạng thái thanh toán:"
+                            android:text="Payment Status:"
                             android:textColor="#666666"
                             android:textSize="12sp"
                             app:layout_column="0"
@@ -197,7 +197,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:layout_marginTop="4dp"
-                            android:text="Đang chờ"
+                            android:text="Pending"
                             android:textColor="@color/orange"
                             android:textSize="12sp"
                             android:textStyle="bold"
@@ -225,7 +225,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Dự kiến"
+                                android:text="Estimated"
                                 android:textColor="#666666"
                                 android:textSize="10sp" />
 
@@ -251,7 +251,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Đã thanh toán"
+                                android:text="Paid"
                                 android:textColor="#666666"
                                 android:textSize="10sp" />
 
@@ -277,7 +277,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Chi phí"
+                                android:text="Cost"
                                 android:textColor="#666666"
                                 android:textSize="10sp" />
 
@@ -330,7 +330,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Tiến độ"
+                        android:text="Progress"
                         android:textColor="#000000"
                         android:textSize="18sp"
                         android:textStyle="bold" />
@@ -351,7 +351,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Chưa bắt đầu"
+                            android:text="Not Started"
                             android:textColor="#666666"
                             android:textSize="14sp" />
 
@@ -389,7 +389,7 @@
                             android:background="@drawable/bg_status_pill"
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="6dp"
-                            android:text="Hoàn thành"
+                            android:text="Completed"
                             android:textColor="@color/white"
                             android:textSize="12sp"
                             android:textStyle="bold" />
@@ -429,7 +429,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Công việc"
+                        android:text="Jobs"
                         android:textColor="#000000"
                         android:textSize="18sp"
                         android:textStyle="bold" />

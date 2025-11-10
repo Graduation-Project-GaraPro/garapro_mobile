@@ -36,9 +36,9 @@ class PartCategoryAdapter(
 
             // 🔥 CẬP NHẬT RULES CHO CHÍNH XÁC
             val selectionRule = if (service.isAdvanced) {
-                "Chọn 1 part trong category này - Có thể chọn part khác category khác"
+                "Select 1 part in this category - Can select parts from other categories"
             } else {
-                "Chọn 1 part - Tự động bỏ chọn part khác toàn service"
+                "Select 1 part - Automatically unselects other parts in the service"
             }
             binding.tvSelectionRule.text = selectionRule
 

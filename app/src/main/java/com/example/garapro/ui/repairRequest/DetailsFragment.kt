@@ -16,6 +16,9 @@ import com.example.garapro.R
 import java.util.Calendar
 import android.text.TextWatcher
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
+import com.example.garapro.data.model.repairRequest.ArrivalWindow
+import kotlinx.coroutines.launch
 
 class DetailsFragment : BaseBookingFragment() {
 
@@ -23,6 +26,8 @@ class DetailsFragment : BaseBookingFragment() {
     private val binding get() = _binding!!
     private lateinit var imageAdapter: ImageAdapter
 
+    private lateinit var timeSlotAdapter: TimeSlotAdapter
+    private var selectedDateOnly: String? = null
     companion object {
         private const val PICK_IMAGES_REQUEST = 1001
     }
@@ -39,6 +44,26 @@ class DetailsFragment : BaseBookingFragment() {
         setupObservers()
         setupListeners()
         setupDatePicker()
+        setupTimeSlotRecycler()
+        setupBaseObservers()
+    }
+
+    private fun setupTimeSlotRecycler() {
+        timeSlotAdapter = TimeSlotAdapter(emptyList()) { slot ->
+            // Lấy ngày từ selectedDateOnly; nếu null thì lấy luôn từ ISO windowStart
+            val datePart = selectedDateOnly ?: slot.windowStart.substring(0, 10) // yyyy-MM-dd
+            val startHm = slot.windowStart.substringAfter('T').substring(0, 5)   // HH:mm
+
+            val selectedDateTime = "$datePart $startHm"
+            bookingViewModel.setRequestDate(selectedDateTime)
+            binding.etRequestDate.setText(selectedDateTime)
+            validateForm()
+        }
+
+        binding.rvTimeSlots.apply {
+            layoutManager = GridLayoutManager(requireContext(), 2)
+            adapter = timeSlotAdapter
+        }
     }
 
     private fun setupRecyclerView() {
@@ -60,7 +85,41 @@ class DetailsFragment : BaseBookingFragment() {
 
         bookingViewModel.requestDate.observe(viewLifecycleOwner) { date ->
             binding.etRequestDate.setText(date)
+
+            // Đồng bộ selectedDateOnly từ requestDate nếu có
+            if (!date.isNullOrBlank() && date.length >= 10) {
+                selectedDateOnly = date.substring(0, 10) // yyyy-MM-dd
+            }
+
             validateForm()
+        }
+        bookingViewModel.arrivalWindows.observe(viewLifecycleOwner) { slots ->
+            val showList = slots.isNotEmpty()
+            binding.tvTimeSlotsTitle.visibility = if (showList) View.VISIBLE else View.GONE
+            binding.rvTimeSlots.visibility = if (showList) View.VISIBLE else View.GONE
+
+            timeSlotAdapter.submitList(slots)
+            val current = bookingViewModel.requestDate.value
+            if (!current.isNullOrBlank() && current.length >= 16) { // "yyyy-MM-dd HH:mm"
+                val date = current.substring(0, 10)
+                val hm = current.substring(11, 16)
+                timeSlotAdapter.setSelectedByDateHm(date, hm)
+            }
+
+            if (!showList && selectedDateOnly != null) {
+                Toast.makeText(requireContext(), "Không còn khung giờ trống cho ngày này.", Toast.LENGTH_SHORT).show()
+            }
+
+
+        }
+        bookingViewModel.requestDate.value?.let { dt ->
+            if (dt.length >= 10) {
+                selectedDateOnly = dt.substring(0, 10) // yyyy-MM-dd
+                val branch = bookingViewModel.selectedBranch.value
+                if (branch != null) {
+                    bookingViewModel.loadArrivalAvailability(branch.branchId, selectedDateOnly!!)
+                }
+            }
         }
     }
 
@@ -109,42 +168,18 @@ class DetailsFragment : BaseBookingFragment() {
                 calendar.set(Calendar.MONTH, month)
                 calendar.set(Calendar.DAY_OF_MONTH, day)
 
-                // Sau khi chọn ngày, mở hộp thoại chọn giờ
-                val timePicker = TimePickerDialog(
-                    requireContext(),
-                    { _, hour, minute ->
-                        // Nếu chọn hôm nay, kiểm tra giờ có hợp lệ không
-                        if (isToday(calendar, now) && (hour < now.get(Calendar.HOUR_OF_DAY) ||
-                                    (hour == now.get(Calendar.HOUR_OF_DAY) && minute < now.get(Calendar.MINUTE)))
-                        ) {
-                            Toast.makeText(requireContext(), "Cannot select past time!", Toast.LENGTH_SHORT).show()
-                            return@TimePickerDialog
-                        }
-
-                        // Lưu giờ hợp lệ
-                        calendar.set(Calendar.HOUR_OF_DAY, hour)
-                        calendar.set(Calendar.MINUTE, minute)
-
-                        // Format yyyy-MM-dd HH:mm
-                        val selectedDateTime = String.format(
-                            "%04d-%02d-%02d %02d:%02d",
-                            calendar.get(Calendar.YEAR),
-                            calendar.get(Calendar.MONTH) + 1,
-                            calendar.get(Calendar.DAY_OF_MONTH),
-                            calendar.get(Calendar.HOUR_OF_DAY),
-                            calendar.get(Calendar.MINUTE)
-                        )
-
-                        // Cập nhật UI và ViewModel
-                        bookingViewModel.setRequestDate(selectedDateTime)
-                        binding.etRequestDate.setText(selectedDateTime)
-                    },
-                    calendar.get(Calendar.HOUR_OF_DAY),
-                    calendar.get(Calendar.MINUTE),
-                    true
+                // Lưu lại yyyy-MM-dd để gọi API lấy khung giờ
+                selectedDateOnly = String.format(
+                    "%04d-%02d-%02d",
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH) + 1,
+                    calendar.get(Calendar.DAY_OF_MONTH)
                 )
 
-                timePicker.show()
+                // Reset giờ hiển thị (vì sẽ chọn theo slot)
+                binding.etRequestDate.setText(selectedDateOnly)
+                fetchArrivalAvailability()
+
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
@@ -155,6 +190,18 @@ class DetailsFragment : BaseBookingFragment() {
         datePicker.datePicker.minDate = now.timeInMillis
         datePicker.show()
     }
+
+    private fun fetchArrivalAvailability() {
+        val date = selectedDateOnly ?: return
+        val branch = bookingViewModel.selectedBranch.value ?: return
+        // ViewModel sẽ set _isLoading để BaseBookingFragment hiển thị loading
+        bookingViewModel.loadArrivalAvailability(branch.branchId, date)
+
+
+    }
+
+
+
 
     // Hàm phụ kiểm tra có phải là hôm nay không
     private fun isToday(selected: Calendar, now: Calendar): Boolean {
@@ -185,17 +232,17 @@ class DetailsFragment : BaseBookingFragment() {
     }
 
     private fun validateForm(): Boolean {
-        val isValid = bookingViewModel.requestDate.value?.isNotBlank() == true &&
-                bookingViewModel.description.value?.isNotBlank() == true
+        val hasRequestDate = bookingViewModel.requestDate.value
+            ?.matches(Regex("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}")) == true
+        val hasDescription = bookingViewModel.description.value?.isNotBlank() == true
 
+        val isValid = hasRequestDate && hasDescription
         binding.btnNext.isEnabled = isValid
 
         if (isValid) {
-            // Khi hợp lệ: nền đen, chữ trắng
             binding.btnNext.setBackgroundColor(android.graphics.Color.BLACK)
             binding.btnNext.setTextColor(android.graphics.Color.WHITE)
         } else {
-            // Khi không hợp lệ: nền xám nhạt, chữ xám
             binding.btnNext.setBackgroundColor(android.graphics.Color.parseColor("#E0E0E0"))
             binding.btnNext.setTextColor(android.graphics.Color.parseColor("#9E9E9E"))
         }

@@ -5,6 +5,7 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
 import com.example.garapro.data.local.TokenManager
+import com.example.garapro.data.model.repairRequest.ArrivalWindow
 import com.example.garapro.data.model.repairRequest.Branch
 import com.example.garapro.data.model.repairRequest.ChildCategoriesResponse
 import com.example.garapro.data.model.repairRequest.ChildServiceCategory
@@ -46,6 +47,19 @@ class BookingRepository(
             }
         } catch (e: Exception) {
             getMockParentServiceCategories()
+        }
+    }
+
+    suspend fun getArrivalAvailability(branchId: String, date: String): List<ArrivalWindow> {
+        return try {
+            val response = RetrofitInstance.bookingService.getArrivalAvailability(branchId, date)
+            if (response.isSuccessful) {
+                response.body() ?: emptyList()
+            } else {
+                emptyList() // Khi API trả lỗi
+            }
+        } catch (e: Exception) {
+            emptyList() // Khi có lỗi mạng hoặc lỗi khác
         }
     }
 
@@ -285,9 +299,9 @@ class BookingRepository(
             Branch(
                 branchId = "6e194346-9c53-45f6-8300-3fe2f7cee235",
                 branchName = "Central Branch",
-                city = "HCMC",
-                district = "District 1",
-                ward = "Ward 1",
+                province = "NaN",
+                commune = "NaN",
+                street = "NaN",
                 phoneNumber = "0123456789",
                 email = "central@garage.com",
                 description = "Central garage branch",
