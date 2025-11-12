@@ -5,12 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
-
-
-    <!-- Location permissions -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
@@ -31,43 +27,66 @@
             android:name="com.goong.sdk.API_KEY"
             android:value="@string/goong_map_key" />
 
-        <activity
-            android:name=".ui.repairRequest.BookingActivity"
-            android:exported="true">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-        </activity>
-        <activity
-            android:name=".ui.login.LoginActivity"
-            android:exported="true">
-
-        </activity>
-
+        <!-- Main Activity - ĐẶT Ở ĐẦU để tránh xung đột -->
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTop">
             <intent-filter>
-                <!-- Đây là activity chính -->
                 <action android:name="android.intent.action.MAIN" />
-
-                <!-- Cho phép app hiển thị icon trên launcher -->
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <!-- PaymentResultActivity - CHỈ ĐỊNH RÕ RÀNG -->
+        <activity
+            android:name=".ui.paymentResults.PaymentResultActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.GaraPro">
+            <!-- success -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="myapp"
+                    android:host="payment"
+                    android:pathPrefix="/success" />
+            </intent-filter>
+            <!-- cancel -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="myapp"
+                    android:host="payment"
+                    android:pathPrefix="/cancel" />
+            </intent-filter>
+        </activity>
+
+        <!-- Các activity khác giữ nguyên -->
+        <activity
+            android:name=".ui.repairRequest.BookingActivity"
+            android:exported="true"/>
+
+        <activity
+            android:name=".ui.login.LoginActivity"
+            android:exported="true"/>
+
         <activity
             android:name=".ui.signup.SignUpActivity"
             android:exported="true"/>
+
         <activity
             android:name=".ui.profile.EditProfileActivity"
             android:exported="true"/>
+
         <activity
             android:name=".ui.emergencies.MapActivity"
             android:exported="true"/>
-<!--        <activity android:name=".ui.repairRequest.BookingActivity" />-->
+
         <service
             android:name=".services.NotificationService"
             android:exported="false">
@@ -76,7 +95,5 @@
             </intent-filter>
         </service>
 
-
     </application>
-
 </manifest>

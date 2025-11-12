@@ -6,7 +6,12 @@ import com.example.garapro.data.model.RepairProgresses.RepairOrderFilter
 import com.example.garapro.data.model.RepairProgresses.RepairOrderListItem
 import com.example.garapro.data.model.RepairProgresses.RepairProgressDetail
 import com.example.garapro.data.model.RepairProgresses.RoType
+import com.example.garapro.data.model.payments.CreatePaymentRequest
+import com.example.garapro.data.model.payments.CreatePaymentResponse
+import com.example.garapro.data.model.payments.PaymentStatusDto
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -27,7 +32,11 @@ interface RepairProgressApiService {
     suspend fun getRepairProgressDetail(
         @Path("repairOrderId") repairOrderId: String
     ): RepairProgressDetail
+    @POST("Payments/create-link")
+    suspend fun createLink(@Body body: CreatePaymentRequest): CreatePaymentResponse
 
+    @GET("Payments/status/{orderCode}")
+    suspend fun getStatus(@Path("orderCode") orderCode: Long): PaymentStatusDto
     @GET("OrderStatus")
     suspend fun getOrderStatuses(): List<OrderStatus>
 }

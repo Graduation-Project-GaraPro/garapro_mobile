@@ -48,7 +48,7 @@ dependencies {
     // Không dùng BOM nữa
     implementation("com.google.firebase:firebase-messaging-ktx:23.3.0")
     implementation("com.google.firebase:firebase-analytics:21.3.0")
-
+    implementation("com.jakewharton.timber:timber:5.0.1")
     implementation("androidx.datastore:datastore-preferences:1.1.0")
     // AndroidX + Core libraries
     implementation(libs.androidx.core.ktx)
@@ -93,6 +93,7 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.androidx.runtime)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.browser)
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 
     // Khác

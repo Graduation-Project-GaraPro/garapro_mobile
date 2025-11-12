@@ -10,6 +10,9 @@ import com.example.garapro.data.model.RepairProgresses.RepairOrderFilter
 import com.example.garapro.data.model.RepairProgresses.RepairOrderListItem
 import com.example.garapro.data.model.RepairProgresses.RepairProgressDetail
 import com.example.garapro.data.model.RepairProgresses.RoType
+import com.example.garapro.data.model.payments.CreatePaymentRequest
+import com.example.garapro.data.model.payments.CreatePaymentResponse
+import com.example.garapro.data.model.payments.PaymentStatusDto
 import com.example.garapro.data.remote.RetrofitInstance
 import com.example.garapro.data.repository.RepairProgress.RepairProgressRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,8 +27,14 @@ class RepairProgressViewModel : ViewModel() {
         RepairProgressRepository.ApiResponse.Loading())
     val repairOrders: StateFlow<RepairProgressRepository.ApiResponse<PagedResult<RepairOrderListItem>>> = _repairOrders
 
-    private val _repairOrderDetail = MutableStateFlow<RepairProgressRepository.ApiResponse< RepairProgressDetail>?>(null)
+    private val _repairOrderDetail = MutableStateFlow<RepairProgressRepository.ApiResponse<RepairProgressDetail>?>(null)
     val repairOrderDetail: StateFlow<RepairProgressRepository.ApiResponse<RepairProgressDetail>?> = _repairOrderDetail
+
+    private val _paymentStatus = MutableStateFlow<RepairProgressRepository.ApiResponse<PaymentStatusDto>?>(null)
+    val paymentStatus: StateFlow<RepairProgressRepository.ApiResponse<PaymentStatusDto>?> = _paymentStatus
+
+    private val _createPaymentResponse = MutableStateFlow<RepairProgressRepository.ApiResponse<CreatePaymentResponse>?>(null)
+    val createPaymentResponse: StateFlow<RepairProgressRepository.ApiResponse<CreatePaymentResponse>?> = _createPaymentResponse
 
     private val _orderStatuses = MutableStateFlow<List<OrderStatus>>(emptyList())
     val orderStatuses: StateFlow<List<OrderStatus>> = _orderStatuses
@@ -56,6 +65,40 @@ class RepairProgressViewModel : ViewModel() {
             updateFilterChips()
             _isLoading.value = false
         }
+    }
+
+    suspend fun createPaymentLinkDirect(createPaymentRequest: CreatePaymentRequest): CreatePaymentResponse? {
+        return try {
+            val result = repository.createPaymentLink(createPaymentRequest)
+            when (result) {
+                is RepairProgressRepository.ApiResponse.Success -> result.data
+                else -> null
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    // Function tiện ích để lấy checkout URL từ response
+    fun getCheckoutUrl(): String? {
+        return when (val response = _createPaymentResponse.value) {
+            is RepairProgressRepository.ApiResponse.Success -> response.data.checkoutUrl
+            else -> null
+        }
+    }
+
+    fun getPaymentStatus(orderCode: Long) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _paymentStatus.value = RepairProgressRepository.ApiResponse.Loading()
+            val result = repository.getPaymentStatus(orderCode)
+            _paymentStatus.value = result
+            _isLoading.value = false
+        }
+    }
+    // Clear payment response khi cần
+    fun clearPaymentResponse() {
+        _createPaymentResponse.value = null
     }
 
     fun loadRepairOrderDetail(repairOrderId: String) {

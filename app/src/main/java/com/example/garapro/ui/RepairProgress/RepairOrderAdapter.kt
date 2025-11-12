@@ -4,6 +4,7 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
@@ -19,7 +20,8 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class RepairOrderAdapter(
-    private val onItemClick: (RepairOrderListItem) -> Unit
+    private val onItemClick: (RepairOrderListItem) -> Unit,
+    private val onPaymentClick: (RepairOrderListItem) -> Unit
 ) : ListAdapter<RepairOrderListItem, RepairOrderAdapter.ViewHolder>(DiffCallback) {
 
     companion object {
@@ -56,7 +58,15 @@ class RepairOrderAdapter(
                     onItemClick(getItem(position))
                 }
             }
+            // Xử lý sự kiện click nút thanh toán
+            binding.paymentButton.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onPaymentClick(getItem(position))
+                }
+            }
         }
+
 
         fun bind(item: RepairOrderListItem) {
             binding.apply {
@@ -73,12 +83,20 @@ class RepairOrderAdapter(
                 // Set status color
                 val statusColor = getStatusColor(item.statusName)
                 statusText.setBackgroundColor(statusColor)
-
+                showPaymentButton(item)
                 // Setup labels
                 setupLabels(item.labels)
             }
         }
 
+        private fun showPaymentButton(item: RepairOrderListItem) {
+            val shouldShowPaymentButton = item.statusName == "Completed" && item.paidStatus == "Unpaid"
+            binding.paymentButton.visibility = if (shouldShowPaymentButton) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+        }
         private fun setupLabels(labels: List<Label>) {
             // Commented out label setup
         }
@@ -119,7 +137,6 @@ class RepairOrderAdapter(
         private fun getPaidStatusEnglish(statusName: String): String {
             return when (statusName) {
                 "Paid" -> "Paid"
-                "Partial" -> "Partial"
                 "Unpaid" -> "Pending"
                 else -> "Unknown"
             }

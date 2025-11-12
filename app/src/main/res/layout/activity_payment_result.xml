@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center"
+    android:background="@android:color/white">
+
+    <!-- Payment Status Icon - Center of screen -->
+    <ImageView
+        android:id="@+id/paymentIcon"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@drawable/ic_payment_success"
+        android:layout_marginBottom="24dp"
+        app:tint="@android:color/holo_green_dark" />
+
+    <!-- Result Title -->
+    <TextView
+        android:id="@+id/tvResult"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Payment Successful"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Simple Status Message -->
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your payment has been processed successfully"
+        android:textSize="16sp"
+        android:textColor="#666666"
+        android:gravity="center"
+        android:layout_marginBottom="32dp"
+        android:lineSpacingExtra="4dp" />
+
+    <!-- Loading Indicator -->
+    <ProgressBar
+        android:id="@+id/progress"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginBottom="24dp"
+        android:visibility="gone"
+        android:indeterminateTint="@android:color/black" />
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <!-- Retry Button - Only show for failed states -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRetry"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="Try Again"
+            android:textColor="@android:color/white"
+            app:backgroundTint="@android:color/black"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:layout_marginEnd="8dp"
+            app:cornerRadius="4dp"
+            android:visibility="gone" />
+
+        <!-- Close Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnClose"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="Close"
+            android:textColor="@android:color/white"
+            app:backgroundTint="@android:color/black"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:layout_marginStart="8dp"
+            app:cornerRadius="4dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -26,6 +27,7 @@ import com.example.garapro.data.remote.RetrofitInstance
 import com.example.garapro.data.remote.TokenExpiredListener
 import com.example.garapro.ui.home.NavigationInfo
 import com.example.garapro.ui.login.LoginActivity
+import com.example.garapro.ui.paymentResults.PaymentResultActivity
 import com.example.garapro.utils.Constants
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -35,6 +37,9 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), TokenExpiredListener {
 
+    companion object {
+        private const val TAG = "MainActivity"
+    }
     private lateinit var tokenManager: TokenManager
     private lateinit var navController: NavController
 
@@ -95,6 +100,7 @@ class MainActivity : AppCompatActivity(), TokenExpiredListener {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleIntent(intent)
+//        handleDeepLink(intent)
     }
 
     private fun handleIntent(intent: Intent) {
@@ -113,6 +119,37 @@ class MainActivity : AppCompatActivity(), TokenExpiredListener {
             executeNavigation(navigationInfo)
         }
     }
+
+//    private fun handleDeepLink(intent: Intent) {
+//        if (intent.action == Intent.ACTION_VIEW && intent.data != null) {
+//            val data = intent.data!!
+//            Log.d(TAG, "Handling Deep Link: $data")
+//
+//            // Chuyển hướng đến PaymentResultActivity nếu là link payment
+//            if (data.scheme == "myapp" && data.host == "payment") {
+//                val paymentIntent = Intent(this, PaymentResultActivity::class.java)
+//                paymentIntent.data = data
+//                startActivity(paymentIntent)
+//                finish() // Kết thúc MainActivity nếu cần
+//            } else {
+//                // Xử lý các deep link khác tại đây
+//                handleOtherDeepLinks(data)
+//            }
+//        }
+//    }
+    private fun handleOtherDeepLinks(uri: Uri) {
+        // Xử lý các deep link khác không phải payment
+        when {
+            uri.host == "profile" -> {
+                // Mở profile
+            }
+            uri.host == "booking" -> {
+                // Mở booking
+            }
+            // Thêm các case khác...
+        }
+    }
+
     private fun determineNavigation(
         screen: String?,
         notificationType: String?,

@@ -35,7 +35,7 @@ interface BookingService {
         @Query("status") status: Int? = null,
         @Query("branchId") branchId: String? = null
     ): Response<PagedRepairRequestResponse>
-    @GET("Vehicles")
+    @GET("Vehicles/user")
     suspend fun getVehicles(): Response<List<Vehicle>>
 
     // Branches
