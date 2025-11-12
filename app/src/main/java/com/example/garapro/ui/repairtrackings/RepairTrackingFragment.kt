@@ -24,6 +24,7 @@ class RepairTrackingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // Khởi tạo view và xử lý logic ở đây
+
     }
 
     override fun onDestroyView() {

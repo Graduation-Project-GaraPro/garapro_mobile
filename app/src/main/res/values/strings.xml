@@ -5,6 +5,7 @@
         <item></item>
     </string-array>
     <string name="login_image">Login illustration</string>
+    <string name="title_activity_rating_activity.kt">RatingActivity.kt</string>
 
 
 </resources>

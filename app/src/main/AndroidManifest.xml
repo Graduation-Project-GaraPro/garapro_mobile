@@ -2,12 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
 
     <application
         android:name=".data.local.MyApplication"
@@ -16,30 +17,38 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GaraPro"
-        android:usesCleartextTraffic="true"
-        android:networkSecurityConfig="@xml/network_security_config">
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".ui.feedback.RatingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.feedback.RatingActivity.kt"
+            android:exported="false"
+            android:label="@string/title_activity_rating_activity.kt"
+            android:theme="@style/Theme.GaraPro" />
         <activity
             android:name=".ui.repairRequest.BookingActivity"
             android:exported="true">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
 
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name=".ui.login.LoginActivity"
-            android:exported="true">
-
-        </activity>
-
+            android:exported="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
+
                 <!-- Đây là activity chính -->
                 <action android:name="android.intent.action.MAIN" />
 
@@ -47,14 +56,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.signup.SignUpActivity"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
             android:name=".ui.profile.EditProfileActivity"
-            android:exported="true"/>
-<!--        <activity android:name=".ui.repairRequest.BookingActivity" />-->
+            android:exported="true" /> <!-- <activity android:name=".ui.repairRequest.BookingActivity" /> -->
         <service
             android:name=".services.NotificationService"
             android:exported="false">
@@ -62,7 +69,6 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
         <service
             android:name=".services.MyFirebaseService"
             android:exported="false">
