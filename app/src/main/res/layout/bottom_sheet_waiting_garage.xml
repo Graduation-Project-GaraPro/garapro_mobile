@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bottom_sheet_background">
+
+    <!-- Garage Avatar -->
+    <ImageView
+        android:id="@+id/ivGarageAvatar"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:src="@drawable/gr_logo"
+        android:background="@drawable/spinner_background_black" />
+
+    <!-- Garage Name -->
+    <TextView
+        android:id="@+id/tvGarageName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Gara Ô Tô Số 1"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Garage Info -->
+    <TextView
+        android:id="@+id/tvGarageInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="1.2 km • 4.5 ⭐"
+        android:textColor="@color/gray"
+        android:textSize="14sp"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Loading Animation -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:indeterminate="true" />
+
+    <!-- Waiting Text -->
+    <TextView
+        android:id="@+id/tvWaitingText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Đang chờ gara xác nhận..."
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Estimated Time -->
+    <TextView
+        android:id="@+id/tvEstimatedTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Thời gian ước tính: 2-5 phút"
+        android:textColor="@color/gray"
+        android:textSize="14sp" />
+
+    <!-- Cancel Button -->
+    <Button
+        android:id="@+id/btnCancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Hủy yêu cầu"
+        android:backgroundTint="@color/gray"
+        app:cornerRadius="12dp" />
+
+</LinearLayout>

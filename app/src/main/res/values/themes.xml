@@ -5,5 +5,13 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
+    <style name="AppBottomSheetDialogTheme" parent="Theme.Material3.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/AppModalStyle</item>
+    </style>
+
+    <style name="AppModalStyle" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="android:maxHeight">@dimen/bottom_sheet_max_height</item>
+    </style>
+
     <style name="Theme.GaraPro" parent="Base.Theme.GaraPro" />
 </resources>

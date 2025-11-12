@@ -3,13 +3,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="16dp">
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_margin="16dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
         android:text="Trang chủ gara ô tô"
         android:textSize="20sp"
+        android:textAlignment="center"
         android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/btnGoToBooking"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Đặt lịch sửa xe"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="12dp" />
+
+    <Button
+        android:id="@+id/btnGoToMap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="12dp"
+        android:text="Go to map" />
 </LinearLayout>

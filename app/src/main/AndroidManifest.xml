@@ -2,48 +2,121 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
+        android:name=".data.local.MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GaraPro"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".ui.feedback.RatingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.feedback.RatingActivity.kt"
+            android:exported="false"
+            android:label="@string/title_activity_rating_activity.kt"
+            android:theme="@style/Theme.GaraPro" />
+        <activity
+            android:name=".ui.repairRequest.BookingActivity"
+            android:exported="true">
+
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
+        </activity>
+        <activity
+            android:name=".ui.login.LoginActivity"
+            android:exported="true"
         android:usesCleartextTraffic="true"
-        android:networkSecurityConfig="@xml/network_security_config">
+        android:networkSecurityConfig="@xml/network_security_config"/>
+
+        <meta-data
+            android:name="com.goong.sdk.API_KEY"
+            android:value="@string/goong_map_key" />
+
+        <!-- Main Activity - ĐẶT Ở ĐẦU để tránh xung đột -->
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.login.LoginActivity"
-            android:exported="true">
-<!--        <intent-filter>-->
-<!--            <action android:name="android.intent.action.MAIN" />-->
+            android:name=".ui.signup.SignUpActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ui.profile.EditProfileActivity"
+            android:exported="true" /> <!-- <activity android:name=".ui.repairRequest.BookingActivity" /> -->
 
-<!--            <category android:name="android.intent.category.LAUNCHER" />-->
-<!--        </intent-filter>-->
+        <!-- PaymentResultActivity - CHỈ ĐỊNH RÕ RÀNG -->
+        <activity
+            android:name=".ui.paymentResults.PaymentResultActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.GaraPro">
+            <!-- success -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="myapp"
+                    android:host="payment"
+                    android:pathPrefix="/success" />
+            </intent-filter>
+            <!-- cancel -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="myapp"
+                    android:host="payment"
+                    android:pathPrefix="/cancel" />
+            </intent-filter>
         </activity>
+
+        <!-- Các activity khác giữ nguyên -->
+        <activity
+            android:name=".ui.repairRequest.BookingActivity"
+            android:exported="true"/>
+
+        <activity
+            android:name=".ui.login.LoginActivity"
+            android:exported="true"/>
+
         <activity
             android:name=".ui.signup.SignUpActivity"
             android:exported="true"/>
+
         <activity
             android:name=".ui.profile.EditProfileActivity"
             android:exported="true"/>
+
+        <activity
+            android:name=".ui.emergencies.MapActivity"
+            android:exported="true"/>
+
         <service
             android:name=".services.NotificationService"
             android:exported="false">
@@ -51,7 +124,19 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
+        <service
+            android:name=".services.MyFirebaseService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".services.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
     </application>
-
 </manifest>

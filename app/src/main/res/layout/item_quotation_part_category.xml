@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_margin="6dp"
+    app:strokeWidth="0dp"
+    app:cardElevation="0dp"
+    app:cardUseCompatPadding="false"
+    app:cardCornerRadius="0dp"
+    app:cardBackgroundColor="@color/surface_container">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="0dp">
+
+        <!-- Category Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvCategoryName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Nhớt động cơ"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+
+        <!-- Selection Rule -->
+        <TextView
+            android:id="@+id/tvSelectionRule"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Chọn 1 part trong category này"
+            android:textSize="7sp"
+            android:textColor="@color/material_on_surface_emphasis_medium" />
+
+        <!-- Danh sách parts -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvParts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:clipToPadding="false"
+            android:padding="0dp"
+            tools:listitem="@layout/item_quotation_part"
+            />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/homeFragment" android:title="Trang chủ" android:icon="@drawable/ic_home" />
+        <item android:id="@+id/workScheduleFragment" android:title="Lịch làm việc" android:icon="@drawable/ic_calendar" />
+        <item android:id="@+id/reportsFragment" android:title="Báo cáo" android:icon="@drawable/ic_calendar" />
+        <item android:id="@+id/notificationsFragment" android:title="Thông báo" android:icon="@drawable/ic_notifications" />
+        <item android:id="@+id/profileFragment" android:title="Hồ sơ" android:icon="@drawable/ic_user" />
+    </group>
+</menu>

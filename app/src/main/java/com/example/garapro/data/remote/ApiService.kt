@@ -11,6 +11,7 @@ import com.example.garapro.data.model.LoginResponse
 import com.example.garapro.data.model.RefreshTokenResponse
 import com.example.garapro.data.model.SignupRequest
 import com.example.garapro.data.model.SignupResponse
+import com.example.garapro.data.model.UpdateDeviceIdRequest
 import com.example.garapro.data.model.User
 
 import com.example.garapro.data.model.otpRequest
@@ -58,6 +59,8 @@ interface ApiService {
 
     @PUT("users/me")
     suspend fun updateProfile(@Body request: User): Response<User>
+
+
 
     @Multipart
     @POST("ImageUpload/upload")

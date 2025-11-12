@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Selected stroke width -->
+    <dimen name="selected_stroke_width">2dp</dimen>
+    <dimen name="chip_min_height">48dp</dimen>
+    <!-- Spacing -->
+    <dimen name="item_margin">8dp</dimen>
+    <dimen name="item_padding">16dp</dimen>
+
+    <dimen name="bottom_sheet_max_height">90%</dimen>
+</resources>

@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF">
+
+    <!-- Selected Parent Category -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvSelectedParent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Category: Maintenance"
+        android:textSize="14sp"
+        android:textColor="#000000"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Search and Filter Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="1dp"
+            android:layout_marginEnd="8dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeColor="#E0E0E0"
+            app:strokeWidth="1dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Search services..."
+                app:boxBackgroundColor="#FFFFFF"
+                app:boxStrokeColor="#000000"
+                app:hintTextColor="#666666">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etSearch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:textColor="#000000" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Filter Toggle Button -->
+        <ImageButton
+            android:id="@+id/btnToggleFilter"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:backgroundTint="#FFFFFF"
+            android:src="@drawable/ic_filter"
+            android:background="@drawable/ic_filter"
+            android:scaleType="centerInside"
+            app:tint="#000000" />
+
+    </LinearLayout>
+
+    <!-- Active Filter Indicator -->
+    <LinearLayout
+        android:id="@+id/containerActiveFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filter:"
+            android:textSize="14sp"
+            android:textColor="#666666"
+            android:layout_marginEnd="8dp" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipActiveFilter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="All"
+            android:textColor="#000000"
+            app:chipBackgroundColor="#F5F5F5"
+            app:closeIconVisible="true"
+            app:closeIconTint="#666666" />
+
+    </LinearLayout>
+
+    <!-- Filter Section - Collapsible -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#FFFFFF"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Filter Chips -->
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Filter by service type:"
+                android:textSize="16sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Using RecyclerView for filter chips -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvFilterChips"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Services List -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvChildCategories"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Selected Services Summary -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="#FFFFFF"
+        app:strokeColor="#E0E0E0"
+        app:strokeWidth="1dp"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvSelectedCount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No services selected"
+                android:textSize="14sp"
+                android:textColor="#000000"
+                android:textStyle="bold" />
+
+            <!-- Selected Services Preview -->
+            <LinearLayout
+                android:id="@+id/containerSelectedPreview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="8dp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Navigation Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPrevious"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="Back"
+            android:backgroundTint="#E0E0E0"
+            android:textColor="#000000"
+            app:cornerRadius="8dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnNext"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="Next"
+            android:backgroundTint="#000000"
+            android:textColor="#FFFFFF"
+            app:cornerRadius="8dp" />
+
+    </LinearLayout>
+
+</LinearLayout>
