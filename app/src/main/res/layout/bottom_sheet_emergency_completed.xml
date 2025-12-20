@@ -22,10 +22,10 @@
         android:gravity="center_horizontal">
 
         <TextView
-            android:id="@+id/tvTrackingTitle"
+            android:id="@+id/tvCompletedTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TECHNICIAN IS ARRIVING"
+            android:text="SERVICE COMPLETED"
             android:textColor="#888888"
             android:textSize="12sp"
             android:letterSpacing="0.05"
@@ -40,7 +40,7 @@
             android:layout_marginTop="8dp">
 
             <TextView
-                android:id="@+id/tvTrackingEta"
+                android:id="@+id/tvCompletedTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="15 min"
@@ -56,7 +56,7 @@
                 android:layout_marginHorizontal="12dp"/>
 
             <TextView
-                android:id="@+id/tvTrackingDistance"
+                android:id="@+id/tvCompletedDistance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="3.5 km"
@@ -64,13 +64,16 @@
                 android:textSize="24sp"
                 android:textStyle="bold" />
         </LinearLayout>
-        
-        <!-- Hidden legacy subtitle to avoid crashes if referenced in code -->
+
         <TextView
-            android:id="@+id/tvTrackingSubtitle"
+            android:id="@+id/tvCompletedSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="gone"/>
+            android:text="Thank you for using our service"
+            android:textColor="#6B7280"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp"
+            android:visibility="visible"/>
 
     </LinearLayout>
 
@@ -105,26 +108,26 @@
                 android:layout_marginStart="16dp">
 
                 <TextView
-                    android:id="@+id/tvTechNameTracking"
+                    android:id="@+id/tvTechNameCompleted"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="John Doe"
+                    android:text="Technician"
                     android:textStyle="bold"
                     android:textSize="18sp"
                     android:textColor="@android:color/black"/>
 
                 <TextView
-                    android:id="@+id/tvTechPhoneTracking"
+                    android:id="@+id/tvTechPhoneCompleted"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0905 123 456"
+                    android:text=""
                     android:textSize="14sp"
                     android:textColor="#6B7280"
                     android:layout_marginTop="4dp"/>
             </LinearLayout>
 
             <Button
-                android:id="@+id/btnCallTech"
+                android:id="@+id/btnCallTechCompleted"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:text="Call"
@@ -139,26 +142,16 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Hidden buttons to maintain compatibility -->
-    <Button android:id="@+id/btnBackTracking" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone"/>
-    
-    <!-- Changed btnViewMap to visible button at bottom -->
-    <Button 
-        android:id="@+id/btnViewMap" 
-        android:layout_width="match_parent" 
-        android:layout_height="56dp" 
-        android:text="View Map"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnFinish"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="24dp"
+        android:text="Back to Home"
         android:textColor="@android:color/white"
         android:textStyle="bold"
         android:textSize="16sp"
         app:cornerRadius="12dp"
-        app:backgroundTint="@android:color/black"
-        android:visibility="visible"/>
-
-    <LinearLayout android:id="@+id/skeletonContainer" android:layout_width="0dp" android:layout_height="0dp"
-        android:orientation="horizontal"
-        android:visibility="gone"/>
+        app:backgroundTint="@android:color/black"/>
 
 </LinearLayout>

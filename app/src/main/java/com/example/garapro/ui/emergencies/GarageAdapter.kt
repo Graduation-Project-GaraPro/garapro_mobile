@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.garapro.R
 import com.example.garapro.data.model.emergencies.Garage
 import com.google.android.material.card.MaterialCardView
+import com.example.garapro.utils.formatDistance
+import com.example.garapro.utils.formatPrice
 
 class GarageAdapter(
     private val onGarageSelected: (Garage) -> Unit
@@ -88,6 +90,4 @@ class GarageDiffCallback : DiffUtil.ItemCallback<Garage>() {
     }
 }
 
-// Extension functions
-
-fun Double.formatDistance(): String = "%.1f".format(this)
+// Extension functions removed (moved to Utils)

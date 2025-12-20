@@ -1,94 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="20dp"
-    android:background="@android:color/white">
+    android:padding="24dp"
+    android:background="@drawable/bottom_sheet_background"
+    android:gravity="center_horizontal">
+
+    <!-- Handle Bar -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:background="#E0E0E0"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- Icon Expired -->
+    <FrameLayout
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:background="@drawable/bg_circle_red_light">
+        
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_timer_off"
+            app:tint="#F44336"
+            android:layout_gravity="center"/>
+    </FrameLayout>
 
     <TextView
-        android:id="@+id/ivClock"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:background="@drawable/expired_clock_bg"
-        android:text="⏰"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/white"
-        android:gravity="center"
-        android:layout_gravity="center_horizontal"/>
-
-    <TextView
-        android:id="@+id/tvExpiredTitle"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Response time expired"
-        android:textSize="18sp"
+        android:text="Request Expired"
+        android:textSize="22sp"
         android:textStyle="bold"
         android:textColor="@android:color/black"
-        android:layout_marginTop="12dp"
-        android:gravity="center"/>
+        android:layout_marginTop="16dp"/>
 
     <TextView
-        android:id="@+id/tvExpiredSubtitle"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="The garage did not respond in time. You can choose another garage or cancel the current request."
+        android:text="The garage did not respond in time. Please choose another garage or cancel your request."
         android:textSize="14sp"
-        android:textColor="#6B7280"
-        android:layout_marginTop="6dp"
-        android:gravity="center"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="16dp"
-        android:padding="12dp"
-        android:background="#F3F4F6">
-
-        <TextView
-            android:id="@+id/tvGarageNameExpired"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="@android:color/black"/>
-
-        <TextView
-            android:id="@+id/tvGarageAddressExpired"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="#6B7280"
-            android:layout_marginTop="4dp"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:textColor="#757575"
         android:gravity="center"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="8dp"
+        android:lineSpacingExtra="4dp"/>
 
-        <Button
-            android:id="@+id/btnChooseAnotherExpired"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:text="Choose another garage"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white"
-            android:backgroundTint="#111827"/>
+    <!-- Garage Info Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        app:cardCornerRadius="16dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="#F0F0F0"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="#F9FAFB">
 
-        <Button
-            android:id="@+id/btnCancelExpired"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:text="Cancel request"
-            android:textAllCaps="false"
-            android:layout_marginStart="12dp"/>
-    </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_location"
+                android:background="@drawable/bg_white_rounded"
+                android:padding="8dp"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
+
+                <TextView
+                    android:id="@+id/tvGarageNameExpired"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nha Trang Garage"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/black"/>
+
+                <TextView
+                    android:id="@+id/tvGarageAddressExpired"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="56 Le Thanh Ton, Khanh Hoa"
+                    android:textSize="13sp"
+                    android:textColor="#757575"
+                    android:layout_marginTop="4dp"
+                    android:maxLines="2"
+                    android:ellipsize="end"/>
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Buttons -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnChooseAnother"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Choose Another Garage"
+        android:textAllCaps="false"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        app:cornerRadius="28dp"
+        app:backgroundTint="#4F46E5"
+        app:icon="@drawable/ic_arrow_forward"
+        app:iconGravity="textEnd"
+        app:iconTint="@android:color/white"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCancelRequest"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Cancel Request"
+        android:textAllCaps="false"
+        android:textSize="16sp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="16dp"
+        app:cornerRadius="28dp"
+        app:backgroundTint="@android:color/white"
+        app:strokeColor="#E0E0E0"
+        app:strokeWidth="1dp"
+        android:textColor="#424242"/>
 
 </LinearLayout>
