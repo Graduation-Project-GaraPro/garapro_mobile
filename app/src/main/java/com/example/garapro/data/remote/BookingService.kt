@@ -2,6 +2,7 @@ package com.example.garapro.data.remote
 
 
 //import com.example.garapro.data.model.ApiResponse
+import com.example.garapro.data.model.Vehicles.VehicleSelectableDto
 import com.example.garapro.data.model.repairRequest.ArrivalWindow
 import com.example.garapro.data.model.repairRequest.Branch
 import com.example.garapro.data.model.repairRequest.ChildCategoriesResponse
@@ -35,9 +36,10 @@ interface BookingService {
         @Query("status") status: Int? = null,
         @Query("branchId") branchId: String? = null
     ): Response<PagedRepairRequestResponse>
-    @GET("Vehicles/user")
-    suspend fun getVehicles(): Response<List<Vehicle>>
+    @GET("Vehicles/user/selectable")
+    suspend fun getVehiclesSelectable(): Response<List<VehicleSelectableDto>>
 
+    @GET("Vehicles/user") suspend fun getVehicles(): Response<List<Vehicle>>
     // Branches
     @GET("Branch/GetAllBranchesBasis")
     suspend fun getBranches(): Response<List<Branch>>

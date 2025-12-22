@@ -31,8 +31,10 @@ class VehicleSelectionFragment : BaseBookingFragment() {
 
     private fun setupRecyclerView() {
         vehicleAdapter = VehicleAdapter(emptyList()) { vehicle ->
+            if (!vehicle.isSelectable) return@VehicleAdapter
+
             bookingViewModel.selectVehicle(vehicle)
-            binding.tvSelectedVehicle.text = "${vehicle.brandName} ${vehicle.modelName} - ${vehicle.licensePlate}"
+            binding.tvSelectedVehicle.text = "${vehicle.licensePlate ?: ""}"
             binding.btnNext.isEnabled = true
             binding.btnNext.setBackgroundColor(Color.BLACK)
         }

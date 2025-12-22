@@ -2264,7 +2264,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                 colorName = v.colorName ?: ""
             )
         }
-        val adapter = VehicleAdapter(rrVehicles) { v ->
+        val adapter = VehicAdapter(rrVehicles) { v ->
             chosenId = v.vehicleID
             tvSelected.text = "${v.brandName} ${v.modelName} - ${v.licensePlate}"
             btnNext.isEnabled = true
