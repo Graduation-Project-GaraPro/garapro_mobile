@@ -125,20 +125,43 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- 🔸 Required chip -->
-        <com.google.android.material.chip.Chip
-            android:id="@+id/tvRequired"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Required"
-            android:textSize="10dp"
-            style="@style/Widget.Material3.Chip.Assist.Elevated"
-            app:chipBackgroundColor="?attr/colorErrorContainer"
-            app:chipStrokeColor="?attr/colorError"
-            app:chipStrokeWidth="0.5dp"
-            android:textColor="?attr/colorOnErrorContainer"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <!-- Required chip -->
+            <com.google.android.material.chip.Chip
+                android:id="@+id/tvRequired"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Required"
+                android:textSize="10sp"
+                style="@style/Widget.Material3.Chip.Assist.Elevated"
+                app:chipBackgroundColor="?attr/colorErrorContainer"
+                app:chipStrokeColor="?attr/colorError"
+                app:chipStrokeWidth="0.5dp"
+                android:textColor="?attr/colorOnErrorContainer"
+                android:visibility="gone"
+                android:layout_marginEnd="6dp"/>
+
+            <!-- Advance chip -->
+            <com.google.android.material.chip.Chip
+                android:id="@+id/tvAdvance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Advance"
+                android:textSize="10sp"
+                style="@style/Widget.Material3.Chip.Assist.Elevated"
+                app:chipBackgroundColor="?attr/colorPrimaryContainer"
+                app:chipStrokeColor="?attr/colorPrimary"
+                app:chipStrokeWidth="0.5dp"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+
 
         <!-- 🔹 Tên ưu đãi -->
         <TextView

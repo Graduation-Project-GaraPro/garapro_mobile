@@ -5,6 +5,8 @@ import com.google.gson.annotations.SerializedName
 
 data class RouteResponse(
     val geometry: JsonElement,
-    @SerializedName(value = "distanceMeters", alternate = ["distanceKm"]) val distanceMeters: Double?,
-    @SerializedName(value = "durationSeconds", alternate = ["durationMinutes"]) val durationSeconds: Double?
+    @SerializedName("distanceMeters") val distanceMeters: Double?,
+    @SerializedName("distanceKm") val distanceKm: Double?,
+    @SerializedName("durationSeconds") val durationSeconds: Double?,
+    @SerializedName("durationMinutes") val durationMinutes: Int?
 )

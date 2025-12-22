@@ -34,15 +34,9 @@ class PartCategoryAdapter(
         fun bind(partCategory: PartCategory) {
             binding.tvCategoryName.text = partCategory.partCategoryName
 
-            // 🔥 CẬP NHẬT RULES CHO CHÍNH XÁC
-            val selectionRule = if (service.isAdvanced) {
-                "Select 1 part in this category - Can select parts from other categories"
-            } else {
-                "Select 1 part - Automatically unselects other parts in the service"
-            }
-            binding.tvSelectionRule.text = selectionRule
 
-            // 🔥 HIỂN THỊ TRẠNG THÁI ĐÃ CHỌN
+
+
 
 
             val adapter = QuotationPartAdapter(

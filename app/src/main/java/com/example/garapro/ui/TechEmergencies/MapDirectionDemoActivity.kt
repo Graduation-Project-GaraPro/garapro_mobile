@@ -74,6 +74,8 @@ class MapDirectionDemoActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var btnPickupCustomer: Button
     private lateinit var btnCall: Button
+
+    private lateinit var btnCancelJob: Button
     private lateinit var fusedLocation: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
 
@@ -88,6 +90,7 @@ class MapDirectionDemoActivity : AppCompatActivity(), OnMapReadyCallback {
     private var emergencyId: String? = null
 
     private lateinit var customerPhone: String
+
 
 
     private var destinationLatLng: LatLng? = null
@@ -183,9 +186,8 @@ class MapDirectionDemoActivity : AppCompatActivity(), OnMapReadyCallback {
         btnCompleteJob.visibility = View.GONE
 
         btnCall = findViewById(R.id.btnCall)
+        btnCancelJob = findViewById(R.id.btnCancelJob)
 
-//        tvDebug = findViewById(R.id.tvDebug)
-        // Lấy dữ liệu từ Intent (status + toạ độ khách)
         emergencyStatus = intent.getIntExtra("status", 0)
         val destLat = intent.getDoubleExtra("latitude", 0.0)
         val destLng = intent.getDoubleExtra("longitude", 0.0)
@@ -261,6 +263,7 @@ class MapDirectionDemoActivity : AppCompatActivity(), OnMapReadyCallback {
                     hasArrived = false
                     emergencyStatus = EmergencyStatus.Towing.value
                     btnPickupCustomer.visibility = View.GONE
+                    btnCancelJob.visibility = View.GONE
                     destinationLatLng = branchLocation
                     resetNavStateForNewRoute()
                     updateDestinationMarker(branchLocation)
@@ -306,6 +309,17 @@ class MapDirectionDemoActivity : AppCompatActivity(), OnMapReadyCallback {
                     finish()
                 }
             }
+        }
+
+        btnCancelJob.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("Cancel Emergency")
+                .setMessage("Are you sure you want to cancel this emergency?")
+                .setPositiveButton("Yes") { _, _ ->
+                    cancelEmergency()
+                }
+                .setNegativeButton("No", null)
+                .show()
         }
 
 
@@ -376,35 +390,27 @@ class MapDirectionDemoActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
 
-    private fun startBgTrackingServiceIfNeeded() {
-        // chỉ chạy khi đang NAV / đang job (tùy rule bạn)
-        if (!isNavigating) return
+    private fun cancelEmergency() {
+        viewModel.updateStatus(
+            emergencyId ?: return,
+            EmergencyStatus.Canceled.value
+        )
 
-        val id = emergencyId ?: return
-        val dest = customerLocation // bạn đang set từ latitude/longitude intent
-        val br = branchLocation
+        viewModel.updateResult.observe(this) { ok ->
+            if (ok) {
+                Toast.makeText(this, "Emergency cancelled", Toast.LENGTH_SHORT).show()
 
-        val i = Intent(this, TechnicianLocationService::class.java).apply {
-            action = TechnicianLocationService.ACTION_START
+                val resultIntent = Intent().apply {
+                    putExtra("cancelled", true)
+                    putExtra("emergencyId", emergencyId)
+                }
 
-            putExtra("emergencyId", id)
-            putExtra("latitude", dest?.latitude ?: 0.0)
-            putExtra("longitude", dest?.longitude ?: 0.0)
-            putExtra("branchName", intent.getStringExtra("branchName") ?: "")
-            putExtra("branchLatitude", br?.latitude ?: 0.0)
-            putExtra("branchLongitude", br?.longitude ?: 0.0)
-            putExtra("status", emergencyStatus)
-            putExtra("customerPhone", customerPhone)
+                setResult(RESULT_OK, resultIntent)
+                finish()
+            } else {
+                Toast.makeText(this, "Cancel failed", Toast.LENGTH_SHORT).show()
+            }
         }
-
-        ContextCompat.startForegroundService(this, i)
-    }
-
-    private fun stopBgTrackingService() {
-        val i = Intent(this, TechnicianLocationService::class.java).apply {
-            action = TechnicianLocationService.ACTION_STOP
-        }
-        startService(i)
     }
 
 
@@ -1090,7 +1096,7 @@ class MapDirectionDemoActivity : AppCompatActivity(), OnMapReadyCallback {
                 .bearing(bearingForCamera)
                 .build()
         )
-        map?.animateCamera(camera, 300)
+        map?.animateCamera(camera, 1000)
     }
 
 
@@ -1225,16 +1231,18 @@ class MapDirectionDemoActivity : AppCompatActivity(), OnMapReadyCallback {
                     val d = distanceBetween(displayPos, dest)
 
 
-                    if (!hasArrived  && d < 30f) {
+                    if (!hasArrived  && d < 90f) {
                         hasArrived = true
                         when (EmergencyStatus.fromInt(emergencyStatus)) {
                             EmergencyStatus.InProgress -> {
                                 btnPickupCustomer.visibility = View.VISIBLE
+                                btnCancelJob.visibility = View.VISIBLE
                                 tvInstruction.text = "You have arrived. Tap to pick up the customer."
                             }
 
                             EmergencyStatus.Towing -> {
                                 btnCompleteJob.visibility = View.VISIBLE
+                                btnCancelJob.visibility = View.GONE
                                 tvInstruction.text =
                                     "You have arrived at the branch. Tap to complete the job."
                             }
@@ -1303,7 +1311,7 @@ class MapDirectionDemoActivity : AppCompatActivity(), OnMapReadyCallback {
         // tính chênh lệch có wrap 360 độ
         var diff = (new - old + 540f) % 360f - 180f
         // chỉ chỉnh một phần nhỏ của diff để xoay mượt
-        val factor = 0.2f  // 0.0–1.0, càng nhỏ càng mượt
+        val factor = 1.0f  // 0.0–1.0, càng nhỏ càng mượt
         val result = old + diff * factor
         return (result + 360f) % 360f
     }

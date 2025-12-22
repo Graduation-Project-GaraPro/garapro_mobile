@@ -39,7 +39,7 @@ class QuotationPartAdapter(
                 binding.tvPartName.text = buildString {
                     append("${part.partName} (x${part.quantity})")
                     part.warrantyMonths?.let {
-                        append("  Warranty: $it")
+                        append("  Warranty: $it month")
                     }
                 }
                 binding.tvPartPrice.text = MoneyUtils.formatVietnameseCurrency(part.price)

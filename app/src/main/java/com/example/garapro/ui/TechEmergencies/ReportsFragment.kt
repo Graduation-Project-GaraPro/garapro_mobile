@@ -23,12 +23,15 @@ class ReportsFragment : Fragment() {
         registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val completed = result.data?.getBooleanExtra("completed", false) ?: false
-                if (completed) {
-                    // Gọi lại API để lấy list mới
-                    viewModel.loadData()
-                }
+            if (result.resultCode != Activity.RESULT_OK) return@registerForActivityResult
+
+            val data = result.data ?: return@registerForActivityResult
+
+            val completed = data.getBooleanExtra("completed", false)
+            val cancelled = data.getBooleanExtra("cancelled", false)
+
+            if (completed || cancelled) {
+                viewModel.loadData()
             }
         }
     override fun onCreateView(

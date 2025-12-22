@@ -105,7 +105,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="VIN (Vehicle Identification Number)"
+            android:hint="VIN (Vehicle Identification Number *)"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:helperText="17 characters (A–Z, 0–9), no I/O/Q"
             app:counterEnabled="true"

@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.example.garapro.data.local.TokenManager
 import com.example.garapro.data.model.NetworkResult
+import com.example.garapro.data.model.Vehicles.VehicleSelectableDto
 import com.example.garapro.data.model.repairRequest.ArrivalWindow
 import com.example.garapro.data.model.repairRequest.Branch
 import com.example.garapro.data.model.repairRequest.ChildCategoriesResponse
@@ -155,10 +156,21 @@ class BookingRepository(
         }
     }
 
-    // 🔹 Vehicles
     suspend fun getVehicles(): List<Vehicle> {
+        return runCatching {
+            RetrofitInstance.bookingService.getVehicles()
+        }.onFailure { e ->
+            Log.e("BookingRepository", "Error getVehicles", e)
+        }.getOrNull()
+            ?.takeIf { it.isSuccessful }
+            ?.body()
+            ?: emptyList()
+    }
+
+    // 🔹 Vehicles
+    suspend fun getVehiclesSelectable(): List<VehicleSelectableDto> {
         return try {
-            val response = RetrofitInstance.bookingService.getVehicles()
+            val response = RetrofitInstance.bookingService.getVehiclesSelectable()
             if (response.isSuccessful) {
                 response.body() ?: emptyList()
             } else {

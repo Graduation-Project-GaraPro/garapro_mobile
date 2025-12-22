@@ -16,6 +16,7 @@ import com.example.garapro.data.model.RefreshTokenResponse
 import com.example.garapro.data.model.ResetPasswordForgotRequest
 import com.example.garapro.data.model.ResetPasswordRequest
 import com.example.garapro.data.model.ResetPasswordResponse
+import com.example.garapro.data.model.SecurityPolicy
 import com.example.garapro.data.model.SendOtpRequest
 import com.example.garapro.data.model.SignupRequest
 import com.example.garapro.data.model.SignupResponse
@@ -66,6 +67,9 @@ interface ApiService {
 
     @POST("auth/send-otp")
     suspend fun sentOtp(@Body request: otpRequest): Response<otpResponse>
+
+    @GET("auth/password-policy")
+    suspend fun getSecurityPolicy(): Response<SecurityPolicy>
 
     @POST("auth/verify-otp")
     suspend fun verifyOtp(@Body request: otpVerifyRequest): Response<otpResponse>

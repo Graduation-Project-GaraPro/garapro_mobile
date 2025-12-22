@@ -46,6 +46,16 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddVehicle"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="Add Vehicle"
+            android:textColor="#FFFFFF"
+            android:layout_marginEnd="8dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            app:cornerRadius="4dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNext"

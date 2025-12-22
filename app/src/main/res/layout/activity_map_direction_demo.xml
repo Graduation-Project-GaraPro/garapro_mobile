@@ -70,31 +70,63 @@
         android:layout_gravity="bottom">
 
         <!-- Start Job -->
+        <!-- Start & Cancel container -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnStartJob"
-            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Start"
             android:textAllCaps="false"
-            android:visibility="gone"
             android:textColor="@android:color/white"
             android:backgroundTint="@android:color/holo_green_dark"
             app:cornerRadius="24dp" />
 
-        <!-- Pickup customer -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnPickupCustomer"
-            style="@style/Widget.MaterialComponents.Button"
+        <LinearLayout
+            android:id="@+id/startCancelContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Begin Pickup"
-            android:textAllCaps="false"
-            android:visibility="gone"
-            android:layout_marginTop="12dp"
-            android:textColor="@android:color/white"
-            android:backgroundTint="@android:color/holo_green_dark"
-            app:cornerRadius="24dp" />
+            android:orientation="horizontal"
+            android:visibility="visible"
+            android:layout_marginBottom="12dp">
+
+            <!-- Cancel Job -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancelJob"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="Cancel"
+                android:textAllCaps="false"
+                android:visibility="gone"
+                android:textColor="@android:color/white"
+                android:backgroundTint="@android:color/holo_red_dark"
+                app:cornerRadius="24dp" />
+
+            <!-- Spacer -->
+            <View
+                android:layout_width="12dp"
+                android:layout_height="0dp" />
+
+            <!-- Begin Pickup -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPickupCustomer"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="Begin Pickup"
+                android:textAllCaps="false"
+                android:visibility="gone"
+                android:textColor="@android:color/white"
+                android:backgroundTint="@android:color/holo_green_dark"
+                app:cornerRadius="24dp" />
+
+        </LinearLayout>
+
+
+
+        <!-- Pickup customer -->
+
 
         <!-- Complete Job -->
         <com.google.android.material.button.MaterialButton

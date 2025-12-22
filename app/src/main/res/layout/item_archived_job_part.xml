@@ -23,4 +23,11 @@
         android:text="x2 • 500.000 đ  • 1.000.000 đ"
         android:textColor="@color/black"
         android:textSize="12sp" />
+    <TextView
+        android:id="@+id/tvwarrantyMonths"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Warranty: 12 month(20-10-2020 - 20-10-2012)"
+        android:textColor="@color/black"
+        android:textSize="12sp" />
 </LinearLayout>

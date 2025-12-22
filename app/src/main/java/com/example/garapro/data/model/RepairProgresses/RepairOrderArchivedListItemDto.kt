@@ -83,7 +83,10 @@ data class ArchivedJobPart(
     val partName: String,
     val quantity: Int,
     val unitPrice: Double,
-    val lineTotal: Double
+    val lineTotal: Double,
+    val warrantyMonths: Int?,
+    val warrantyStartAt: String?,
+    val warrantyEndAt: String?
 ) : Parcelable
 data class RepairOrderArchivedFilter(
     val fromDate: String? = null,

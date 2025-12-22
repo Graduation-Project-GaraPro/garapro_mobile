@@ -1,3 +1,5 @@
+
+
 import android.os.Looper
 import android.util.Log
 import com.example.garapro.data.model.emergencies.Emergency
@@ -79,6 +81,37 @@ class EmergencyRepository {
             Result.failure(e)
         }
     }
+    
+    suspend fun getGarageById(id: String): Result<Garage> {
+        return try {
+            val response = api.getBranchById(id)
+            if (response.isSuccessful && response.body() != null) {
+                val b = response.body()!!
+                val g = Garage(
+                    id = b.branchId,
+                    name = b.branchName,
+                    latitude = b.latitude,
+                    longitude = b.longitude,
+                    address = "${b.street}, ${b.commune}, ${b.province}",
+                    phone = b.phoneNumber,
+                    isAvailable = b.isActive,
+                    price = 0.0,
+                    rating = 0f
+                )
+                if (g.latitude == 0.0 && g.longitude == 0.0) {
+                     Log.e("MapRepository", "WARNING: Fetched garage has (0,0) coordinates! ID: ${b.branchId} Name: ${b.branchName}")
+                } else {
+                     Log.d("MapRepository", "Fetched garage coords: ${g.latitude}, ${g.longitude} for ID: ${b.branchId}")
+                }
+                Result.success(g)
+            } else {
+                Result.failure(Exception("Get branch failed"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 
     suspend fun createEmergencyRequest(request: CreateEmergencyRequest): Result<Emergency> {
         return try {
@@ -131,8 +164,8 @@ class EmergencyRepository {
                         Garage(
                             id = b.branchId,
                             name = b.branchName,
-                            latitude = 0.0,
-                            longitude = 0.0,
+                            latitude = b.latitude,
+                            longitude = b.longitude,
                             address = b.address,
                             phone = b.phoneNumber,
                             isAvailable = true,
@@ -235,13 +268,42 @@ class EmergencyRepository {
         }
     }
 
-    suspend fun fetchEmergencyStatus(emergencyId: String): Result<Emergency> {
+    suspend fun fetchRouteDirect(fromLat: Double, fromLon: Double, toLat: Double, toLon: Double): Result<RouteResponse> {
+        return try {
+            Log.d("EmergencyAPI", "GET route-direct from($fromLat, $fromLon) to($toLat, $toLon)")
+            val response = api.getRouteDirect(fromLat, fromLon, toLat, toLon)
+            Log.d("EmergencyAPI", "RouteDirect resp code=" + response.code())
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(response.errorBody()?.string() ?: "Fetch route-direct failed"))
+            }
+        } catch (e: Exception) {
+            Log.e("EmergencyAPI", "RouteDirect error: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getEmergencyById(emergencyId: String): Result<Emergency> {
         return try {
             val response = api.getEmergencyById(emergencyId)
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)
             } else {
                 Result.failure(Exception(response.errorBody()?.string() ?: "Fetch emergency failed"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getEmergenciesByCustomer(customerId: String): Result<List<com.example.garapro.data.model.emergencies.EmergencyRequestSummary>> {
+        return try {
+            val response = api.getEmergenciesByCustomer(customerId)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception(response.errorBody()?.string() ?: "Fetch customer emergencies failed"))
             }
         } catch (e: Exception) {
             Result.failure(e)

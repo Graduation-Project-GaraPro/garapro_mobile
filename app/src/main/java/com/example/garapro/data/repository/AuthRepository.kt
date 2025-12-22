@@ -13,6 +13,7 @@ import com.example.garapro.data.model.otpResponse
 import com.example.garapro.data.model.otpVerifyRequest
 import com.example.garapro.data.remote.ApiService
 import com.example.garapro.utils.Resource
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
@@ -87,23 +88,33 @@ class AuthRepository(
         emit(Resource.Loading())
 
         try {
-            val request = SignupRequest(signupRequest.email, signupRequest.password, signupRequest.confirmPassword, signupRequest.firstName, signupRequest.lastName, signupRequest.phoneNumber)
-            val response = apiService.signup(request)
+            val response = apiService.signup(signupRequest)
 
             if (response.isSuccessful && response.body() != null) {
-                val signupResponse = response.body()!!
-                emit(Resource.Success(signupResponse))
+                emit(Resource.Success(response.body()!!))
             } else {
-                emit(Resource.Error("Lỗi server: ${response.message()}"))
+                val errorBody = response.errorBody()?.string()
+
+                if (!errorBody.isNullOrEmpty()) {
+                    val gson = Gson()
+                    val apiError = gson.fromJson(errorBody, ApiErrorResponse::class.java)
+
+                    // Lấy lỗi Password
+                    val passwordErrors = apiError.errors["Password"]
+                    if (!passwordErrors.isNullOrEmpty()) {
+                        emit(Resource.Error(passwordErrors.joinToString("\n")))
+                    } else {
+                        emit(Resource.Error("Đăng ký thất bại"))
+                    }
+                } else {
+                    emit(Resource.Error("Lỗi server: ${response.message()}"))
+                }
             }
-        } catch (e: HttpException) {
-            emit(Resource.Error("Lỗi HTTP: ${e.localizedMessage}"))
-        } catch (e: IOException) {
-            emit(Resource.Error("Lỗi kết nối mạng"))
         } catch (e: Exception) {
-            emit(Resource.Error("Lỗi không xác định: ${e.localizedMessage}"))
+            emit(Resource.Error(e.localizedMessage ?: "Lỗi không xác định"))
         }
     }
+
 
     fun sendOtp(phone: String, email: String?): Flow<Resource<otpResponse>> = flow {
         emit(Resource.Loading())
@@ -143,4 +154,10 @@ class AuthRepository(
     suspend fun logout() {
         tokenManager.clearTokens()
     }
+
+
 }
+
+data class ApiErrorResponse(
+    val errors: Map<String, List<String>>
+)

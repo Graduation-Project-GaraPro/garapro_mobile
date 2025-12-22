@@ -27,6 +27,7 @@ import java.io.File
 import java.io.InputStream
 import android.util.Log
 import com.example.garapro.data.model.NetworkResult
+import com.example.garapro.data.model.Vehicles.VehicleSelectableDto
 import com.example.garapro.data.model.repairRequest.ArrivalWindow
 import com.example.garapro.data.model.repairRequest.ChildCategoriesResponse
 import com.example.garapro.data.model.repairRequest.ParentServiceCategory
@@ -37,8 +38,8 @@ class BookingViewModel(
 ) : ViewModel() {
 
     // LiveData declarations
-    private val _vehicles = MutableLiveData<List<Vehicle>>()
-    val vehicles: LiveData<List<Vehicle>> = _vehicles
+    private val _vehicles = MutableLiveData<List<VehicleSelectableDto>>()
+    val vehicles: LiveData<List<VehicleSelectableDto>> = _vehicles
 
     private val _branches = MutableLiveData<List<Branch>>()
     val branches: LiveData<List<Branch>> = _branches
@@ -46,8 +47,8 @@ class BookingViewModel(
     private val _serviceCategories = MutableLiveData<List<ServiceCategory>>()
     val serviceCategories: LiveData<List<ServiceCategory>> = _serviceCategories
 
-    private val _selectedVehicle = MutableLiveData<Vehicle?>()
-    val selectedVehicle: LiveData<Vehicle?> = _selectedVehicle
+    private val _selectedVehicle = MutableLiveData<VehicleSelectableDto?>()
+    val selectedVehicle: LiveData<VehicleSelectableDto?> = _selectedVehicle
 
     private val _selectedBranch = MutableLiveData<Branch?>()
     val selectedBranch: LiveData<Branch?> = _selectedBranch
@@ -128,11 +129,11 @@ class BookingViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val vehicles = repository.getVehicles()
+                val vehicles = repository.getVehiclesSelectable()
                 _vehicles.value = vehicles
             } catch (e: Exception) {
                 _vehicles.value = emptyList()
-                _errorMessage.value = "Không thể tải danh sách xe"
+                _errorMessage.value = "Cannot load list Vehicle"
                 checkTokenExpired(e)
             } finally {
                 _isLoading.value = false
@@ -148,7 +149,7 @@ class BookingViewModel(
                 _branches.value = branches
             } catch (e: Exception) {
                 _branches.value = emptyList()
-                _errorMessage.value = "Không thể tải danh sách chi nhánh"
+                _errorMessage.value = "Cannot load list branch"
                 checkTokenExpired(e)
             } finally {
                 _isLoading.value = false
@@ -165,7 +166,7 @@ class BookingViewModel(
                 _arrivalWindows.value = slots.filter { !it.isFull && it.remaining > 0 }
             } catch (e: Exception) {
                 _arrivalWindows.value = emptyList()
-                _errorMessage.value = "Không thể tải khung giờ"
+                _errorMessage.value = "Cannot load operating time"
                 checkTokenExpired(e)
             } finally {
                 _isLoading.value = false
@@ -181,7 +182,7 @@ class BookingViewModel(
                 _serviceCategories.value = categories
             } catch (e: Exception) {
                 _serviceCategories.value = emptyList()
-                _errorMessage.value = "Không thể tải danh sách dịch vụ"
+                _errorMessage.value = "Cannot load List Service category"
                 checkTokenExpired(e)
             } finally {
                 _isLoading.value = false
@@ -205,12 +206,10 @@ class BookingViewModel(
     }
 
     // Selection methods
-    fun selectVehicle(vehicle: Vehicle) {
+    fun selectVehicle(vehicle: VehicleSelectableDto) {
+        if (!vehicle.isSelectable) return  // chặn chọn nếu không được chọn
         _selectedVehicle.value = vehicle
         _navigationState.value = NavigationState.BRANCH_SELECTION
-        _selectedParentCategory.value?.serviceCategoryId?.let { parentId ->
-            loadChildServiceCategories(parentId)
-        }
     }
 
     fun selectBranch(branch: Branch) {
@@ -368,7 +367,7 @@ class BookingViewModel(
             try {
                 val vehicle = _selectedVehicle.value;
                 val branch = _selectedBranch.value;
-                val categories = repository.getParentServiceCategories(vehicle?.vehicleID ?: "", branch?.branchId ?: "")
+                val categories = repository.getParentServiceCategories(vehicle?.vehicleId ?: "", branch?.branchId ?: "")
                 _parentServiceCategories.postValue(categories)
             } catch (e: Exception) {
                 _parentServiceCategories.postValue(emptyList())
@@ -391,7 +390,7 @@ class BookingViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val vehicleId = _selectedVehicle.value?.vehicleID
+                val vehicleId = _selectedVehicle.value?.vehicleId
                 val branchId = _selectedBranch.value?.branchId
                 val response = repository.getChildServiceCategories(
                     parentId = parentId,
@@ -471,7 +470,7 @@ class BookingViewModel(
 
                 val request = CreateRepairRequest(
                     branchId = _selectedBranch.value?.branchId ?: "",
-                    vehicleID = _selectedVehicle.value?.vehicleID ?: "",
+                    vehicleID = _selectedVehicle.value?.vehicleId ?: "",
                     description = _description.value ?: "",
                     requestDate = _requestDate.value ?: "",
                     images = imageParts,

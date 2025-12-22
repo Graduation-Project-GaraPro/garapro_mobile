@@ -73,6 +73,7 @@ class QuotationServiceAdapter(
 
             // Required chip
             binding.tvRequired.visibility = if (service.isRequired) View.VISIBLE else View.GONE
+            binding.tvAdvance.visibility = if (service.isAdvanced) View.VISIBLE else View.GONE
 
             if (service.isGood) {
                 // checkbox: disable & uncheck

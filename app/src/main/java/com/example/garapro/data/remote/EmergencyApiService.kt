@@ -34,6 +34,14 @@ interface EmergencyApiService {
         @Path("id") emergencyId: String
     ): Response<RouteResponse>
 
+    @GET("EmergencyRequest/route")
+    suspend fun getRouteDirect(
+        @Query("fromLat") fromLat: Double,
+        @Query("fromLon") fromLon: Double,
+        @Query("toLat") toLat: Double,
+        @Query("toLon") toLon: Double
+    ): Response<RouteResponse>
+
     @GET("Emergencies/pending")
     suspend fun getPendingEmergencies(): Response<List<Emergency>>
 
@@ -56,4 +64,7 @@ interface EmergencyApiService {
     suspend fun getEmergenciesByCustomer(
         @Path("customerId") customerId: String
     ): Response<List<com.example.garapro.data.model.emergencies.EmergencyRequestSummary>>
+
+    @GET("EmergencyRequest/garage/{id}")
+    suspend fun getBranchById(@Path("id") id: String): Response<com.example.garapro.data.model.repairRequest.Branch>
 }

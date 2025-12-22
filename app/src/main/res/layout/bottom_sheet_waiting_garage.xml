@@ -26,6 +26,17 @@
         android:text="Gara Car Number 1"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:layout_marginBottom="4dp" />
+
+    <!-- Garage Phone -->
+    <TextView
+        android:id="@+id/tvGaragePhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text=""
+        android:textColor="@color/gray"
+        android:textSize="14sp"
         android:layout_marginBottom="8dp" />
 
     <!-- Garage Info -->
