@@ -90,4 +90,3 @@ class GarageDiffCallback : DiffUtil.ItemCallback<Garage>() {
     }
 }
 
-// Extension functions removed (moved to Utils)

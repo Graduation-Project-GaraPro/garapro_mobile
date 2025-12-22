@@ -224,6 +224,20 @@ class EmergencyViewModel : ViewModel() {
             em = updateAction(em)
         }
 
+        // Ensure assigned garage is loaded if we have the ID but no object
+        if (_assignedGarage.value == null && !em?.assignedGarageId.isNullOrBlank()) {
+             try {
+                 val gId = em!!.assignedGarageId!!
+                 val res = repository.getGarageById(gId)
+                 if (res.isSuccess) {
+                     _assignedGarage.value = res.getOrNull()
+                     Log.d("ViewModel", "Lazy loaded assigned garage: ${_assignedGarage.value?.name}")
+                 }
+             } catch (e: Exception) {
+                 Log.e("ViewModel", "Failed to lazy load garage: ${e.message}")
+             }
+        }
+
         // 3. Update references
         currentEmergency = em
         
@@ -240,14 +254,19 @@ class EmergencyViewModel : ViewModel() {
     }
 
     private fun handleSignalREvent(eventName: String, json: JsonObject) {
-        Log.d("SignalR_Handler", "Event: $eventName")
+        Log.d("SignalR_Handler", "Event: $eventName, Payload: $json")
         
         // Common ID parsing logic
         val id = sequenceOf("EmergencyRequestId", "emergencyRequestId", "emergencyId", "id")
             .mapNotNull { key -> if (json.has(key)) json.get(key).asString else null }
             .firstOrNull() ?: ""
+            
+        Log.d("SignalR_Handler", "Parsed ID: '$id', Current ID: '${currentEmergency?.id}'")
 
-        if (id.isBlank() && eventName != "TechnicianLocationUpdated") return
+        if (id.isBlank() && eventName != "TechnicianLocationUpdated") {
+            Log.w("SignalR_Handler", "Skipping event $eventName because ID is blank")
+            return
+        }
 
         viewModelScope.launch {
             when (eventName) {
@@ -260,6 +279,7 @@ class EmergencyViewModel : ViewModel() {
                     markApproved(id, branchId)
                 }
                 "TechnicianAssigned" -> {
+                    Log.d("SignalR_Handler", "Processing TechnicianAssigned for ID: $id")
                     expirationJob?.cancel()
                     updateEmergencyState(id, EmergencyStatus.ASSIGNED) { em ->
                         var updated = em
@@ -270,6 +290,8 @@ class EmergencyViewModel : ViewModel() {
                         val tPhone = listOf("TechnicianPhone", "technicianPhone").firstNotNullOfOrNull { k -> 
                             if (json.has(k)) json.get(k).asString else null 
                         }
+                        
+                        Log.d("SignalR_Handler", "Parsed Tech Info - Name: $tName, Phone: $tPhone")
                         
                         if (tName != null) {
                             _technicianName.value = tName
@@ -282,21 +304,90 @@ class EmergencyViewModel : ViewModel() {
                         updated
                     }
                     _routeGeoJson.value = null
+
+                    // Fetch full details to ensure we have consistent state
+                    viewModelScope.launch {
+                        val res = repository.getEmergencyById(id)
+                        if (res.isSuccess) {
+                            val updatedEm = res.getOrNull()
+                            if (updatedEm != null) {
+                                currentEmergency = updatedEm
+                                if (!updatedEm.assignedTechnicianName.isNullOrBlank()) {
+                                    _technicianName.value = updatedEm.assignedTechnicianName
+                                }
+                                if (!updatedEm.assignedTechnicianPhone.isNullOrBlank()) {
+                                    _technicianPhone.value = updatedEm.assignedTechnicianPhone
+                                }
+                                _emergencyState.value = EmergencyState.Confirmed(updatedEm)
+                            }
+                        }
+                    }
                 }
                 "EmergencyRequestInProgress" -> {
                     updateEmergencyState(id, EmergencyStatus.IN_PROGRESS)
                     
+                    // Fetch full emergency details to get Technician Info immediately
+                    viewModelScope.launch {
+                        val res = repository.getEmergencyById(id)
+                        if (res.isSuccess) {
+                            val updatedEm = res.getOrNull()
+                            if (updatedEm != null) {
+                                currentEmergency = updatedEm
+                                if (!updatedEm.assignedTechnicianName.isNullOrBlank()) {
+                                    _technicianName.value = updatedEm.assignedTechnicianName
+                                }
+                                if (!updatedEm.assignedTechnicianPhone.isNullOrBlank()) {
+                                    _technicianPhone.value = updatedEm.assignedTechnicianPhone
+                                }
+                                _emergencyState.value = EmergencyState.Confirmed(updatedEm)
+                            }
+                        }
+                    }
+                    
                     // Route logic
                     val garage = _assignedGarage.value ?: _selectedGarage.value
                     if (garage != null) {
-                        _technicianLocation.value = Pair(garage.latitude, garage.longitude)
-                        fetchRouteNowFor(id)
+                        // If we don't have tech location yet, use garage location temporarily
+                        if (_technicianLocation.value == null) {
+                            val gLat = garage.latitude
+                            val gLng = garage.longitude
+                            _technicianLocation.value = Pair(gLat, gLng)
+                            
+                            // Calculate initial estimate distance from Garage to Customer
+                            val cLat = currentEmergency?.latitude ?: _customerLocation.value?.first
+                            val cLng = currentEmergency?.longitude ?: _customerLocation.value?.second
+                            
+                            if (cLat != null && cLng != null) {
+                                fetchRouteDirect(gLat, gLng, cLat, cLng)
+                            }
+                        } else {
+                            fetchRouteNowFor(id)
+                        }
                     } else {
                          currentUserId?.let { uid -> refreshEmergencyData(id, uid) }
                     }
                 }
                 "EmergencyRequestTowing" -> {
                     updateEmergencyState(id, EmergencyStatus.TOWING)
+                    
+                    // Fetch full emergency details to ensure consistent state
+                    viewModelScope.launch {
+                        val res = repository.getEmergencyById(id)
+                        if (res.isSuccess) {
+                            val updatedEm = res.getOrNull()
+                            if (updatedEm != null) {
+                                currentEmergency = updatedEm
+                                if (!updatedEm.assignedTechnicianName.isNullOrBlank()) {
+                                    _technicianName.value = updatedEm.assignedTechnicianName
+                                }
+                                if (!updatedEm.assignedTechnicianPhone.isNullOrBlank()) {
+                                    _technicianPhone.value = updatedEm.assignedTechnicianPhone
+                                }
+                                _emergencyState.value = EmergencyState.Towing(updatedEm)
+                            }
+                        }
+                    }
+
                     startTowingRoute(id)
                 }
                 "EmergencyRequestRejected" -> {
@@ -310,8 +401,30 @@ class EmergencyViewModel : ViewModel() {
                 "EmergencyRequestCompleted" -> {
                     updateEmergencyState(id, EmergencyStatus.COMPLETED)
                 }
+                "EmergencyRequestCanceled" -> {
+                     Log.d("SignalR_Handler", "Received CANCELED event.")
+                     // If we are already in EXPIRED state, ignore the Cancel event
+                     // because expiration naturally leads to cancellation on backend,
+                     // but UI should stay on "Expired" screen to allow retry.
+                     if (_emergencyState.value is EmergencyState.Expired) {
+                         Log.d("SignalR_Handler", "Ignoring Cancel event because state is already EXPIRED.")
+                         return@launch
+                     }
+                     
+                     Log.d("SignalR_Handler", "Resetting state due to Cancel event.")
+                     expirationJob?.cancel()
+                     resetState()
+                }
                 "EmergencyRequestExpired" -> {
-                     _emergencyState.value = EmergencyState.Error("Yêu cầu đã hết hạn")
+                     Log.d("SignalR_Handler", "Received EXPIRED event. Setting state to Expired.")
+                     // Stop internal timer if running
+                     expirationJob?.cancel()
+                     
+                     // Update UI
+                     _emergencyState.value = EmergencyState.Expired(_assignedGarage.value)
+                     
+                     // Optional: Clean up backend state if needed (though event means backend already expired it)
+                     currentEmergency = currentEmergency?.copy(status = EmergencyStatus.CANCELLED)
                 }
                 "TechnicianLocationUpdated" -> {
                     handleTechnicianLocationUpdate(json)
@@ -327,7 +440,11 @@ class EmergencyViewModel : ViewModel() {
              _technicianLocation.value = Pair(lat, lng)
              
              if (json.has("distanceKm") && !json.get("distanceKm").isJsonNull) {
-                 _distanceMeters.value = json.get("distanceKm").asDouble * 1000
+                 val dist = json.get("distanceKm").asDouble * 1000
+                 // Only accept if > 0, otherwise rely on route calculation
+                 if (dist > 0.1) {
+                     _distanceMeters.value = dist
+                 }
              }
              if (json.has("etaMinutes") && !json.get("etaMinutes").isJsonNull) {
                  _etaMinutes.value = json.get("etaMinutes").asInt
@@ -351,12 +468,15 @@ class EmergencyViewModel : ViewModel() {
              }
              
              if (destLat != null && destLng != null && (destLat != 0.0 || destLng != 0.0)) {
+                 Log.d("RouteDebug", "Updating route from Tech($lat, $lng) to Dest($destLat, $destLng)")
                  fetchRouteDirect(lat, lng, destLat, destLng)
              } else {
+                 Log.w("RouteDebug", "Destination coordinates missing or zero. destLat=$destLat, destLng=$destLng")
                  // Fallback recovery logic
                  val fallbackLat = _customerLocation.value?.first ?: 0.0
                  val fallbackLng = _customerLocation.value?.second ?: 0.0
                  if (fallbackLat != 0.0) {
+                      Log.d("RouteDebug", "Using fallback customer location for route.")
                       fetchRouteDirect(lat, lng, fallbackLat, fallbackLng)
                  }
              }
@@ -394,7 +514,10 @@ class EmergencyViewModel : ViewModel() {
             val emergencyResult = repository.createEmergencyRequest(req)
             if (emergencyResult.isSuccess) {
                 currentEmergency = emergencyResult.getOrNull()
-                currentEmergency?.id?.let { lastCreatedId = it }
+                currentEmergency?.id?.let { 
+                    lastCreatedId = it
+                    joinEmergencyGroup(it)
+                }
                 val garage = _selectedGarage.value
                 if (garage != null) {
                     _assignedGarage.value = garage
@@ -485,7 +608,7 @@ class EmergencyViewModel : ViewModel() {
     fun fetchRouteNow() {
         val id = currentEmergency?.id?.takeIf { it.isNotBlank() } ?: return
         
-        // TOWING MODE: Draw immediately using last known locations
+        // TOWING MODE: Tech -> Garage
         if (currentEmergency?.status == EmergencyStatus.TOWING) {
             val techLoc = _technicianLocation.value
             val garage = _assignedGarage.value ?: _selectedGarage.value
@@ -498,6 +621,19 @@ class EmergencyViewModel : ViewModel() {
                 }
             }
         }
+
+        // IN_PROGRESS MODE: Tech -> Customer
+        if (currentEmergency?.status == EmergencyStatus.IN_PROGRESS) {
+             val techLoc = _technicianLocation.value
+             val custLat = currentEmergency?.latitude ?: _customerLocation.value?.first
+             val custLng = currentEmergency?.longitude ?: _customerLocation.value?.second
+             
+             if (techLoc != null && custLat != null && custLng != null) {
+                  Log.d("RouteDebug", "fetchRouteNow: Immediate IN_PROGRESS route draw. Tech(${techLoc.first}, ${techLoc.second}) -> Customer($custLat, $custLng)")
+                  fetchRouteDirect(techLoc.first, techLoc.second, custLat, custLng)
+                  return
+             }
+        }
         
         // Default behavior
         viewModelScope.launch { fetchRouteOnce(id) }
@@ -505,6 +641,19 @@ class EmergencyViewModel : ViewModel() {
 
     fun fetchRouteNowFor(emergencyId: String) {
         if (emergencyId.isBlank()) return
+        
+        // Try to use direct routing if state allows, otherwise fallback to fetchRouteOnce
+        if (currentEmergency?.id == emergencyId && currentEmergency?.status == EmergencyStatus.IN_PROGRESS) {
+             val techLoc = _technicianLocation.value
+             val custLat = currentEmergency?.latitude ?: _customerLocation.value?.first
+             val custLng = currentEmergency?.longitude ?: _customerLocation.value?.second
+             
+             if (techLoc != null && custLat != null && custLng != null) {
+                  fetchRouteDirect(techLoc.first, techLoc.second, custLat, custLng)
+                  return
+             }
+        }
+        
         viewModelScope.launch { fetchRouteOnce(emergencyId) }
     }
     
@@ -523,8 +672,18 @@ class EmergencyViewModel : ViewModel() {
                  val minutes = if (ds != null) {
                      if (ds > 300) kotlin.math.round(ds / 60.0).toInt() else kotlin.math.round(ds).toInt()
                  } else null
-                 _etaMinutes.value = minutes
-                 _distanceMeters.value = route?.distanceMeters
+                 
+                 // Prioritize top-level fields for consistency
+                 _etaMinutes.value = route?.durationMinutes ?: minutes
+                 
+                 if (route?.distanceKm != null && route.distanceKm > 0) {
+                     _distanceMeters.value = route.distanceKm * 1000
+                 } else {
+                     _distanceMeters.value = route?.distanceMeters
+                 }
+                 
+                 // Log distance for debugging
+                 Log.d("RouteDebug", "Updated distance from route API: ${_distanceMeters.value} meters")
              } else {
                  Log.w("Route", "fetch DIRECT route failed: " + (res.exceptionOrNull()?.message ?: "unknown"))
              }
@@ -544,8 +703,16 @@ class EmergencyViewModel : ViewModel() {
              val minutes = if (ds != null) {
                  if (ds > 300) kotlin.math.round(ds / 60.0).toInt() else kotlin.math.round(ds).toInt()
              } else null
-             _etaMinutes.value = minutes
-             _distanceMeters.value = route?.distanceMeters
+             
+             // Prioritize top-level fields for consistency
+             _etaMinutes.value = route?.durationMinutes ?: minutes
+             
+             if (route?.distanceKm != null && route.distanceKm > 0) {
+                 _distanceMeters.value = route.distanceKm * 1000
+             } else {
+                 _distanceMeters.value = route?.distanceMeters
+             }
+             Log.d("RouteDebug", "MapViewModel: Fetched route success. Distance: ${_distanceMeters.value}")
          } else {
              Log.w("Route", "fetch failed: " + (res.exceptionOrNull()?.message ?: "unknown"))
          }
@@ -667,7 +834,20 @@ class EmergencyViewModel : ViewModel() {
     fun markApproved(emergencyId: String, branchId: String?) {
         expirationJob?.cancel()
         viewModelScope.launch {
-            val garage = _selectedGarage.value ?: _nearbyGarages.value?.firstOrNull { it.id == branchId }
+            var garage = _selectedGarage.value ?: _nearbyGarages.value?.firstOrNull { it.id == branchId }
+            
+            // Fallback: Fetch from API if not found locally and we have an ID
+            if (garage == null && !branchId.isNullOrBlank()) {
+                try {
+                    val result = repository.getGarageById(branchId)
+                    if (result.isSuccess) {
+                        garage = result.getOrNull()
+                    }
+                } catch (e: Exception) {
+                    Log.e("ViewModel", "Failed to fetch garage $branchId: ${e.message}")
+                }
+            }
+
             garage?.let { _assignedGarage.value = it }
             val idCandidate = if (emergencyId.isNotBlank()) emergencyId else (currentEmergency?.id ?: "")
             currentEmergency = currentEmergency?.copy(id = idCandidate) ?: Emergency(id = idCandidate)
@@ -701,33 +881,7 @@ class EmergencyViewModel : ViewModel() {
 
     private fun startExpirationTimer() {
         expirationJob?.cancel()
-        expirationJob = viewModelScope.launch {
-            val deadlineStr = currentEmergency?.responseDeadline
-            val delayMs = if (!deadlineStr.isNullOrBlank()) {
-                try {
-                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                         val deadline = java.time.Instant.parse(deadlineStr).toEpochMilli()
-                         val now = System.currentTimeMillis()
-                         (deadline - now).coerceAtLeast(0)
-                     } else {
-                         300000L
-                     }
-                } catch (e: Exception) {
-                    300000L
-                }
-            } else {
-                300000L // 5 minutes default
-            }
-            
-            Log.d("MapViewModel", "Expiration timer set for: ${delayMs}ms")
-            delay(delayMs)
-            
-            if (_emergencyState.value is EmergencyState.WaitingForGarage) {
-                // Trigger auto cancel
-                _emergencyState.value = EmergencyState.Expired(_assignedGarage.value)
-                cancelEmergencyRequest() // Tell backend we gave up
-            }
-        }
+        
     }
 
 
@@ -751,16 +905,16 @@ class EmergencyViewModel : ViewModel() {
     }
 
     fun resetStateForRetry() {
-        val current = currentEmergency ?: run {
-            resetState()
+        val current = currentEmergency
+        if (current == null) {
+            Log.e("ViewModel", "resetStateForRetry failed: currentEmergency is null")
             return
         }
-        
-        // Reset garage selection
+
+        // Xóa lựa chọn/gán trước đó để đảm bảo trạng thái UI sạch sẽ
         _selectedGarage.value = null
         _assignedGarage.value = null
         
-        // Create a clean copy for retry (New ID = empty string to signal creation)
         val retryEmergency = current.copy(
             id = "",
             status = EmergencyStatus.PENDING,
@@ -811,10 +965,18 @@ class EmergencyViewModel : ViewModel() {
             }
             EmergencyStatus.IN_PROGRESS -> {
                 _emergencyState.value = EmergencyState.Confirmed(emergency)
+                if (!emergency.assignedTechnicianName.isNullOrBlank()) {
+                    _technicianName.value = emergency.assignedTechnicianName
+                    _technicianPhone.value = emergency.assignedTechnicianPhone
+                }
                 fetchRouteNowFor(emergency.id)
             }
             EmergencyStatus.TOWING -> {
                 _emergencyState.value = EmergencyState.Towing(emergency)
+                if (!emergency.assignedTechnicianName.isNullOrBlank()) {
+                    _technicianName.value = emergency.assignedTechnicianName
+                    _technicianPhone.value = emergency.assignedTechnicianPhone
+                }
                 fetchRouteNowFor(emergency.id)
             }
             EmergencyStatus.COMPLETED -> {
@@ -833,7 +995,7 @@ sealed class EmergencyState {
     data class WaitingForGarage(val garage: Garage) : EmergencyState()
     data class Success(val emergency: Emergency) : EmergencyState()
     data class Confirmed(val emergency: Emergency) : EmergencyState()
-    data class TowingStarted(val garage: Garage) : EmergencyState()
+    data class TowingStarted(val emergency: Emergency) : EmergencyState()
     data class Towing(val emergency: Emergency) : EmergencyState()
     data class Completed(val emergency: Emergency?) : EmergencyState()
     data class Expired(val garage: Garage?) : EmergencyState()

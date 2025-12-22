@@ -142,6 +142,74 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- Garage Info -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        app:cardCornerRadius="30dp"
+        app:strokeWidth="0dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@android:color/transparent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingVertical="8dp">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:src="@drawable/ic_garage_placeholder"
+                android:background="@drawable/bg_circle"
+                android:backgroundTint="#F5F5F5"
+                android:padding="12dp"
+                app:civ_border_width="0dp"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
+
+                <TextView
+                    android:id="@+id/tvGarageNameCompleted"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Garage Name"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="@android:color/black"/>
+
+                <TextView
+                    android:id="@+id/tvGaragePhoneCompleted"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="14sp"
+                    android:textColor="#6B7280"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnCallGarageCompleted"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="Call"
+                android:textAllCaps="false"
+                android:backgroundTint="#E0E0E0"
+                android:textColor="@android:color/black"
+                android:textStyle="bold"
+                app:icon="@drawable/ic_phone"
+                app:iconTint="@android:color/black"
+                app:cornerRadius="24dp"
+                android:paddingHorizontal="24dp"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnFinish"
         android:layout_width="match_parent"

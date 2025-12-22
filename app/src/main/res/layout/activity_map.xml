@@ -56,7 +56,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="16dp"
                 android:layout_weight="1"
-                android:text="Chọn gara cứu hộ"
+                android:text="Choose a rescue garage"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 

@@ -52,7 +52,7 @@ class MapController(private val map: MapLibreMap, private val context: android.c
         if (style.getSource(CUSTOMER_SOURCE_ID) == null) {
             style.addSource(GeoJsonSource(CUSTOMER_SOURCE_ID))
             
-            if (style.getImage("icon-customer") != null) {
+            if (style.getImage("icon-customer") != null && style.getImage("icon-garage") != null) {
                 style.addLayer(
                     SymbolLayer(CUSTOMER_LAYER_ID, CUSTOMER_SOURCE_ID).withProperties(
                         PropertyFactory.iconImage(Expression.switchCase(

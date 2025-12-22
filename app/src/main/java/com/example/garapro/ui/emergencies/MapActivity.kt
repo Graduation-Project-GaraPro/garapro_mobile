@@ -38,6 +38,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.example.garapro.ui.repairRequest.VehicleAdapter
 import com.example.garapro.data.model.repairRequest.Vehicle as RRVehicle
 import android.widget.TextView
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import com.example.garapro.utils.formatDistance
 import com.example.garapro.utils.formatPrice
@@ -182,13 +184,16 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun handleExistingEmergencyIntent(intent: Intent) {
         val st = intent.getStringExtra("status")?.lowercase()
         if (st == "inprogress" || st == "in_progress") {
-            val g = viewModel.assignedGarage.value ?: emergencyBottomSheet.lastSelectedGarage()
-            val trackingGarage = g ?: Garage(id = "", name = "Garage", latitude = 0.0, longitude = 0.0, address = "", phone = "", isAvailable = true, price = 0.0, rating = 0f, distance = 0.0)
-            
+            val garage = viewModel.assignedGarage.value
+                ?: emergencyBottomSheet.lastSelectedGarage()
+                ?: return
+
+           // emergencyBottomSheet.showTracking(garage, null)
+
             updateUIVisibility(topBar = true, fabEmer = false, fabLoc = false)
             tvTitle.text = "Tracking technician"
             enableTrackingUI()
-            emergencyBottomSheet.showTracking(trackingGarage, null)
+            emergencyBottomSheet.showTracking(garage, null)
             routeFetchPending = true
         } else if (st == "accepted") {
             val g = viewModel.assignedGarage.value ?: emergencyBottomSheet.lastSelectedGarage()
@@ -311,39 +316,69 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
              navigateHome()
         }
 
-        // Setup Choose Another (Keep request active but allow re-selection)
+        // Thiết lập listener cho nút "Chọn garage khác"
         emergencyBottomSheet.setOnChooseAnotherListener {
-             Log.d("MapActivity_DEBUG", "Choose Another Garage clicked. Current Emergency ID: ${viewModel.getCurrentEmergency()?.id}")
-             Log.d("MapActivity_DEBUG", "Delaying 500ms to dismiss dialog...")
-             // Delay slightly to ensure previous bottom sheet is fully dismissed
-             mainHandler.postDelayed({
-                 Log.d("MapActivity_DEBUG", "Executing resetStateForRetry logic...")
-                 // 1. Reset state to allow selection. 
-                 // This will trigger EmergencyState.Success observer which calls showEmergencyUI() automatically.
+            val currentEmergency = viewModel.getCurrentEmergency()
+            
+            Log.d("MapActivity_DEBUG", "Nhấn Chọn Garage Khác. ID Emergency: ${currentEmergency?.id}")
+            
+            // Kiểm tra xem có emergency đang hoạt động không
+            if (currentEmergency == null) {
+                Log.e("MapActivity_DEBUG", "Không có emergency đang hoạt động")
+                return@setOnChooseAnotherListener
+            }
+            
+            // Đóng bottom sheet trước (Sử dụng dismissSilently để tránh trigger về Home)
+            emergencyBottomSheet.dismissSilently()
+            
+            // Dùng coroutine thay vì Handler (an toàn hơn với lifecycle)
+             lifecycleScope.launch {
+                 // Đợi animation đóng bottom sheet hoàn tất (300ms đủ)
+                 delay(300)
+                 
+                 if (isFinishing || isDestroyed) {
+                     Log.e("MapActivity_DEBUG", "Activity is finishing, aborting retry.")
+                     return@launch
+                 }
+
+                 Log.d("MapActivity_DEBUG", "Bắt đầu reset trạng thái...")
+                 
+                 // 1. Xóa danh sách garage đã từ chối -> cho phép chọn lại
+                 rejectedGarageIds.clear()
+                 Log.d("MapActivity_DEBUG", "Đã clear rejectedGarageIds")
+                 
+                 // 2. Reset trạng thái về ban đầu
+                 Log.d("MapActivity_DEBUG", "Calling resetStateForRetry...")
                  viewModel.resetStateForRetry()
                  
-                 // Clear rejected list to allow re-picking the same garage if desired
-                 rejectedGarageIds.clear()
-                 
-                 // If list is empty, refresh it
-                 if (viewModel.nearbyGarages.value.isNullOrEmpty()) {
-                     Log.d("MapActivity_DEBUG", "Nearby garages empty, refreshing...")
-                     (pendingLatLng ?: lastTappedLatLng)?.let {
-                         viewModel.refreshNearbyGarages(it.latitude, it.longitude)
+                 // 3. Kiểm tra và refresh danh sách garage nếu cần
+                 val garages = viewModel.nearbyGarages.value
+                 if (garages.isNullOrEmpty()) {
+                     Log.d("MapActivity_DEBUG", "Danh sách garage trống, đang refresh...")
+                     
+                     // Lấy vị trí để tìm garage gần đó
+                     val location = pendingLatLng ?: lastTappedLatLng
+                     
+                     if (location != null) {
+                         // Tìm garage gần vị trí này
+                         viewModel.refreshNearbyGarages(location.latitude, location.longitude)
+                     } else {
+                         Log.e("MapActivity_DEBUG", "Không có thông tin vị trí")
+                         Toast.makeText(this@MapActivity, "Không tìm thấy vị trí. Hãy chạm vào bản đồ để chọn vị trí.", Toast.LENGTH_SHORT).show()
                      }
-                 } else {
-                     Log.d("MapActivity_DEBUG", "Nearby garages available (${viewModel.nearbyGarages.value?.size}), waiting for Observer...")
                  }
-             }, 500)
-        }
+                 
+                 // Luôn hiển thị UI (dù danh sách trống thì hiện thông báo trống) để người dùng biết app đang phản hồi
+                 Log.d("MapActivity_DEBUG", "Calling showEmergencyUI()...")
+                 showEmergencyUI()
+             }
+         }
     }
 
     private fun setupClickListeners() {
         fabBack.setOnClickListener {
             // Check state
             if (waitingForGarageActive || trackingActive || viewModel.assignedGarage.value != null) {
-                // If in active emergency, show confirmation or just bring back UI?
-                // Bring back UI is safer
                 val garage = viewModel.assignedGarage.value ?: emergencyBottomSheet.lastSelectedGarage()
                 if (garage != null) {
                      emergencyBottomSheet.showTracking(garage, null)
@@ -454,9 +489,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         if (viewModel.emergencyState.value is EmergencyState.Confirmed) {
              val state = viewModel.emergencyState.value as EmergencyState.Confirmed
              if (state.emergency.status == com.example.garapro.data.model.emergencies.EmergencyStatus.IN_PROGRESS) {
-                 // Refresh the sheet with new ETA/Distance
-                 // Optimization: Only refresh textviews if possible, but recreating dialog is safer for now
-                 // or we can add update methods to EmergencyBottomSheet
+
                  emergencyBottomSheet.updateTrackingInfo(
                      viewModel.distanceMeters.value,
                      viewModel.etaMinutes.value
@@ -509,6 +542,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
             if (m != null) emergencyBottomSheet.updateTrackingEta(m)
         }
 
+        viewModel.distanceMeters.observe(this) { dist ->
+            if (dist != null) emergencyBottomSheet.updateTrackingDistance(dist / 1000.0)
+        }
+
         viewModel.technicianName.observe(this) { name ->
             technicianName = name
             
@@ -522,7 +559,17 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                     if (em.status == com.example.garapro.data.model.emergencies.EmergencyStatus.ASSIGNED) {
                         emergencyBottomSheet.showTechnicianAssigned(garage, name, technicianPhone)
                     } else if (em.status == com.example.garapro.data.model.emergencies.EmergencyStatus.IN_PROGRESS) {
-                        emergencyBottomSheet.showTechnicianEnRoute(garage, name)
+                        emergencyBottomSheet.showTechnicianEnRoute(
+                            garage, 
+                            name, 
+                            technicianPhone,
+                            viewModel.distanceMeters.value,
+                            viewModel.etaMinutes.value
+                        )
+                        emergencyBottomSheet.setOnViewMapClickListener {
+                            cameraFollowTechnician = true
+                            viewModel.fetchRouteNow()
+                        }
                     }
                 }
             } else {
@@ -557,8 +604,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         val garage = viewModel.assignedGarage.value ?: emergencyBottomSheet.lastSelectedGarage()
         
         if (emergency.status == com.example.garapro.data.model.emergencies.EmergencyStatus.IN_PROGRESS) {
-            // CRITICAL FIX: If technician has arrived, DO NOT show "En Route" tracking.
-            // Let handleTechnicianArrived() show the "Arrived" dialog instead.
             if (viewModel.isTechnicianArrived.value == true) {
                 return
             }
@@ -572,8 +617,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                     viewModel.distanceMeters.value,
                     viewModel.etaMinutes.value
                 )
-                emergencyBottomSheet.setOnTrackClickListener { 
-                    setupTrackingUI(garage, emergency) 
+                // Set click listeners similar to TOWING
+                emergencyBottomSheet.setOnViewMapClickListener {
+                    cameraFollowTechnician = true
+                    viewModel.fetchRouteNow()
                 }
             } else {
                 setupTrackingUI(garage, emergency) // Fallback
@@ -585,6 +632,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         } else {
             // ACCEPTED (Waiting for assignment)
+            // Ẩn thanh top bar khi đang hiển thị bottom sheet
+            topAppBar.visibility = View.GONE
             if (garage != null) {
                 emergencyBottomSheet.showAcceptedWaitingForTechnician(garage)
             }
@@ -606,18 +655,24 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         
         emergencyBottomSheet.setOnViewMapClickListener {
             cameraFollowTechnician = true
-            refreshTrackingFromApi()
+            // refreshTrackingFromApi() -> REMOVED to prevent infinite loop
             tvTitle.text = "Tracking technician"
             enableTrackingUI()
-            viewModel.fetchRouteNow()
+            // viewModel.fetchRouteNow() -> REMOVED, already handled by periodic updates
+            
+            // Hide TopBar in Tracking Mode
+            topAppBar.visibility = View.GONE
         }
         
-        refreshTrackingFromApi()
-        if (styleLoaded) {
-            viewModel.fetchRouteNow()
-            routeFetchPending = false
-        } else {
-            routeFetchPending = true
+        // Only trigger fetch if not already tracking/fetching to avoid loop
+        if (!trackingActive) {
+            refreshTrackingFromApi()
+            if (styleLoaded) {
+                viewModel.fetchRouteNow()
+                routeFetchPending = false
+            } else {
+                routeFetchPending = true
+            }
         }
     }
 
@@ -711,10 +766,16 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         trackingActive = false
         cameraFollowTechnician = false
         
-        // Hide Customer Marker when Towing starts
-        mapController?.setCustomerVisibility(false)
-
+        // Hide Customer Marker when Towing starts, but show Garage Marker (destination)
+        mapController?.setCustomerVisibility(true) // Ensure layer is visible
         val garage = viewModel.assignedGarage.value ?: emergencyBottomSheet.lastSelectedGarage()
+        val gLat = garage?.latitude
+        val gLng = garage?.longitude
+        if (gLat != null && gLng != null) {
+            // Update "Customer" marker to be Garage location for towing destination
+            mapController?.updateCustomerLocation(gLat, gLng, isGarage = true)
+        }
+
         if (garage != null) {
              emergencyBottomSheet.showTowing(garage, technicianName, technicianPhone)
              emergencyBottomSheet.setOnCloseClickListener {
@@ -724,41 +785,32 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun handleTowingState(state: EmergencyState.Towing) {
-        mapController?.clearRoute()
-        // Hide Customer Marker
-        mapController?.setCustomerVisibility(false)
-
-        trackingActive = true
+        trackingActive = false
         cameraFollowTechnician = true
-        tvTitle.text = "Towing to Garage"
-        viewModel.fetchRouteNow()
         
+        // Ensure Garage marker is shown as destination
+        mapController?.setCustomerVisibility(true)
         val garage = viewModel.assignedGarage.value ?: emergencyBottomSheet.lastSelectedGarage()
+        val gLat = garage?.latitude
+        val gLng = garage?.longitude
+        if (gLat != null && gLng != null) {
+            mapController?.updateCustomerLocation(gLat, gLng, isGarage = true)
+        }
+
+        val dist = viewModel.distanceMeters.value
+        val eta = viewModel.etaMinutes.value
+        
         if (garage != null) {
-            emergencyBottomSheet.showTowing(garage, technicianName, technicianPhone)
-            // Handle "View Map" logic in Towing mode
-            emergencyBottomSheet.setOnViewMapClickListener {
-                cameraFollowTechnician = true
-                topAppBar.visibility = View.VISIBLE
-                tvTitle.text = "Towing to Garage"
-                enableTrackingUI()
-                
-                // Show route from Tech -> Garage
-                viewModel.fetchRouteNow() 
-                
-                // Show Garage Icon at destination
-                mapController?.setCustomerVisibility(true) // Re-enable layer
-                mapController?.updateCustomerLocation(garage.latitude, garage.longitude, isGarage = true)
-            }
-            
-            // Auto show map view if already in map mode? No, wait for user click.
-            // But if user was already viewing map, update it.
-            if (topAppBar.visibility == View.VISIBLE) {
-                 mapController?.setCustomerVisibility(true)
-                 mapController?.updateCustomerLocation(garage.latitude, garage.longitude, isGarage = true)
-            }
+             emergencyBottomSheet.showTowing(
+                 garage = garage, 
+                 techName = technicianName, 
+                 techPhone = technicianPhone,
+                 distanceMeters = dist,
+                 etaMinutes = eta
+             )
         }
     }
+
 
     private fun requestEmergency() {
         if (!locationPermissionGranted) {
@@ -871,7 +923,14 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         emergencyBottomSheet.show(
             garages = filtered,
             selectedGarage = viewModel.selectedGarage.value,
-            onConfirm = { handleEmergencyConfirm() }
+            onConfirm = { handleEmergencyConfirm() },
+            onDismiss = { 
+                // Only navigate home if we are NOT in a retry flow
+                // Check if bottom sheet is being dismissed for retry
+                if (viewModel.emergencyState.value !is EmergencyState.Success) {
+                     navigateHome()
+                }
+            }
         )
     }
 
@@ -1041,7 +1100,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                 tvWordCount.text = "$words words"
                 
                 // Validation: At least 10 words
-                btnSubmit.isEnabled = words >= 10
+                btnSubmit.isEnabled = words >= 5
             }
         })
 
@@ -1325,7 +1384,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
             if (!id.isNullOrBlank()) {
                 if (styleLoaded) {
                     viewModel.fetchRouteNow()
-                    // viewModel.startRoutePolling()
+                   // viewModel.startRoutePolling()
                     routeFetchPending = false
                 } else {
                     routeFetchPending = true
@@ -1363,11 +1422,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
             // Bỏ qua các marker khác (không thêm vào)
             return
         }
-
-        // Chỉ hiển thị toast cho assistance location
-        // if (title == "Assistance location" || title == "Vị trí hiện tại") {
-        //    Toast.makeText(this, "Marker added: $title", Toast.LENGTH_SHORT).show()
-        // }
     }
 
     private fun checkLocationAndStart() {
@@ -1665,6 +1719,4 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         } catch (_: Exception) {}
     }
 }
-
-// Extension function moved to Utils
 
