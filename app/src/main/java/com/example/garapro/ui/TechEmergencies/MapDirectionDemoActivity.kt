@@ -263,6 +263,7 @@ class MapDirectionDemoActivity : AppCompatActivity(), OnMapReadyCallback {
                     hasArrived = false
                     emergencyStatus = EmergencyStatus.Towing.value
                     btnPickupCustomer.visibility = View.GONE
+                    btnCancelJob.visibility = View.GONE
                     destinationLatLng = branchLocation
                     resetNavStateForNewRoute()
                     updateDestinationMarker(branchLocation)
@@ -1230,7 +1231,7 @@ class MapDirectionDemoActivity : AppCompatActivity(), OnMapReadyCallback {
                     val d = distanceBetween(displayPos, dest)
 
 
-                    if (!hasArrived  && d < 30f) {
+                    if (!hasArrived  && d < 90f) {
                         hasArrived = true
                         when (EmergencyStatus.fromInt(emergencyStatus)) {
                             EmergencyStatus.InProgress -> {

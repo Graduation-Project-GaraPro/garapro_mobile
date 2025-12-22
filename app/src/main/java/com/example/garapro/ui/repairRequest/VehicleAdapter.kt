@@ -110,10 +110,10 @@ class VehicleAdapter(
     }
 
     private fun buildStatusText(vehicle: VehicleSelectableDto): String? {
-        // Ưu tiên flags trước cho chắc, vì state có thể thay đổi enum
+
         return when {
-            vehicle.hasActiveRepairRequest -> "Repair request in progress"
-            vehicle.hasOpenRepairOrder -> "Vehicle is currently in the workshop"
+            vehicle.hasActiveRepairRequest -> "Vehicle currently has a scheduled appointment"
+            vehicle.hasOpenRepairOrder -> "Vehicle is currently in the Garage"
             else -> null
         }
     }
