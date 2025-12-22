@@ -67,7 +67,7 @@ class ProfileFragment : Fragment() {
                     // Kiểm tra fragment còn attached không
                     if (!isAdded || context == null) return
 
-                    Toast.makeText(context, "Phiên đăng nhập đã hết hạn", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "End session", Toast.LENGTH_LONG).show()
 
                     // Dùng context truyền vào thay vì requireContext()
                     val tokenManager = TokenManager(context)

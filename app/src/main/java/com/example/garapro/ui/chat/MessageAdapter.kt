@@ -50,8 +50,17 @@ class MessageAdapter(private val messages: MutableList<Message>) :
     }
 
     class OtherViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
         fun bind(msg: Message) {
-            itemView.findViewById<TextView>(R.id.txtMessageOther).text = msg.text
+            val tv = itemView.findViewById<TextView>(R.id.txtMessageOther)
+
+            tv.isSingleLine = false
+            tv.maxLines = Integer.MAX_VALUE
+            tv.ellipsize = null
+
+            tv.text = msg.text
+                .replace("\\n", "\n")
+                .replace("/n", "\n")
         }
     }
 }

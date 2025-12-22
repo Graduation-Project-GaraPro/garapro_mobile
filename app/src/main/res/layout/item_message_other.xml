@@ -2,23 +2,23 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="4dp"
-    android:paddingBottom="4dp"
+    android:gravity="start"
     android:orientation="horizontal"
-    android:gravity="start">
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
 
     <TextView
         android:id="@+id/txtMessageOther"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_other"
-        android:textColor="#222222"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
         android:maxWidth="240dp"
-        android:text="Hello from other"
+        android:paddingLeft="12dp"
+        android:paddingTop="8dp"
+        android:paddingRight="12dp"
+        android:paddingBottom="8dp"
+        android:text="The cost to replace brake pads can vary depending on the type of vehicle and the number of pads needed. Here is a breakdown of the costs mentioned in the system_services response:\n\n* Front brake overhaul: 5200 VND\n* Rear brake overhaul: 5000 VND\n* Replace front brake pads: 1800 VND\n\nPlease note that these prices are subject to change and may not be up-to-date. It's always best to consult with a professional mechanic or the vehicle's manufacturer for the most accurate pricing information."
+        android:textColor="#222222"
         android:textSize="14sp" />
 
 </LinearLayout>

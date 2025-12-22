@@ -137,11 +137,11 @@ class EditProfileActivity : AppCompatActivity() {
         viewModel.updateState.observe(this) { result ->
             when (result) {
                 is Resource.Loading -> {
-                    Toast.makeText(this, "Đang lưu...", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Saving...", Toast.LENGTH_SHORT).show()
                 }
 
                 is Resource.Success -> {
-                    Toast.makeText(this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Update success!", Toast.LENGTH_SHORT).show()
                     setResult(Activity.RESULT_OK)
                     finish()
                 }
@@ -156,7 +156,7 @@ class EditProfileActivity : AppCompatActivity() {
         viewModel.uploadState.observe(this) { result ->
             when (result) {
                 is Resource.Loading -> {
-                    Toast.makeText(this, "Đang tải ảnh lên...", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Image processing...", Toast.LENGTH_SHORT).show()
                 }
 
                 is Resource.Success -> {
@@ -165,7 +165,7 @@ class EditProfileActivity : AppCompatActivity() {
                 }
 
                 is Resource.Error -> {
-                    Toast.makeText(this, "Upload thất bại: ${result.message}", Toast.LENGTH_SHORT)
+                    Toast.makeText(this, "Upload false: ${result.message}", Toast.LENGTH_SHORT)
                         .show()
                 }
             }
@@ -196,7 +196,7 @@ class EditProfileActivity : AppCompatActivity() {
         val phone = binding.edtPhone.text.toString().trim()
 
         if (firstName.isEmpty() || lastName.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập đầy đủ họ tên", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Full name is required", Toast.LENGTH_SHORT).show()
             return
         }
 
