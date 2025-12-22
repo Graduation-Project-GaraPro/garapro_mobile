@@ -9,12 +9,18 @@ enum class EmergencyStatus {
     @SerializedName("Accepted")
     ACCEPTED,
 
+    @SerializedName("Assigned")
+    ASSIGNED,
+
     @SerializedName("InProgress")
     IN_PROGRESS,
+
+    @SerializedName("Towing")
+    TOWING,
 
     @SerializedName("Completed")
     COMPLETED,
 
-    @SerializedName("Cancelled")
+    @SerializedName("Cancelled", alternate = ["Canceled"])
     CANCELLED
 }

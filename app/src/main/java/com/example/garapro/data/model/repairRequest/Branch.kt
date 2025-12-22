@@ -9,5 +9,7 @@ data class Branch(
     val phoneNumber: String,
     val email: String,
     val description: String,
-    val isActive: Boolean
+    val isActive: Boolean,
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0
 )

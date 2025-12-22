@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.garapro.R
 import com.example.garapro.data.model.emergencies.Garage
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.example.garapro.utils.formatDistance
+import com.example.garapro.utils.formatPrice
 
 class EmergencyBottomSheet(
     private val context: android.content.Context,
@@ -42,15 +44,39 @@ class EmergencyBottomSheet(
     ) {
         this.onConfirmClickListener = onConfirm
         this.onDismissClickListener = onDismiss
+        
+        Log.d("BottomSheet", "show() called with ${garages.size} garages")
 
-        bottomSheetDialog?.dismiss()
-        bottomSheetDialog = BottomSheetDialog(context).apply {
-            setContentView(createBottomSheetView(garages, selectedGarage))
-            setCancelable(true)
-            setOnDismissListener {
-                if (!suppressDismiss) onDismissClickListener?.invoke()
+        dismissSilently()
+        
+        // Ensure UI operations are on Main Thread
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+             android.os.Handler(Looper.getMainLooper()).post {
+                 show(garages, selectedGarage, onConfirm, onDismiss)
+             }
+             return
+        }
+
+        try {
+            bottomSheetDialog = BottomSheetDialog(context).apply {
+                val view = createBottomSheetView(garages, selectedGarage)
+                setContentView(view)
+                
+                setCancelable(false)
+                behavior.isDraggable = true
+                behavior.isHideable = false
+                
+                // Force expanded state and full height
+                behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
+                behavior.peekHeight = 600 // Minimum height
+                
+                setOnDismissListener {
+                    if (!suppressDismiss) onDismissClickListener?.invoke()
+                }
+                show()
             }
-            show()
+        } catch (e: Exception) {
+            Log.e("BottomSheet", "Error showing bottom sheet", e)
         }
     }
 
@@ -61,6 +87,11 @@ class EmergencyBottomSheet(
         val dialog = BottomSheetDialog(context as Activity)
         dialog.setContentView(createWaitingView(garage))
         dialog.setCancelable(false)
+        
+        dialog.setOnDismissListener {
+            if (!suppressDismiss) onDismissClickListener?.invoke()
+        }
+        
         dialog.show()
 
         bottomSheetDialog = dialog
@@ -75,6 +106,7 @@ class EmergencyBottomSheet(
 
     fun dismissSilently() {
         suppressDismiss = true
+        bottomSheetDialog?.setOnDismissListener(null)
         bottomSheetDialog?.dismiss()
         bottomSheetDialog = null
         suppressDismiss = false
@@ -106,16 +138,16 @@ class EmergencyBottomSheet(
             tvName.text = garage.name
             tvAddr.text = garage.address
             tvDistance.text = "Distance: ${garage.distance.formatDistance()} km"
-            val etaText = if (arrived) {
-                "Technician has arrived"
-            } else {
-                etaMinutes?.let { "ETA ~ ${it} min" } ?: "ETA ~ ${((garage.distance ?: 0.0) / 30.0 * 60).toInt()} min"
-            }
+        val etaText = if (arrived) {
+            "Technician has arrived"
+        } else {
+            etaMinutes?.let { "ETA ~ $it min" } ?: "ETA ~ ${((garage.distance ?: 0.0) / 30.0 * 60).toInt()} min"
+        }
             tvEta.text = etaText
-            btnTrack.setOnClickListener {
-                dismiss()
-                onTrackClickListener?.invoke()
-            }
+            // HIDE Track Button initially for ACCEPTED/ASSIGNED state
+            // Only show when IN_PROGRESS
+            btnTrack.visibility = View.GONE
+            btnTrack.isEnabled = false
             btnCall.setOnClickListener {
                 try {
                     val intent = android.content.Intent(android.content.Intent.ACTION_DIAL)
@@ -144,91 +176,151 @@ class EmergencyBottomSheet(
 //            show()
 //        }
 //    }
-fun showArrived(garage: Garage, techName: String? = null, techPhone: String? = null) {
-    try {
-        android.util.Log.d("BottomSheet", "════════════════════════════")
-        android.util.Log.d("BottomSheet", "🎯 showArrived START")
-        android.util.Log.d("BottomSheet", "   Garage: ${garage.name}")
-        android.util.Log.d("BottomSheet", "   Tech: $techName / $techPhone")
-        android.util.Log.d("BottomSheet", "   Thread: ${Thread.currentThread().name}")
-
-        // Đảm bảo chạy trên UI thread
+    fun showArrived(garage: Garage, techName: String? = null, techPhone: String? = null) {
         if (android.os.Looper.myLooper() != android.os.Looper.getMainLooper()) {
-            android.util.Log.w("BottomSheet", "⚠️ NOT on UI thread, posting to main thread...")
             android.os.Handler(android.os.Looper.getMainLooper()).post {
                 showArrived(garage, techName, techPhone)
             }
             return
         }
 
-        android.util.Log.d("BottomSheet", "   Calling dismissSilently()...")
         dismissSilently()
+        
+        try {
+            bottomSheetDialog = BottomSheetDialog(context).apply {
+                val view = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_arrived, null)
+                setContentView(view)
+                setCancelable(true)
 
-        android.util.Log.d("BottomSheet", "   Creating new BottomSheetDialog...")
-        bottomSheetDialog = BottomSheetDialog(context).apply {
-            android.util.Log.d("BottomSheet", "   Inflating layout...")
-            val view = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_arrived, null)
-
-            android.util.Log.d("BottomSheet", "   View inflated successfully")
-
-            android.util.Log.d("BottomSheet", "   Setting content view...")
-            setContentView(view)
-
-            android.util.Log.d("BottomSheet", "   Setting cancelable...")
-            setCancelable(true)
-
-            android.util.Log.d("BottomSheet", "   Finding views...")
-            val tvGarageName = view.findViewById<TextView>(R.id.tvArrivedGarageName)
-            val tvGarageAddress = view.findViewById<TextView>(R.id.tvArrivedGarageAddress)
-            val tvTechName = view.findViewById<TextView>(R.id.tvTechNameArrived)
-            val tvTechPhone = view.findViewById<TextView>(R.id.tvTechPhoneArrived)
-            val btnClose = view.findViewById<Button>(R.id.btnCloseArrived)
-
-            android.util.Log.d("BottomSheet", "   Views found:")
-            android.util.Log.d("BottomSheet", "     - tvGarageName: ${tvGarageName != null}")
-            android.util.Log.d("BottomSheet", "     - tvGarageAddress: ${tvGarageAddress != null}")
-            android.util.Log.d("BottomSheet", "     - tvTechName: ${tvTechName != null}")
-            android.util.Log.d("BottomSheet", "     - tvTechPhone: ${tvTechPhone != null}")
-            android.util.Log.d("BottomSheet", "     - btnClose: ${btnClose != null}")
-
-            if (tvGarageName == null || btnClose == null) {
-                android.util.Log.e("BottomSheet", "❌ CRITICAL: Required views are NULL!")
+                view.findViewById<TextView>(R.id.tvArrivedGarageName)?.text = garage.name
+                view.findViewById<TextView>(R.id.tvArrivedGarageAddress)?.text = garage.address
+                view.findViewById<TextView>(R.id.tvArrivedGaragePhone)?.apply {
+                    text = garage.phone ?: ""
+                    setOnClickListener { dialNumber(garage.phone) }
+                }
+                view.findViewById<TextView>(R.id.tvTechNameArrived)?.text = techName ?: "Technician"
+                view.findViewById<TextView>(R.id.tvTechPhoneArrived)?.text = techPhone ?: ""
+                view.findViewById<Button>(R.id.btnCloseArrived)?.setOnClickListener {
+                    dismiss()
+                    onCloseClickListener?.invoke()
+                }
+                show()
             }
-
-            android.util.Log.d("BottomSheet", "   Setting text values...")
-            tvGarageName?.text = garage.name
-            tvGarageAddress?.text = garage.address
-            tvTechName?.text = techName ?: "Technician"
-            tvTechPhone?.text = techPhone ?: ""
-
-            android.util.Log.d("BottomSheet", "   Setting button listener...")
-            btnClose?.setOnClickListener {
-                android.util.Log.d("BottomSheet", "🔴 Close button clicked")
-                dismiss()
-                onCloseClickListener?.invoke()
-            }
-
-            android.util.Log.d("BottomSheet", "   Calling dialog.show()...")
-            show()
-
-            android.util.Log.d("BottomSheet", "   Dialog shown!")
-            android.util.Log.d("BottomSheet", "   Dialog.isShowing: ${isShowing}")
+        } catch (e: Exception) {
+            Log.e("BottomSheet", "Error showing arrived dialog", e)
         }
-
-        android.util.Log.d("BottomSheet", "✅ showArrived COMPLETE")
-        android.util.Log.d("BottomSheet", "   bottomSheetDialog != null: ${bottomSheetDialog != null}")
-        android.util.Log.d("BottomSheet", "   bottomSheetDialog?.isShowing: ${bottomSheetDialog?.isShowing}")
-        android.util.Log.d("BottomSheet", "════════════════════════════")
-
-    } catch (e: Exception) {
-        android.util.Log.e("BottomSheet", "❌ showArrived CRASHED!", e)
-        e.printStackTrace()
     }
-}
 
 
     fun setOnCloseClickListener(listener: (() -> Unit)?) {
         onCloseClickListener = listener
+    }
+    fun showTechnicianAssigned(garage: Garage, techName: String?, techPhone: String?) {
+        dismissSilently()
+        bottomSheetDialog = BottomSheetDialog(context).apply {
+            val view = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_accepted, null)
+            setContentView(view)
+            setCancelable(false)
+            val tvTitle = view.findViewById<TextView>(R.id.tvAcceptedTitle)
+            val tvSubtitle = view.findViewById<TextView>(R.id.tvAcceptedSubtitle)
+           // val tvName = view.findViewById<TextView>(R.id.tvGarageName)
+            //val tvAddr = view.findViewById<TextView>(R.id.tvGarageAddressAccepted)
+           // val tvDistance = view.findViewById<TextView>(R.id.tvDistance)
+            //val tvEta = view.findViewById<TextView>(R.id.tvEta)
+            val btnTrack = view.findViewById<Button>(R.id.btnTrackTech)
+            val btnCall = view.findViewById<Button>(R.id.btnCallGarage)
+
+            tvTitle.text = "Technician Assigned!"
+            tvSubtitle.text = "Technician ${techName ?: ""} is preparing to depart."
+           // tvName.text = garage.name
+            //tvAddr.text = garage.address
+            //tvDistance.text = "Distance: ${garage.distance.formatDistance()} km"
+            
+            // Show Tech Info in ETA field for now, or customize layout
+            //tvEta.text = "Tech: ${techName ?: "Unknown"}\nPhone: ${techPhone ?: "N/A"}"
+            
+            // HIDE Track Button initially
+            btnTrack.visibility = View.GONE
+            btnTrack.isEnabled = false
+            btnTrack.text = "Waiting for departure..."
+            
+            // Call Garage Button
+            btnCall.text = "Call Garage"
+            btnCall.setOnClickListener { dialNumber(garage.phone) }
+            
+            show()
+        }
+    }
+
+    fun showTechnicianEnRoute(
+        garage: Garage, 
+        techName: String?, 
+        techPhone: String? = null, 
+        distanceMeters: Double? = null, 
+        etaMinutes: Int? = null
+    ) {
+        dismissSilently()
+        bottomSheetDialog = BottomSheetDialog(context).apply {
+            val view = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_tracking, null)
+            setContentView(view)
+            setCancelable(false)
+            trackingView = view
+
+            // Force expanded state
+            behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
+            behavior.skipCollapsed = true
+
+            val tvTitle = view.findViewById<TextView>(R.id.tvTrackingTitle)
+            val tvEta = view.findViewById<TextView>(R.id.tvTrackingEta)
+            val tvDist = view.findViewById<TextView>(R.id.tvTrackingDistance)
+            val tvTechName = view.findViewById<TextView>(R.id.tvTechNameTracking)
+            val tvTechPhone = view.findViewById<TextView>(R.id.tvTechPhoneTracking)
+            val btnCall = view.findViewById<Button>(R.id.btnCallTech)
+            val btnViewMap = view.findViewById<Button>(R.id.btnViewMap) // Make sure this is VISIBLE
+
+            tvTitle.text = if (distanceMeters != null && distanceMeters < 1000) "TECHNICIAN IS ARRIVING" else "ON THE WAY"
+            
+            // Update Real-time Data
+            if (etaMinutes != null) {
+                tvEta.text = "$etaMinutes min"
+            } else {
+                tvEta.text = "-- min"
+            }
+            
+            if (distanceMeters != null) {
+                tvDist.text = (distanceMeters / 1000.0).formatDistance() + " km"
+            } else {
+                tvDist.text = "-- km"
+            }
+
+            tvTechName.text = techName ?: "Technician"
+            tvTechPhone.text = techPhone ?: "No phone number"
+            
+            if (techPhone.isNullOrBlank()) {
+                btnCall.isEnabled = false
+                btnCall.alpha = 0.5f
+            } else {
+                btnCall.setOnClickListener { dialNumber(techPhone) }
+            }
+            
+            // Garage Info
+            val tvGarageName = view.findViewById<TextView>(R.id.tvGarageNameTracking)
+            val tvGaragePhone = view.findViewById<TextView>(R.id.tvGaragePhoneTracking)
+            val btnCallGarage = view.findViewById<Button>(R.id.btnCallGarageTracking)
+            
+            if (tvGarageName != null) {
+                tvGarageName.text = garage.name
+                tvGaragePhone?.text = garage.phone ?: "No phone"
+                btnCallGarage?.setOnClickListener { dialNumber(garage.phone) }
+            }
+            
+            btnViewMap.setOnClickListener {
+                dismiss()
+                onViewMapClickListener?.invoke()
+            }
+            
+            show()
+        }
     }
 
     fun showAcceptedWaitingForTechnician(garage: Garage) {
@@ -240,11 +332,13 @@ fun showArrived(garage: Garage, techName: String? = null, techPhone: String? = n
             val tvTitle = view.findViewById<TextView>(R.id.tvAcceptedTitle)
             val tvSubtitle = view.findViewById<TextView>(R.id.tvAcceptedSubtitle)
             val tvName = view.findViewById<TextView>(R.id.tvGarageNameWaiting)
+            val tvPhone = view.findViewById<TextView>(R.id.tvGaragePhoneWaiting)
             val tvAddr = view.findViewById<TextView>(R.id.tvGarageAddressWaiting)
             val tvDistance = view.findViewById<TextView>(R.id.tvGarageDistanceWaiting)
             tvTitle.text = "Garage accepted your request"
             tvSubtitle.text = "Waiting for the garage to assign a technician"
             tvName.text = garage.name
+            tvPhone.text = garage.phone ?: ""
             tvAddr.text = garage.address
             tvDistance.text = "Distance: ${garage.distance.formatDistance()} km"
             show()
@@ -259,6 +353,7 @@ fun showArrived(garage: Garage, techName: String? = null, techPhone: String? = n
         val view = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_waiting_garage, null)
 
         val tvGarageName = view.findViewById<TextView>(R.id.tvGarageName)
+        val tvGaragePhone = view.findViewById<TextView>(R.id.tvGaragePhone)
         val tvGarageInfo = view.findViewById<TextView>(R.id.tvGarageInfo)
         val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
         val tvWaitingText = view.findViewById<TextView>(R.id.tvWaitingText)
@@ -266,14 +361,14 @@ fun showArrived(garage: Garage, techName: String? = null, techPhone: String? = n
 
         // Hiển thị thông tin gara
         tvGarageName.text = garage.name
+        tvGaragePhone?.text = garage.phone ?: ""
         tvGarageInfo.text = "${garage.distance.formatDistance()} km "
         tvWaitingText.text = "Waiting for ${garage.name} to confirm..."
 
         // Setup nút hủy
         btnCancel.setOnClickListener {
             viewModel.cancelEmergencyRequest()
-            dismiss()
-            onDismissClickListener?.invoke()
+            dismiss() // This will trigger onDismiss listener if set
         }
 
         // Animation loading
@@ -294,7 +389,7 @@ fun showArrived(garage: Garage, techName: String? = null, techPhone: String? = n
 
         setupRecyclerView(view, garages)
         setupConfirmButton(view, selectedGarage)
-//        setupCloseButton(view)
+        setupCloseButton(view) // Ensure close button is set up
         updateTitle(garages.size)
 
         return view
@@ -322,7 +417,12 @@ fun showArrived(garage: Garage, techName: String? = null, techPhone: String? = n
     private fun setupCloseButton(view: View) {
         val btnClose = view.findViewById<Button>(R.id.btnClose)
         btnClose?.setOnClickListener {
-            dismiss()
+            // Allow explicit close button to dismiss
+            suppressDismiss = true // Don't trigger onDismiss listener if it's just closing view
+            bottomSheetDialog?.dismiss() 
+            bottomSheetDialog = null
+            suppressDismiss = false
+            
             onDismissClickListener?.invoke()
         }
     }
@@ -369,7 +469,7 @@ fun showArrived(garage: Garage, techName: String? = null, techPhone: String? = n
             tvAddr.text = garage.address
             tvReason.text = reason ?: ""
             btnChoose.setOnClickListener {
-                dismiss()
+                dismissSilently()
                 onChooseAnotherListener?.invoke()
             }
             btnCall.setOnClickListener {
@@ -388,15 +488,22 @@ fun showArrived(garage: Garage, techName: String? = null, techPhone: String? = n
         bottomSheetDialog = BottomSheetDialog(context).apply {
             val view = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_expired, null)
             setContentView(view)
-            setCancelable(true)
-            val tvName = view.findViewById<TextView>(R.id.tvGarageNameExpired)
-            val tvAddr = view.findViewById<TextView>(R.id.tvGarageAddressExpired)
-            val btnChoose = view.findViewById<Button>(R.id.btnChooseAnotherExpired)
-            val btnCancel = view.findViewById<Button>(R.id.btnCancelExpired)
-            tvName.text = garage.name
-            tvAddr.text = garage.address
+            setCancelable(false)
+
+            // FIX: Force expand full height immediately
+            behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
+            behavior.skipCollapsed = true
+
+            val tvGarageName = view.findViewById<TextView>(R.id.tvGarageNameExpired)
+            val tvGarageAddress = view.findViewById<TextView>(R.id.tvGarageAddressExpired)
+            val btnChoose = view.findViewById<Button>(R.id.btnChooseAnother)
+            val btnCancel = view.findViewById<Button>(R.id.btnCancelRequest)
+
+            tvGarageName.text = garage.name
+            tvGarageAddress.text = garage.address
+
             btnChoose.setOnClickListener {
-                dismiss()
+                dismissSilently()
                 onChooseAnotherListener?.invoke()
             }
             btnCancel.setOnClickListener {
@@ -408,7 +515,7 @@ fun showArrived(garage: Garage, techName: String? = null, techPhone: String? = n
         }
     }
 
-    fun showTracking(garage: Garage, etaMinutes: Int?) {
+    fun showTracking(garage: Garage, etaMinutes: Int?, distanceMeters: Double? = null) {
         dismissSilently()
         bottomSheetDialog = BottomSheetDialog(context).apply {
             val view = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_tracking, null)
@@ -426,6 +533,31 @@ fun showArrived(garage: Garage, techName: String? = null, techPhone: String? = n
             tvTechName.text = "Technician"
             tvTechPhone.text = ""
             
+            // Initial state for ETA/Dist
+            val tvEta = view.findViewById<TextView>(R.id.tvTrackingEta)
+            val tvDist = view.findViewById<TextView>(R.id.tvTrackingDistance)
+            
+            if (tvEta != null) tvEta.text = etaMinutes?.let { "$it min" } ?: "-- min"
+            
+            if (tvDist != null) {
+                if (distanceMeters != null) {
+                    tvDist.text = (distanceMeters / 1000.0).formatDistance() + " km"
+                } else {
+                    tvDist.text = "-- km"
+                }
+            }
+            
+            // Garage Info
+            val tvGarageName = view.findViewById<TextView>(R.id.tvGarageNameTracking)
+            val tvGaragePhone = view.findViewById<TextView>(R.id.tvGaragePhoneTracking)
+            val btnCallGarage = view.findViewById<Button>(R.id.btnCallGarageTracking)
+            
+            if (tvGarageName != null) {
+                tvGarageName.text = garage.name
+                tvGaragePhone?.text = garage.phone ?: "No phone"
+                btnCallGarage?.setOnClickListener { dialNumber(garage.phone) }
+            }
+            
             btnViewMap.setOnClickListener { dismiss(); onViewMapClickListener?.invoke() }
             btnBack.visibility = View.GONE
             
@@ -433,15 +565,151 @@ fun showArrived(garage: Garage, techName: String? = null, techPhone: String? = n
         }
     }
 
+    fun showTowing(
+        garage: Garage, 
+        techName: String? = null, 
+        techPhone: String? = null, 
+        distanceMeters: Double? = null, 
+        etaMinutes: Int? = null
+    ) {
+        dismissSilently()
+        bottomSheetDialog = BottomSheetDialog(context).apply {
+            val view = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_tracking, null)
+            setContentView(view)
+            setCancelable(true)
+            trackingView = view
+            
+            val tvTitle = view.findViewById<TextView>(R.id.tvTrackingTitle)
+            val tvEta = view.findViewById<TextView>(R.id.tvTrackingEta)
+            val tvDist = view.findViewById<TextView>(R.id.tvTrackingDistance)
+            val tvTechNameView = view.findViewById<TextView>(R.id.tvTechNameTracking)
+            val tvTechPhoneView = view.findViewById<TextView>(R.id.tvTechPhoneTracking)
+            val btnViewMap = view.findViewById<Button>(R.id.btnViewMap)
+            val btnBack = view.findViewById<Button>(R.id.btnBackTracking)
+            
+            tvTitle.text = "TOWING IN PROGRESS"
+            
+            // ETA & Distance
+            if (etaMinutes != null) {
+                tvEta.text = "$etaMinutes min"
+            } else {
+                tvEta.text = "-- min"
+            }
+            
+            if (distanceMeters != null) {
+                tvDist.text = (distanceMeters / 1000.0).formatDistance() + " km"
+            } else {
+                tvDist.text = "-- km"
+            }
+
+            tvTechNameView.text = techName ?: "Technician"
+            tvTechPhoneView.text = techPhone ?: ""
+            tvTechPhoneView.setOnClickListener { dialNumber(techPhone) }
+            
+            // Garage Info
+            val tvGarageName = view.findViewById<TextView>(R.id.tvGarageNameTracking)
+            val tvGaragePhone = view.findViewById<TextView>(R.id.tvGaragePhoneTracking)
+            val btnCallGarage = view.findViewById<Button>(R.id.btnCallGarageTracking)
+            
+            if (tvGarageName != null) {
+                tvGarageName.text = garage.name
+                tvGaragePhone?.text = garage.phone ?: "No phone"
+                btnCallGarage?.setOnClickListener { dialNumber(garage.phone) }
+            }
+            
+            btnViewMap.text = "View Map"
+            btnViewMap.setOnClickListener { dismissSilently() }
+            
+            // Add SOS/Report Button
+            val btnReport = view.findViewById<Button>(R.id.btnBackTracking) 
+            if (btnReport != null) {
+                btnReport.visibility = View.VISIBLE
+                btnReport.text = "Report / SOS"
+                btnReport.setBackgroundColor(android.graphics.Color.RED)
+                btnReport.setTextColor(android.graphics.Color.WHITE)
+                btnReport.setOnClickListener {
+                     androidx.appcompat.app.AlertDialog.Builder(context)
+                         .setTitle("Report Emergency Issue")
+                         .setMessage("Are you in danger or is the technician behaving suspiciously?")
+                         .setPositiveButton("Call Police (113)") { _, _ -> dialNumber("113") }
+                         .setNegativeButton("Report to Platform") { _, _ -> 
+                              android.widget.Toast.makeText(context, "Report sent to Support Center", android.widget.Toast.LENGTH_LONG).show()
+                         }
+                         .setNeutralButton("Cancel", null)
+                         .show()
+                }
+            } else {
+                 btnBack.visibility = View.GONE
+            }
+            
+            setOnDismissListener {
+                if (!suppressDismiss) onDismissClickListener?.invoke()
+            }
+            
+            show()
+        }
+    }
+
+    fun updateTrackingInfo(distanceMeters: Double?, etaMinutes: Int?) {
+        if (bottomSheetDialog?.isShowing == true && trackingView != null) {
+             val tvEta = trackingView?.findViewById<TextView>(R.id.tvTrackingEta)
+             val tvDist = trackingView?.findViewById<TextView>(R.id.tvTrackingDistance)
+             
+             if (tvEta != null && etaMinutes != null) {
+                 tvEta.text = "$etaMinutes min"
+             }
+             if (tvDist != null && distanceMeters != null) {
+                 tvDist.text = (distanceMeters / 1000.0).formatDistance() + " km"
+                 
+                 // Update Title based on distance
+                 val tvTitle = trackingView?.findViewById<TextView>(R.id.tvTrackingTitle)
+                 if (tvTitle != null) {
+                     val currentTitle = tvTitle.text.toString()
+                     if (currentTitle != "TOWING IN PROGRESS") {
+                         if (distanceMeters < 1000) {
+                              if (currentTitle != "TECHNICIAN IS ARRIVING") tvTitle.text = "TECHNICIAN IS ARRIVING"
+                         } else {
+                              if (currentTitle != "ON THE WAY") tvTitle.text = "ON THE WAY"
+                         }
+                     }
+                 }
+             }
+        }
+    }
+
     fun updateTrackingEta(minutes: Int) {
         val v = trackingView ?: return
-        v.findViewById<TextView>(R.id.tvTrackingSubtitle)?.text = "Technician en route, ETA ~ ${minutes} min"
+        // Update new UI elements
+        val tvEta = v.findViewById<TextView>(R.id.tvTrackingEta)
+        if (tvEta != null) {
+            tvEta.text = "$minutes min"
+        } else {
+            // Fallback for old layout if needed, though we replaced it
+            v.findViewById<TextView>(R.id.tvTrackingSubtitle)?.text = "Technician en route, ETA ~ ${minutes} min"
+        }
+    }
+
+    fun updateTrackingDistance(km: Double) {
+        val v = trackingView ?: return
+        val tvDist = v.findViewById<TextView>(R.id.tvTrackingDistance)
+        tvDist?.text = String.format("%.1f km", km)
+        
+        // Update Title based on distance
+        val tvTitle = v.findViewById<TextView>(R.id.tvTrackingTitle)
+        if (tvTitle != null) {
+            val currentTitle = tvTitle.text.toString()
+            if (currentTitle != "TOWING IN PROGRESS") {
+                if (km < 1.0) {
+                     if (currentTitle != "TECHNICIAN IS ARRIVING") tvTitle.text = "TECHNICIAN IS ARRIVING"
+                } else {
+                     if (currentTitle != "ON THE WAY") tvTitle.text = "ON THE WAY"
+                }
+            }
+        }
     }
 
     fun updateTrackingSkeleton(show: Boolean) {
-        val v = trackingView ?: return
-        val sc = v.findViewById<View>(R.id.skeletonContainer)
-        sc?.visibility = if (show) View.VISIBLE else View.GONE
+        // No skeleton in new UI
     }
 
     fun updateTrackingTechnician(name: String?, phone: String?) {
@@ -449,9 +717,64 @@ fun showArrived(garage: Garage, techName: String? = null, techPhone: String? = n
         v.findViewById<TextView>(R.id.tvTechNameTracking)?.text = name ?: "Technician"
         val phoneView = v.findViewById<TextView>(R.id.tvTechPhoneTracking)
         phoneView?.text = phone ?: ""
-        phoneView?.setOnClickListener {
+        
+        // Setup Call Button
+        v.findViewById<Button>(R.id.btnCallTech)?.setOnClickListener {
             dialNumber(phone)
         }
+    }
+
+
+
+    fun showCompleted(garage: Garage, techName: String?, techPhone: String?) {
+        dismissSilently()
+        bottomSheetDialog = BottomSheetDialog(context).apply {
+            val view = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_emergency_completed, null)
+            setContentView(view)
+            setCancelable(false)
+
+            // Force expanded state
+            behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
+            behavior.skipCollapsed = true
+
+            val tvTitle = view.findViewById<TextView>(R.id.tvCompletedTitle)
+            val tvSubtitle = view.findViewById<TextView>(R.id.tvCompletedSubtitle)
+            val tvTechName = view.findViewById<TextView>(R.id.tvTechNameCompleted)
+            val tvTechPhone = view.findViewById<TextView>(R.id.tvTechPhoneCompleted)
+            val btnCall = view.findViewById<Button>(R.id.btnCallTechCompleted)
+            val btnFinish = view.findViewById<Button>(R.id.btnFinish)
+
+            // New Garage UI Elements
+            val tvGarageName = view.findViewById<TextView>(R.id.tvGarageNameCompleted)
+            val tvGaragePhone = view.findViewById<TextView>(R.id.tvGaragePhoneCompleted)
+            val btnCallGarage = view.findViewById<Button>(R.id.btnCallGarageCompleted)
+
+            tvTitle.text = "SERVICE COMPLETED"
+           tvSubtitle.text = "Your vehicle has been towed to ${garage.name}.\n\nFor any questions or concerns, please contact the garage at ${garage.phone} for assistance."
+            
+            // Tech Info
+            tvTechName.text = techName ?: "Technician"
+            tvTechPhone.text = techPhone ?: ""
+            btnCall.setOnClickListener { dialNumber(techPhone) }
+
+            // Garage Info
+            if (tvGarageName != null) {
+                tvGarageName.text = garage.name
+                tvGaragePhone?.text = garage.phone ?: "No phone"
+                btnCallGarage?.setOnClickListener { dialNumber(garage.phone) }
+            }
+
+            btnFinish.setOnClickListener {
+                dismiss()
+                onCloseClickListener?.invoke()
+            }
+
+            show()
+        }
+    }
+
+    fun setOnDismissClickListener(listener: (() -> Unit)?) {
+        onDismissClickListener = listener
     }
 
     fun setOnViewMapClickListener(listener: (() -> Unit)?) {
