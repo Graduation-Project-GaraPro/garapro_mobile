@@ -605,6 +605,15 @@ class EmergencyViewModel : ViewModel() {
         routePollingJob = null
     }
 
+    fun forceTowingState() {
+        val current = currentEmergency ?: return
+        if (current.status != EmergencyStatus.TOWING) {
+            currentEmergency = current.copy(status = EmergencyStatus.TOWING)
+            _emergencyState.value = EmergencyState.Towing(currentEmergency!!)
+            Log.d("ViewModel", "Forced TOWING state based on local restoration")
+        }
+    }
+
     fun fetchRouteNow() {
         val id = currentEmergency?.id?.takeIf { it.isNotBlank() } ?: return
         

@@ -249,7 +249,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Hide top app bar initially
         topAppBar.visibility = View.GONE
-        fabBack.visibility = View.VISIBLE // Show by default when top bar is hidden
+        fabBack.visibility = View.VISIBLE
     }
 
     private fun setupBottomSheet() {
@@ -604,6 +604,14 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         val garage = viewModel.assignedGarage.value ?: emergencyBottomSheet.lastSelectedGarage()
         
         if (emergency.status == com.example.garapro.data.model.emergencies.EmergencyStatus.IN_PROGRESS) {
+            // Check if we should actually be in TOWING mode (Local State or Emergency Type)
+            if (isTowingState(emergency.id) || emergency.emergencyType == "Towing") {
+                 Log.d("MapActivity", "Restoring TOWING state for ID: ${emergency.id}")
+                 viewModel.forceTowingState() // Update ViewModel internal state
+                 handleTowingState(EmergencyState.Towing(emergency))
+                 return
+            }
+
             if (viewModel.isTechnicianArrived.value == true) {
                 return
             }
@@ -762,7 +770,21 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    private fun saveTowingState(id: String) {
+        getSharedPreferences("EmergencyPrefs", MODE_PRIVATE).edit()
+            .putBoolean("is_towing_$id", true)
+            .apply()
+    }
+
+    private fun isTowingState(id: String): Boolean {
+        return getSharedPreferences("EmergencyPrefs", MODE_PRIVATE)
+            .getBoolean("is_towing_$id", false)
+    }
+
     private fun handleTowingStarted(state: EmergencyState.TowingStarted) {
+        // Save state locally
+        state.emergency.id.takeIf { it.isNotBlank() }?.let { saveTowingState(it) }
+
         trackingActive = false
         cameraFollowTechnician = false
         

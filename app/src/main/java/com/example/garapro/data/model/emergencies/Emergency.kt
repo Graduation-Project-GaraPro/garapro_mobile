@@ -36,7 +36,15 @@ data class Emergency(
     @SerializedName("issueDescription")
     val issueDescription: String? = null,
 
+    @SerializedName("emergencyType")
+    val emergencyType: String? = null,
+
     @SerializedName("vehicleId")
     val vehicleId: String? = null
 )
+
+enum class EmergencyType {
+    @SerializedName("OnSiteRepair") OnSiteRepair,
+    @SerializedName("Towing") Towing
+}
 
