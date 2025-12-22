@@ -131,7 +131,8 @@
             app:cornerRadius="24dp"
             android:layout_gravity="end"
             app:backgroundTint="#E3F2FD"
-            app:elevation="0dp"/>
+            app:elevation="0dp"
+            android:visibility="gone"/>
 
     </LinearLayout>
 

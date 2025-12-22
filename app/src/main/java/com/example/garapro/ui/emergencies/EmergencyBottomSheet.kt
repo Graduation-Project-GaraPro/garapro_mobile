@@ -223,18 +223,18 @@ class EmergencyBottomSheet(
             setCancelable(false)
             val tvTitle = view.findViewById<TextView>(R.id.tvAcceptedTitle)
             val tvSubtitle = view.findViewById<TextView>(R.id.tvAcceptedSubtitle)
-           // val tvName = view.findViewById<TextView>(R.id.tvGarageName)
-            //val tvAddr = view.findViewById<TextView>(R.id.tvGarageAddressAccepted)
-           // val tvDistance = view.findViewById<TextView>(R.id.tvDistance)
+            val tvName = view.findViewById<TextView>(R.id.tvGarageNameAccepted)
+            val tvAddr = view.findViewById<TextView>(R.id.tvGarageAddressAccepted)
+            val tvDistance = view.findViewById<TextView>(R.id.tvDistanceAccepted)
             //val tvEta = view.findViewById<TextView>(R.id.tvEta)
             val btnTrack = view.findViewById<Button>(R.id.btnTrackTech)
             val btnCall = view.findViewById<Button>(R.id.btnCallGarage)
 
             tvTitle.text = "Technician Assigned!"
             tvSubtitle.text = "Technician ${techName ?: ""} is preparing to depart."
-           // tvName.text = garage.name
-            //tvAddr.text = garage.address
-            //tvDistance.text = "Distance: ${garage.distance.formatDistance()} km"
+            tvName.text = garage.name
+            tvAddr.text = garage.address
+            tvDistance.text = "Distance: ${garage.distance.formatDistance()} km"
             
             // Show Tech Info in ETA field for now, or customize layout
             //tvEta.text = "Tech: ${techName ?: "Unknown"}\nPhone: ${techPhone ?: "N/A"}"
