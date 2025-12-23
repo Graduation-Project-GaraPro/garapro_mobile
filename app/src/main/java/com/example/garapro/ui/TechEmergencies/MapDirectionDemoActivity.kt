@@ -1227,11 +1227,11 @@ class MapDirectionDemoActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
                 destinationLatLng?.let { dest ->
-//                    val d = distanceBetween(rawPos, dest)
+//                    val dRaw = distanceBetween(rawPos, dest)
                     val d = distanceBetween(displayPos, dest)
 
 
-                    if (!hasArrived  && d < 90f) {
+                    if ((!hasArrived  && d < 50f)) {
                         hasArrived = true
                         when (EmergencyStatus.fromInt(emergencyStatus)) {
                             EmergencyStatus.InProgress -> {

@@ -57,6 +57,7 @@
 
             <!-- Filter Section (ẩn/hiện bằng nút filter) -->
             <!-- GIỮ NGUYÊN đoạn filterContainer bạn gửi, mình không lặp lại cho đỡ dài -->
+            <!-- Filter Section -->
             <LinearLayout
                 android:id="@+id/filterContainer"
                 android:layout_width="match_parent"
@@ -91,81 +92,12 @@
                         android:orientation="vertical"
                         android:padding="16dp">
 
-                        <!-- Status Filter -->
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/statusFilterLayout"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="Completion Status"
-                            app:boxBackgroundColor="#FFFFFF"
-                            app:boxStrokeColor="#000000"
-                            app:hintTextColor="#666666"
-                            app:endIconMode="dropdown_menu">
-
-                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                                android:id="@+id/statusFilter"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textColor="#000000"
-                                android:paddingStart="8dp"
-                                android:inputType="none"
-                                android:focusable="false" />
-
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <!-- RO Type Filter -->
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/roTypeFilterLayout"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:hint="Order Type"
-                            app:boxBackgroundColor="#FFFFFF"
-                            app:boxStrokeColor="#000000"
-                            app:hintTextColor="#666666"
-                            app:endIconMode="dropdown_menu">
-
-                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                                android:id="@+id/roTypeFilter"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textColor="#000000"
-                                android:paddingStart="8dp"
-                                android:inputType="none"
-                                android:focusable="false" />
-
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <!-- Paid Status Filter -->
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/paidStatusFilterLayout"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:hint="Payment Status"
-                            app:boxBackgroundColor="#FFFFFF"
-                            app:boxStrokeColor="#000000"
-                            app:hintTextColor="#666666"
-                            app:endIconMode="dropdown_menu">
-
-                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                                android:id="@+id/paidStatusFilter"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textColor="#000000"
-                                android:paddingStart="8dp"
-                                android:inputType="none"
-                                android:focusable="false" />
-
-                        </com.google.android.material.textfield.TextInputLayout>
-
                         <!-- Date Range Filter -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/dateFilter"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Select Date Range"
+                            android:text="@string/select_date_range"
                             android:backgroundTint="#FFFFFF"
                             android:textColor="#000000"
                             app:strokeColor="#000000"
@@ -198,6 +130,7 @@
                 </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
+
             <!-- ... đặt nguyên block filterContainer + MaterialCardView ... -->
 
             <!-- Content Area -->

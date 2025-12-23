@@ -7,31 +7,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.lifecycle.Observer
-import androidx.core.os.bundleOf
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.garapro.R
 import com.example.garapro.data.model.RepairProgresses.PagedResult
-import com.example.garapro.data.model.RepairProgresses.RepairOrderArchivedFilter
 import com.example.garapro.data.model.RepairProgresses.RepairOrderArchivedListItem
-import com.example.garapro.data.model.RepairProgresses.RoType
 import com.example.garapro.data.repository.RepairProgress.RepairProgressRepository
 import com.example.garapro.databinding.FragmentRepairOrderArchivedListBinding
-import com.example.garapro.hubs.RepairOrderSignalRService
-import com.example.garapro.utils.Constants          // 🔹 thêm
+import com.example.garapro.hubs.RepairOrderArchiveHubService
+import com.example.garapro.utils.Constants
 import com.google.android.material.datepicker.MaterialDatePicker
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-
-// 🔹 thêm
-import androidx.lifecycle.lifecycleScope
-import com.example.garapro.hubs.RepairOrderArchiveHubService
 import kotlinx.coroutines.launch
 
 class RepairOrderArchivedListFragment : Fragment() {
@@ -40,8 +33,6 @@ class RepairOrderArchivedListFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var adapter: RepairOrderArchivedAdapter
-
-
     private var archiveHubService: RepairOrderArchiveHubService? = null
 
     private val viewModel: RepairOrderArchivedListViewModel by viewModels {
@@ -71,25 +62,23 @@ class RepairOrderArchivedListFragment : Fragment() {
         setupFilter()
         observeViewModel()
 
-
         initRepairOrderHub()
         observeRepairOrderHubEvents()
-
 
         viewModel.loadOrders()
     }
 
     private fun setupToolbar() {
-        binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
-        binding.toolbar.setNavigationOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
-        }
+        // Bỏ nút back
+        binding.toolbar.navigationIcon = null
+        binding.toolbar.setNavigationOnClickListener(null)
+
+        // (tuỳ chọn) nếu toolbar bị chừa khoảng inset bên trái
+        binding.toolbar.setContentInsetsAbsolute(0, 0)
     }
 
     private fun setupRecyclerView() {
-        adapter = RepairOrderArchivedAdapter { item ->
-            openDetail(item)
-        }
+        adapter = RepairOrderArchivedAdapter { item -> openDetail(item) }
 
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = adapter
@@ -97,10 +86,7 @@ class RepairOrderArchivedListFragment : Fragment() {
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-
-                // chỉ xử lý khi scroll xuống
                 if (dy <= 0) return
-
                 if (!recyclerView.canScrollVertically(1)) {
                     viewModel.loadNextPage()
                 }
@@ -115,113 +101,19 @@ class RepairOrderArchivedListFragment : Fragment() {
     }
 
     private fun setupFilter() {
-        binding.statusFilterLayout.visibility = View.GONE
-
         binding.filterButton.setOnClickListener {
             binding.filterContainer.visibility =
                 if (binding.filterContainer.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
 
-        binding.clearFilterButton.setOnClickListener {
-            viewModel.clearFilter()
-            binding.roTypeFilter.setText("", false)
-            binding.paidStatusFilter.setText("", false)
-            binding.dateFilter.text = getString(R.string.select_date_range)
-        }
-
-        setupFilterOptions()
-    }
-
-    private fun setupFilterOptions() {
-        // RO Type filter
-        binding.roTypeFilterLayout.setEndIconOnClickListener {
-            showRoTypeFilterDialog()
-        }
-        binding.roTypeFilter.setOnClickListener {
-            showRoTypeFilterDialog()
-        }
-
-        // Paid status filter
-        binding.paidStatusFilterLayout.setEndIconOnClickListener {
-            showPaidStatusFilterDialog()
-        }
-        binding.paidStatusFilter.setOnClickListener {
-            showPaidStatusFilterDialog()
-        }
-
-        // Date range filter
         binding.dateFilter.setOnClickListener {
             showDateRangePicker()
         }
-    }
 
-    private fun showRoTypeFilterDialog() {
-        val roTypes = arrayOf("Walk-in", "Scheduled", "Breakdown")
-        val currentFilter = viewModel.filterState.value?.roType
-        val checkedItem = when (currentFilter) {
-            RoType.WalkIn -> 0
-            RoType.Scheduled -> 1
-            RoType.Breakdown -> 2
-            else -> -1
+        binding.clearFilterButton.setOnClickListener {
+            viewModel.clearFilter()
+            binding.dateFilter.text = getString(R.string.select_date_range)
         }
-
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Filter by Order Type")
-            .setSingleChoiceItems(roTypes, checkedItem) { dialog, which ->
-                val selectedType = when (which) {
-                    0 -> RoType.WalkIn
-                    1 -> RoType.Scheduled
-                    2 -> RoType.Breakdown
-                    else -> null
-                }
-                viewModel.updateRoTypeFilter(selectedType)
-                binding.roTypeFilter.setText(
-                    selectedType?.let { roTypes[which] } ?: "",
-                    false
-                )
-                dialog.dismiss()
-            }
-            .setNegativeButton("Clear") { dialog, _ ->
-                viewModel.updateRoTypeFilter(null)
-                binding.roTypeFilter.setText("", false)
-                dialog.dismiss()
-            }
-            .setPositiveButton("OK", null)
-            .show()
-    }
-
-    private fun showPaidStatusFilterDialog() {
-        val paidStatuses = arrayOf("Pending Payment", "Paid")
-        val currentFilter = viewModel.filterState.value?.paidStatus
-
-        val checkedItem = when (currentFilter) {
-            "Unpaid" -> 0
-            "Paid" -> 1
-            else -> -1
-        }
-
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Filter by Payment Status")
-            .setSingleChoiceItems(paidStatuses, checkedItem) { dialog, which ->
-                val selectedStatus = when (which) {
-                    0 -> "Unpaid"
-                    1 -> "Paid"
-                    else -> null
-                }
-                viewModel.updatePaidStatusFilter(selectedStatus)
-                binding.paidStatusFilter.setText(
-                    if (selectedStatus == null) "" else paidStatuses[which],
-                    false
-                )
-                dialog.dismiss()
-            }
-            .setNegativeButton("Clear") { dialog, _ ->
-                viewModel.updatePaidStatusFilter(null)
-                binding.paidStatusFilter.setText("", false)
-                dialog.dismiss()
-            }
-            .setPositiveButton("OK", null)
-            .show()
     }
 
     private fun showDateRangePicker() {
@@ -235,8 +127,8 @@ class RepairOrderArchivedListFragment : Fragment() {
             val end = selection.second
 
             if (start != null && end != null) {
-                val apiFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                val displayFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                val apiFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+                val displayFormat = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
                 val cal = Calendar.getInstance()
 
                 cal.timeInMillis = start
@@ -254,7 +146,6 @@ class RepairOrderArchivedListFragment : Fragment() {
 
         picker.show(parentFragmentManager, "archived_date_range_picker")
     }
-
 
     private fun initRepairOrderHub() {
         val hubUrl = Constants.BASE_URL_SIGNALR + "/api/archivehub"
@@ -300,7 +191,6 @@ class RepairOrderArchivedListFragment : Fragment() {
             }
         }
 
-        
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.isLoadingPage.collect { isLoading ->
                 binding.loadingSpinner.visibility = if (isLoading) View.VISIBLE else View.GONE
@@ -308,34 +198,20 @@ class RepairOrderArchivedListFragment : Fragment() {
         }
     }
 
-
     private fun applyData(paged: PagedResult<RepairOrderArchivedListItem>) {
         val items = paged.items ?: emptyList()
-        if (items.isEmpty()) {
-            binding.emptyState.visibility = View.VISIBLE
-        } else {
-            binding.emptyState.visibility = View.GONE
-        }
+        binding.emptyState.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
         adapter.submitList(items)
     }
 
     private fun openDetail(item: RepairOrderArchivedListItem) {
-        val bundle = bundleOf(
-            "repairOrderId" to item.repairOrderId
-        )
-        findNavController().navigate(
-            R.id.repairArchivedDetailFragment,
-            bundle
-        )
+        val bundle = bundleOf("repairOrderId" to item.repairOrderId)
+        findNavController().navigate(R.id.repairArchivedDetailFragment, bundle)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-
-        try {
-            archiveHubService?.leaveAndStop()
-        } catch (_: Exception) { }
-
+        try { archiveHubService?.leaveAndStop() } catch (_: Exception) {}
         archiveHubService = null
         _binding = null
     }

@@ -411,19 +411,23 @@ private val repository: QuotationRepository
 
     // endregion
 
-    fun rejectQuotation(customerNote: String) {
+    fun rejectQuotation() {
         viewModelScope.launch {
             _isSubmitting.value = true
             _errorMessage.value = null
 
-            val quotation = _quotation.value ?: return@launch
+            val quotation = _quotation.value ?: run {
+                _isSubmitting.value = false
+                return@launch
+            }
+
+            val note = _customerNote.value.orEmpty().trim()
 
             val request = CustomerResponseRequest(
                 quotationId = quotation.quotationId,
                 status = QuotationStatus.Rejected,
-                customerNote = customerNote,
+                customerNote = note,
                 selectedServices = emptyList()
-
             )
 
             repository.submitCustomerResponse(request)
@@ -433,6 +437,7 @@ private val repository: QuotationRepository
             _isSubmitting.value = false
         }
     }
+
 
     fun getSubmitConfirmationType(): SubmitConfirmationType {
         val quotation = _quotation.value ?: return SubmitConfirmationType.REJECTED

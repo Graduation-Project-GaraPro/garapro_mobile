@@ -323,8 +323,8 @@ class QuotationDetailFragment : Fragment() {
                 setupRejectWithNoteMode()
             }
             .setNegativeButton("No") { _, _ ->
-                // Send request with empty customerNote
-                viewModel.rejectQuotation("")
+                viewModel.updateCustomerNote("")
+                viewModel.rejectQuotation()
             }
             .setNeutralButton("Cancel", null)
             .show()
@@ -333,11 +333,15 @@ class QuotationDetailFragment : Fragment() {
     private fun setupRejectWithNoteMode() {
         binding.btnReject.text = "Submit rejection"
         binding.titleCustomerNote.text = "Note(*)"
-        binding.etCustomerNote.setText(viewModel.customerNote.value ?: "")
+
         binding.btnReject.setOnClickListener {
-            val note = viewModel.customerNote.value ?: ""
+            val note = binding.etCustomerNote.text?.toString().orEmpty().trim()
+
+
+            viewModel.updateCustomerNote(note)
+
             if (note.length >= 10) {
-                viewModel.rejectQuotation(note)
+                viewModel.rejectQuotation()
             } else {
                 Snackbar.make(binding.root, "Please enter at least 10 characters", Snackbar.LENGTH_SHORT).show()
             }
@@ -373,7 +377,7 @@ class QuotationDetailFragment : Fragment() {
         if (hasNote) {
             // Disable edit text and show note
             binding.etCustomerNote.isEnabled = false
-            binding.etCustomerNote.setText(quotation?.customerNote)
+            binding.etCustomerNote.setText(quotation?.customerNote.orEmpty())
             binding.tilCustomerNote.helperText = "Your note"
             binding.tilCustomerNote.boxBackgroundColor = ContextCompat.getColor(requireContext(), R.color.gray_light)
         } else {
@@ -418,8 +422,8 @@ class QuotationDetailFragment : Fragment() {
         binding.tvStatus.text = getStatusText(quotation.status)
         binding.tvStatus.setTextColor(getStatusColor(quotation.status))
 
-        if (!quotation.note.isNullOrBlank() && quotation.status != QuotationStatus.Sent) {
-            binding.etCustomerNote.setText(quotation.note)
+        if (!quotation.customerNote.isNullOrBlank() && quotation.status != QuotationStatus.Sent) {
+            binding.etCustomerNote.setText(quotation.customerNote)
             binding.etCustomerNote.isEnabled = false
             binding.tilCustomerNote.helperText = "Customer note"
         }

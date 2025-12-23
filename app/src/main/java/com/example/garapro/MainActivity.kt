@@ -17,7 +17,9 @@ import android.os.VibratorManager
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
+import androidx.core.os.LocaleListCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
@@ -63,7 +65,9 @@ class MainActivity : AppCompatActivity(), TokenExpiredListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
+        AppCompatDelegate.setApplicationLocales(
+            LocaleListCompat.forLanguageTags("en")
+        )
 
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
             Log.e("AppCrash", "Uncaught: ${e.message}", e)
